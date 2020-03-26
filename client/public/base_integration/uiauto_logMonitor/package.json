@@ -1,0 +1,12 @@
+{
+  "id": "uiauto_logMonitor",
+  "name": "UiAuto日志监控器",
+  "version": "1.0.3",
+  "description": "1.0.3版本：优化日志刷新",
+  "author": "linyy",
+  "language": "nodejs",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {},
+  "is_uiauto_base_integration": true
+}

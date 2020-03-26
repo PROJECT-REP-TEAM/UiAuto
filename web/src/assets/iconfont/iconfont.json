@@ -1,0 +1,30 @@
+{
+  "id": "1480742",
+  "name": "no name",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "4038539",
+      "name": "java",
+      "font_class": "java1",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "7656269",
+      "name": "logo-python",
+      "font_class": "logo-python",
+      "unicode": "e7a0",
+      "unicode_decimal": 59296
+    },
+    {
+      "icon_id": "8952924",
+      "name": "java-script",
+      "font_class": "java-script",
+      "unicode": "e810",
+      "unicode_decimal": 59408
+    }
+  ]
+}

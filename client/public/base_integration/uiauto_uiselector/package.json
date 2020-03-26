@@ -1,0 +1,13 @@
+{
+  "id": "uiauto_uiselector",
+  "name": "UiAuto选择器",
+  "version": "1.0.7",
+  "description": "1.0.7版本：选择元素后生成该元素的xpath",
+  "author": "guanhm",
+  "language": "python",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+  },
+  "is_uiauto_base_integration": true
+}

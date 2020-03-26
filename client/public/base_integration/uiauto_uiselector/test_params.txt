@@ -1,0 +1,6 @@
+{
+    "browsers": [],
+    "project_dir": "C:\\UiAuto_files\\projects\\demo\\",
+    "screenshot_file": "C:\\UiAuto_files\\projects\\demo\\screenshot\\element_1570689000.0686643.png",
+    "pythonPath": "Z:\\workspace\\legion\\code\\UiAuto\\client\\env\\python\\win32\\python.exe"
+}

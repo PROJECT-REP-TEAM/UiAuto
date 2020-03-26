@@ -1,0 +1,12 @@
+node_modules
+/dist
+/web/*
+/temp
+plugins/*
+projects/*
+env/python/*
+.uiauto/*
+oci.dll
+oraocci11.dll
+oraociei11.dll
+.idea/*

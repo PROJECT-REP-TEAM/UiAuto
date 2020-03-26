@@ -1,0 +1,344 @@
+const shell = require('./js_shell');
+const fse = require('fs-extra');
+const {
+    PythonShell
+} = require('python-shell');
+const path = require('path');
+const uuid = require('uuid');
+const config = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`);
+const moment = require('moment');
+const {execSync} = require('child_process');
+const EventEmitter = require('events').EventEmitter;
+let listener = new EventEmitter();
+
+const cleanProcess = () => {
+    try {
+        // 清理chromedriver进程
+        let taskkill_shell = execSync('taskkill /f /im "chromedriver.exe"')
+        console.log(taskkill_shell.toString())
+    } catch (e) {
+        // console.error('清理chromedriver进程错误：', e)
+    }
+
+    try {
+        // 清理iedrvierserver.exe进程
+        let taskkill_shell = execSync('taskkill /f /im "IEDriverServer.exe"')
+        console.log(taskkill_shell.toString())
+    } catch (e) {
+        // console.error('清理IEDriverServer进程错误：', e)
+    }
+};
+
+exports.start = () => {
+    window['socket_client'] = shell.setup();
+
+    return start_executor();
+};
+
+exports.restart = () => {
+    console.log('-----------重启执行器进程-----------');
+    !!window['socket_client'] && shell.destroy(window['socket_client']);
+    window['py_shell'].terminate();
+
+    if (!!window['socket_client']) {
+        window['socket_client'] = shell.setup();
+    }
+    window['py_shell'] = start_executor();
+
+    listener = new EventEmitter();
+};
+
+const listen_logger = (log_dir, log_file,  newCB) => {
+
+    if (!fs.existsSync(log_dir)) {
+        fs.mkdirSync(log_dir)
+    }
+    fs.writeFileSync(log_file, "");
+
+    fs.watchFile(log_file, {
+        persistent: true,
+        interval: 100
+    }, function (curr, prev) {
+
+        if (curr.mtime > prev.mtime) {
+            //文件内容有变化，那么通知相应的进程可以执行相关操作。例如读物文件写入数据库等
+            let buffer = new Buffer(curr.size - prev.size);
+            const fd = fs.openSync(log_file, "a+");
+            fs.readSync(fd, buffer, 0, (curr.size - prev.size), prev.size);
+
+            // newCB(buffer.toString().replace("\n", "<br>"));
+            const lines = buffer.toString().split("[line:]");
+            _.forEach(lines, (line) => {
+                console.log(line)
+                const logItem = {}
+                line = line.replace("[line:]", "").replace(/\\n/g, "<br>")
+                if (line.indexOf("[error]") > -1) {
+                    logItem['type'] = 'error'
+                    logItem['color'] = '#e65d6e'
+                    logItem['line'] = line
+                    // line = "<span style='color: #e65d6e'>" + line + "</span>"
+                }
+                if (line.indexOf("[warn]") > -1) {
+                    logItem['type'] = 'warn'
+                    logItem['color'] = '#fec171'
+                    logItem['line'] = line
+                    // line = "<span style='color: #fec171'>" + line + "</span>"
+                }
+                if (line.indexOf("[success]") > -1) {
+                    logItem['type'] = 'success'
+                    logItem['color'] = 'grenn'
+                    logItem['line'] = line
+                    // line = "<span style='color: green'>" + line + "</span>"
+                }
+                if (line.indexOf("[log]") > -1) {
+                    logItem['type'] = 'log'
+                    logItem['color'] = 'white'
+                    logItem['line'] = line
+                    // line = "<span style='color: green'>" + line + "</span>"
+                }
+                newCB(logItem);
+            });
+        } else {
+            console.log('文件读取错误');
+        }
+    });
+    console.log(log_file + ' 被监听中...');
+};
+
+const start_recording = (project_name) => {
+    return new Promise((resolve, reject) => {
+        const save_path = path.normalize(`${path.resolve()}/.uiauto/screenrecorder/${project_name}`);
+        console.log(save_path)
+
+        let options = {
+            mode: 'text',
+            pythonPath: path.join(path.resolve() + "/env/python/win32/python.exe"),
+            // pythonOptions: ["-u"],
+            args: [save_path]
+        };
+
+        const ls = new PythonShell(path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor\\base\\screenrecorder\\index.py`), options);
+
+        ls.stdout.on('data', (data) => {
+            console.log("stdout>>>>>>>>>>>>>", data);
+        });
+
+        ls.stderr.on('data', (data) => {
+            console.log("stderr>>>>>>>>>>>>>", data);
+        });
+
+        setTimeout(() => {
+            resolve(ls)
+        }, 1000)
+    });
+
+};
+
+exports.execute = async (project_name, params, newCB) => {
+    return new Promise(async (resolve, reject) => {
+        let record_shell = null;
+        try {
+
+            // 清理多余进程
+            cleanProcess();
+
+            const project = fse.readJsonSync(`${config.projectsPath}/${project_name}/${project_name}.json`);
+            console.log(project);
+
+            if (!!project.automatic_recording) {
+                record_shell = await start_recording(project_name)
+            }
+
+            const executor_params = {};
+            executor_params['project_name'] = project_name;
+            executor_params['params'] = params;
+            executor_params['environment_options'] = {
+                "client_dir": path.resolve(),
+                "plugins_dir": config.pluginsPath,
+                "projects_dir": config.projectsPath,
+                "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
+                "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
+                "log_file": path.normalize(`${path.resolve()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+            };
+
+            if (newCB) {
+                listen_logger(path.normalize(`${path.resolve()}\\.uiauto\\${project_name}`),
+                    executor_params['environment_options']['log_file'], newCB);
+            }
+
+            const result = await send_command('execute_project', project_name, executor_params);
+            resolve(result);
+
+        } catch (e) {
+            reject(e);
+        }
+
+        if (record_shell) {
+            setTimeout(() => {
+                record_shell.terminate()
+            }, 3000)
+
+        }
+    });
+
+};
+
+exports.execute_node = (project_name, params, newCB) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const executor_params = {};
+            console.log("execute_node>>>>>>>>", project_name);
+            executor_params['project_name'] = project_name;
+            executor_params['params'] = params;
+            executor_params['environment_options'] = {
+                "client_dir": path.resolve(),
+                "plugins_dir": config.pluginsPath,
+                "projects_dir": config.projectsPath,
+                "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
+                "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
+                "log_file": path.normalize(`${path.resolve()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+            };
+
+            listen_logger(path.normalize(`${path.resolve()}\\.uiauto\\${project_name}`), executor_params['environment_options']['log_file'], newCB);
+
+            const result = await send_command('execute_node', project_name, executor_params);
+            resolve(result)
+        } catch (e) {
+            reject(e);
+            listener.removeAllListeners();
+        }
+    });
+};
+
+const send_command = (command, project_name, executor_params) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const temp_dir = path.normalize(`${path.resolve()}\\.uiauto\\temp\\`);
+            if (!fs.existsSync(temp_dir)) {
+                fs.mkdirSync(temp_dir);
+            }
+            const param_file_name = project_name + "_" + uuid.v4() + "_.txt";
+            const param_file_path = temp_dir + param_file_name;
+            fs.writeFileSync(param_file_path, JSON.stringify(executor_params));
+
+            listener.on('success', (data) => {
+                fs.existsSync(param_file_path) && fs.unlinkSync(param_file_path);
+                const result_file_path = param_file_path.replace('.txt', '_result.txt');
+                const result = fs.existsSync(result_file_path) ? JSON.parse(fs.readFileSync(result_file_path)) : null;
+                console.log('result>>>>>>>>>>>>', result);
+                if (result.success) {
+                    resolve(result.message);
+                } else {
+                    reject(result.error)
+                }
+                listener.removeAllListeners();
+                fs.existsSync(result_file_path) && fs.unlinkSync(result_file_path);
+            });
+
+            listener.on("error", (error) => {
+                reject(error);
+                listener.removeAllListeners();
+                fs.existsSync(param_file_path) && fs.unlinkSync(param_file_path);
+            });
+
+            window['py_shell'].send(command + " " + encodeURIComponent(param_file_path) + "\n");
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+exports.execute_python = (py_path, method, params) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const py_info = path.parse(py_path);
+            const executor_params = {};
+            executor_params['client_dir'] = path.resolve();
+            executor_params['py_dir'] = py_info.dir;
+            executor_params['py_name'] = py_info.name;
+            executor_params['py_path'] = py_path;
+            executor_params['method'] = method;
+            executor_params['executor_dir'] = path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`);
+            executor_params['sys_site_packages_dir'] = path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages');
+            executor_params['params'] = params;
+            executor_params['environment_options'] = {
+                "client_dir": path.resolve(),
+                "py_dir": py_info.dir,
+                "py_name": py_info.name,
+                "py_path": py_path,
+                "method": method,
+                "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
+                "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages')
+            };
+
+            const temp_dir = path.normalize(`${path.resolve()}\\.uiauto\\temp\\`);
+            if (!fs.existsSync(temp_dir)) {
+                fs.mkdirSync(temp_dir);
+            }
+            const param_file_name = "execute_python_" + uuid.v4() + ".txt";
+            const param_file_path = temp_dir + param_file_name;
+            fs.writeFileSync(param_file_path, JSON.stringify(executor_params));
+
+            listener.on('success', (data) => {
+                fs.existsSync(param_file_path) && fs.unlinkSync(param_file_path);
+                const result_file_path = param_file_path.replace('.txt', '_result.txt');
+                const result = fs.existsSync(result_file_path) ? JSON.parse(fs.readFileSync(result_file_path)) : null;
+                console.log('result>>>>>>>>>>>>', result);
+                resolve(result);
+                listener.removeAllListeners();
+                fs.existsSync(result_file_path) && fs.unlinkSync(result_file_path);
+            });
+
+            listener.on("error", (error) => {
+                reject(error);
+                fs.existsSync(param_file_path) && fs.unlinkSync(param_file_path);
+                listener.removeAllListeners();
+            });
+
+            window['py_shell'].send("execute_python " + encodeURIComponent(param_file_path) + "\n");
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const start_executor = () => {
+    if (!!window['py_shell']) {
+        exports.exit_executor()
+    }
+
+    let options = {
+        mode: 'text',
+        pythonPath: path.join(path.resolve() + "/env/python/win32/python.exe"),
+        // pythonOptions: ["-u"],
+        args: []
+    };
+
+    const ls = new PythonShell(path.normalize(path.resolve() + "\\public\\base_integration\\uiauto_executor\\command.py"), options);
+
+    ls.stdout.on('data', (data) => {
+        console.log("data>>>>>>>>>>>>>", data);
+    });
+
+    ls.stderr.on('data', (data) => {
+        if (data === 'finish') {
+            listener.emit('success', data);
+        } else {
+            console.error('data>>>>>>>>>>>>>', data);
+            listener.emit('error', data);
+        }
+    });
+
+    return ls
+};
+
+exports.stop_exector = () => {
+    // window['py_shell'].terminate()
+    window['py_shell'].send("stop ");
+    listener.removeAllListeners()
+};
+
+exports.exit_executor = () => {
+    window['py_shell'].terminate()
+}

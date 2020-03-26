@@ -1,0 +1,1 @@
+C:\legion\code\UiAuto\client\env\python\win32\python.exe C:\legion\code\UiAuto\client\public\base_integration\uiauto_executor\base\screenrecorder\screenrecorder_server.py 360.0 C:\legion\code\UiAuto\client\public\base_integration\uiauto_executor\base\screenrecorder\UIAuto_video\2020-03-19\UIAuto_2020-03-19_21_46_24.mkv XVID

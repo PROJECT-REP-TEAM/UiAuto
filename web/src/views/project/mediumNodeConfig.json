@@ -1,0 +1,47 @@
+{
+  "Start": {
+    "data_shape": "flow-circle",
+    "data_size": "72*72",
+    "data_color": "#79C900"
+  },
+  "Condition": {
+    "data_shape": "flow-rhombus",
+    "data_size": "80*72",
+    "data_color": "#13C2C2"
+  },
+  "Circulation": {
+    "data_shape": "flow-capsule",
+    "data_size": "80*48",
+    "data_color": "#722ED1"
+  },
+  "End": {
+    "data_shape": "flow-circle",
+    "data_size": "72*72",
+    "data_color": "#DC3C00"
+  },
+  "Convention": {
+    "data_shape": "flow-rect",
+    "data_size": "120*48",
+    "data_color": "#1890FF"
+  },
+  "Script": {
+    "data_shape": "flow-rect",
+    "data_size": "120*48",
+    "data_color": "#cccccc"
+  },
+  "Abnormal": {
+    "data_shape": "flow-rect",
+    "data_size": "120*48",
+    "data_color": "red"
+  },
+  "Wait": {
+    "data_shape": "flow-circle",
+    "data_size": "100*50",
+    "data_color": "orange"
+  },
+  "Subprocess": {
+    "data_shape": "flow-rect",
+    "data_size": "67*67",
+    "data_color": "#1890FF"
+  }
+}
