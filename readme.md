@@ -4,11 +4,11 @@
 [UiAuto](#) 是览众独立开发的一款[RPA](#)工具，致力于减少人员处理重复性任务的时间，为客户提供高效的解决方案。通过它帮助企业解决业务流程自动化难题，主要用户处理标准、重复、繁琐、大批量的工作任务。[RPA](#)应用以更低的成本、更快的速度和更高的质量进行全天候服务，极大减少人为从事规律可循的机械性工作，释放员工创造力、提升员工满意度。<br>
 
 # 开始使用<br>
-`目前UiAuto处于内测阶段，无内测资格的无法使用，且目前UiAuto仅支持Windows操作系统。`<br>
+`在Windows系统下，下载安装，通过手机号注册即可使用。`<br>
 
 ## 安装包下载<br>
 - v1.0.14 x64
-[下载](./software/UiAuto%20Setup%201.0.14%20x64.exe)
+[百度网盘下载](https://pan.baidu.com/s/1WxPE0dB_ARv0TN-BtNOhXQ)   提取码：xmjo
 
 ## 安装、配置
 - 双击安装包便可自动安装。
@@ -86,6 +86,13 @@ UIAUTO
 │   ├ permission.js ----- 权限文件
 └   └ setting.js ----- 设置文件
 ```
+
+## 环境准备
+- 下载[Java8]()的jre，并解压至目录client/env/jre
+    - 百度网盘下载地址：[https://pan.baidu.com/s/1XNiOdzLUZ1QkmVYLdhugiw](https://pan.baidu.com/s/1XNiOdzLUZ1QkmVYLdhugiw) 提取码：l735 
+- 下载[Python](http://python.org)解释器，并解压至目录client/env/python/win32
+    - 百度网盘下载地址：[https://pan.baidu.com/s/12wc_lEmrlxdi05Nd5tvrvA](https://pan.baidu.com/s/12wc_lEmrlxdi05Nd5tvrvA) 提取码：qyst
+- 在clent/public目录下打开命令行终端执行命令`npm install`
 
 ## 执行器<br>
 > 目前执行器支持执行NodeJS、Python、Java等三种语言开发的插件。<br>
