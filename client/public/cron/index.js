@@ -4,7 +4,7 @@ const _ = require('lodash');
 const crypto = require('crypto');
 const path = window.require('path');
 const os = window.require("os");
-const config = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`);
+const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
 const ipc = window.require('electron').ipcRenderer;
 // const { execute } = window.require(path.normalize(path.resolve() + "/public/runner/index.js"));
 // 重启执行器

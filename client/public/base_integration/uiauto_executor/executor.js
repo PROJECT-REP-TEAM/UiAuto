@@ -5,7 +5,8 @@ const {
 } = require('python-shell');
 const path = require('path');
 const uuid = require('uuid');
-const config = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`);
+const os = require('os')
+const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
 const moment = require('moment');
 const {execSync} = require('child_process');
 const EventEmitter = require('events').EventEmitter;
@@ -107,7 +108,7 @@ const listen_logger = (log_dir, log_file,  newCB) => {
 
 const start_recording = (project_name) => {
     return new Promise((resolve, reject) => {
-        const save_path = path.normalize(`${path.resolve()}/.uiauto/screenrecorder/${project_name}`);
+        const save_path = path.normalize(`${os.homedir()}/.uiauto/screenrecorder/${project_name}`);
         console.log(save_path)
 
         let options = {
@@ -158,11 +159,11 @@ exports.execute = async (project_name, params, newCB) => {
                 "projects_dir": config.projectsPath,
                 "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
-                "log_file": path.normalize(`${path.resolve()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
             };
 
             if (newCB) {
-                listen_logger(path.normalize(`${path.resolve()}\\.uiauto\\${project_name}`),
+                listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`),
                     executor_params['environment_options']['log_file'], newCB);
             }
 
@@ -196,10 +197,10 @@ exports.execute_node = (project_name, params, newCB) => {
                 "projects_dir": config.projectsPath,
                 "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
-                "log_file": path.normalize(`${path.resolve()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
             };
 
-            listen_logger(path.normalize(`${path.resolve()}\\.uiauto\\${project_name}`), executor_params['environment_options']['log_file'], newCB);
+            listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`), executor_params['environment_options']['log_file'], newCB);
 
             const result = await send_command('execute_node', project_name, executor_params);
             resolve(result)

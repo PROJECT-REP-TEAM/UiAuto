@@ -15,7 +15,7 @@ if (typeof window !== "undefined") {
     path = window.require('path');
     iconv = window.require('iconv-lite');
     fse = window.require("fs-extra");
-    config = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`);
+    config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
     window.require(path.resolve() + "/public/utils/ConsoleUtils").init();
     child_process = window.require('child_process');
 } else {
@@ -27,7 +27,7 @@ if (typeof window !== "undefined") {
     path = require('path');
     iconv = require('iconv-lite');
     fse = require("fs-extra");
-    config = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`);
+    config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
     require("./ConsoleUtils").init();
     child_process = require('child_process');
     require(path.resolve() + "/public/utils/ConsoleUtils").init();
