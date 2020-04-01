@@ -27,7 +27,7 @@ const path = window.require("path");
 const os = window.require("os");
 const fse = window.require("fs-extra");
 const fs = window.require("fs");
-const configPath = `${path.resolve()}/.uiauto/uiauto.conf`;
+const configPath = `${os.homedir()}/.uiauto/uiauto.conf`;
 
 export default {
   data() {

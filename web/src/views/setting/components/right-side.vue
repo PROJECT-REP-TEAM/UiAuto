@@ -23,7 +23,7 @@ var electron_version = window.require("electron").remote.app.getVersion();
 const os = window.require("os");
 const fse = window.require("fs-extra");
 var path = window.require("path");
-const configPath = `${path.resolve()}/.uiauto/uiauto.conf`;
+const configPath = `${os.homedir()}/.uiauto/uiauto.conf`;
 const uiautoConfig = fse.readJsonSync(configPath);
 import environment from "@/config/environment";
 export default {

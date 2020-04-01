@@ -13,7 +13,7 @@ const path = window.require('path')
 const fs = window.require('fs')
 const fse = window.require('fs-extra')
 const ip = window.require('ip')
-const configPath = `${path.resolve()}/.uiauto/uiauto.conf`
+const configPath = `${os.homedir()}/.uiauto/uiauto.conf`
 import moment from "moment";
 
 const SocketClient = window.require('socket.io-client')

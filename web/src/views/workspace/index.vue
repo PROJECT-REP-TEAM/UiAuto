@@ -1131,7 +1131,7 @@ export default {
     },
     // 同步项目
     syncProject() {
-      const deviceId = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`)
+      const deviceId = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`)
         .deviceId
       if (deviceId) {
         getCloudProjects({
@@ -1161,7 +1161,14 @@ export default {
       this.$refs['childFolder'].editFolder(folder)
     },
     deleteFolder(folder) {
-      this.$refs['childFolder'].deleteFolder(folder)
+      // this.$refs['childFolder'].deleteFolder(folder)
+      // console.error(folder)
+      this.$refs['childFolder'].showDeleteFolder = true
+      this.$refs['childFolder'].deleteInfo = folder
+      this.$refs['childFolder'].showDeleteProject = false
+      if (folder.projects.length > 0) {
+        this.$refs['childFolder'].showDeleteProject = true
+      }
     },
     drog(event, folder_name) {
       this.$refs['childFolder'].drog(event, folder_name)
