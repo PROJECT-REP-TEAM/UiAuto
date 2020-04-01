@@ -21,7 +21,7 @@ const fse = window.require('fs-extra')
 const fs = window.require('fs')
 const child_process = window.require('child_process')
 const https = window.require('https')
-const configPath = `${path.resolve()}/.uiauto/uiauto.conf`
+const configPath = `${os.homedir()}/.uiauto/uiauto.conf`
 
 const npm = window.require('npm');
 const {machineIdSync} = window.require('node-machine-id');

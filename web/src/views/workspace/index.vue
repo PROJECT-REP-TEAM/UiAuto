@@ -1131,7 +1131,7 @@ export default {
     },
     // 同步项目
     syncProject() {
-      const deviceId = fse.readJsonSync(`${path.resolve()}/.uiauto/uiauto.conf`)
+      const deviceId = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`)
         .deviceId
       if (deviceId) {
         getCloudProjects({

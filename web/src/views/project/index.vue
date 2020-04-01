@@ -1053,7 +1053,7 @@ export default {
               project_name: this.projectName,
               status: "running",
               deviceId: JSON.parse(
-                fs.readFileSync(`${path.resolve()}/.uiauto/uiauto.conf`, "utf8")
+                fs.readFileSync(`${os.homedir()}/.uiauto/uiauto.conf`, "utf8")
               ).deviceId,
               project_type: "local"
             }

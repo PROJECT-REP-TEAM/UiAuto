@@ -7,7 +7,7 @@ const os = window.require('os');
 const fse = window.require('fs-extra');
 const fs = window.require('fs');
 
-const configPath = `${path.resolve()}/.uiauto/uiauto.conf`;
+const configPath = `${os.homedir()}/.uiauto/uiauto.conf`;
 const default_config = {
   "pluginsPath": path.normalize('C:\\UiAuto_files\\plugins'), // `${os.homedir()}\\.uiauto\\plugins`,
   "projectsPath": path.normalize('C:\\UiAuto_files\\projects'),// `${os.homedir()}\\.uiauto\\projects`,
