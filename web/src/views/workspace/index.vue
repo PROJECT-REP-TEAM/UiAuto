@@ -186,7 +186,6 @@
                 @dragstart.native="dragstart($event, item.project_name)"
                 @dragend.native="dragend($event)"
               >
-                <!--   v-dragging="{ item: item, list: (searchProjectLs.length ? searchProjectLs : projectLs), group: 'color' }"             -->
                 <div
                   class="card-panel"
                   style="margin-top: 20px;"
