@@ -37,10 +37,10 @@ window['uiselector'].start_process();
 import '@/icons' // icon
 import '@/assets/iconfont/iconfont.css' // 第三方icon
 import '@/permission' // permission control
-import VueDND from 'awe-dnd'
+// import VueDND from 'awe-dnd'
 import * as _ from 'lodash'
 
-Vue.use(VueDND)
+// Vue.use(VueDND)
 /**
  * If you don't want to use mock-server
  * you want to use mockjs for request interception
