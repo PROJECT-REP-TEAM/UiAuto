@@ -2,13 +2,14 @@
   <el-dialog title="源代码" :visible.sync="showDialog">
     <span>//按Ctrl键进行代码提示</span>
     <span v-if="options && options.label">//{{options.label}}</span>
-    <textarea
+    <!-- <textarea
       ref="mycode"
       class="codesql"
       :id="propertyId"
       v-model="currValue"
       style="height:200px;width:100%;"
-    ></textarea>
+    ></textarea>-->
+    <div ref="editor" style="width: 100%;height: 500px;"></div>
     <div style="margin-top:10px;text-align:right;">
       <el-button type="primary" @click="commitClick()">确定</el-button>
       <el-button @click="cancelClick()">取消</el-button>
@@ -17,6 +18,9 @@
 </template>
 
 <script>
+import * as monaco from "monaco-editor";
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
+import { StandaloneCodeEditorServiceImpl } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneCodeServiceImpl.js';
 import "codemirror/theme/yonce.css";
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/hint/show-hint.css";
@@ -56,6 +60,7 @@ export default {
     }
   },
   mounted() {
+    // console.log(editor)
     // let mime = "text/x-mariadb";
     // let theme = "ambiance"; //设置主题，不设置的会使用默认主题
     // let editor = CodeMirror.fromTextArea(this.$refs.mycode, {
@@ -100,26 +105,46 @@ export default {
       let that = this;
       this.showDialog = true;
       if (!document.getElementById(this.propertyId)) {
+        
         setTimeout(() => {
-          let mime = "javascript";
-          let theme = "yonce"; //设置主题，不设置的会使用默认主题
-          that.editor = CodeMirror.fromTextArea(this.$refs.mycode, {
-            mode: mime, //选择对应代码编辑器的语言
-            indentWithTabs: true,
-            smartIndent: true,
-            lineNumbers: true,
-            matchBrackets: true,
-            theme: theme,
-            //autofocus: false,
-            extraKeys: { Ctrl: "autocomplete" }, //自定义快捷键
-            hintOptions: {
-              //自定义提示选项
-              tables: {
-                users: ["name", "score", "birthDate"],
-                countries: ["name", "population", "size"]
-              }
-            }
-          });
+          // let mime = "javascript";
+          // let theme = "yonce"; //设置主题，不设置的会使用默认主题
+          // that.editor = CodeMirror.fromTextArea(this.$refs.mycode, {
+          //   mode: mime, //选择对应代码编辑器的语言
+          //   indentWithTabs: true,
+          //   smartIndent: true,
+          //   lineNumbers: true,
+          //   matchBrackets: true,
+          //   theme: theme,
+          //   //autofocus: false,
+          //   extraKeys: { Ctrl: "autocomplete" }, //自定义快捷键
+          //   hintOptions: {
+          //     //自定义提示选项
+          //     tables: {
+          //       users: ["name", "score", "birthDate"],
+          //       countries: ["name", "population", "size"]
+          //     }
+          //   }
+          // });
+          if (!this.editor) {
+            this.editor = monaco.editor.create(this.$refs.editor, {
+              theme: "vs-dark",
+              automaticLayout: true,
+              language: this.options.language,
+              formatOnPaste: true,
+              formatOnType: true,
+              links: true,
+              fontSize: 16,
+              folding: true,
+              foldingHighlight: true,
+              copyWithSyntaxHighlighting: true,
+              minimap: true
+            });
+
+            this.editor.setValue(this.value);
+
+          }
+          console.log(this.editor)
         }, 0);
       }
     },
@@ -139,6 +164,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/deep/.el-dialog {
+  width: 60%;
+}
 /deep/.el-dialog__body {
   padding-top: 0px;
 }
