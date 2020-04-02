@@ -584,6 +584,11 @@ class __Project__():
         else:
             pass
 
+        if 'is_allow_global_use' in node_output.keys() and node_output['is_allow_global_use'] == True and \
+                'value' in node_output.keys() and node_output['value'] is not None and node_output['value'] != '':
+            self.global_variable.set_value(
+                node_output['value'], execute_result)
+
         return execute_result
 
     # 结束节点的执行方法
