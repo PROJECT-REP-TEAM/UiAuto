@@ -12,12 +12,12 @@
         <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="advanced-search-groups">
           插件名称/描述：
           <el-input
-            v-model="searchName"
+            v-model.trim="searchName"
             placeholder="插件名称/描述"
             style="width: 200px;"
             class="filter-item"
             clearable
-            @keyup.enter.native="getList()"
+            @keyup.enter.native="handleSeach()"
           />
         </el-col>
         <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6" class="advanced-search-groups">
@@ -407,6 +407,13 @@ export default {
         }
       }
     },
+    handleSeach() {
+      this.listQuery = {
+        pageIndex: 1,
+        pageSize: 6
+      };
+      this.getList();
+    },
     getWebPlugins() {
       return new Promise((reslove, reject) => {
         // var plugins_path = path.normalize(
@@ -432,7 +439,6 @@ export default {
               }
             ]
           };
-          this.listQuery.pageIndex = 1;
         } else {
           this.listQuery.where = {};
         }
@@ -564,7 +570,6 @@ export default {
               file_name_list,
               _.difference(file_name_list, _.map(webPluginViews, "plugin_id"))
             );
-            this.listQuery.pageIndex = 1;
           }
           _.map(file_name_list, file_name => {
             var package_json_path = plugins_path + file_name + "/package.json";
