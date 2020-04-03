@@ -12,7 +12,7 @@
     <p align="left" style="margin-top: 10px">页面版本：{{vue_version}}</p>
     <!-- <p align="left" style="margin-top:10px">版本更新：</p> -->
     <p align="left" style="margin-top:10px">UiAuto是览众全新一代RPA可视化解决方案，致力于提供一套简单方便、专业可靠、无限可能的RPA可视化最佳实践</p>
-    <el-button type="primary">检查更新</el-button>
+    <el-button type="primary" @click="checkUpdate()">检查更新</el-button>
     <el-button type="primary" @click="developer()">开发者模式</el-button>
   </div>
 </template>
@@ -69,6 +69,9 @@ export default {
     },
     developer() {
       ipc.send("open-dev-tools", "");
+    },
+    checkUpdate() {
+      window.location.reload();
     }
   }
 };
