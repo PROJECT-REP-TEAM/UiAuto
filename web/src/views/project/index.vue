@@ -701,6 +701,7 @@
                           :value="item.value"
                           :options="item.options"
                           @changeValue="changeValue"
+                          :language="language"
                         ></codemirror>
                         <ui-screenshot
                           v-if="item.type==='uiScreenshot'"

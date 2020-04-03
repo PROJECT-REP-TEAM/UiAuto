@@ -57,6 +57,10 @@ export default {
     options: {
       type: Object,
       default: null
+    },
+    language: {
+      type: String,
+      default: null
     }
   },
   mounted() {
@@ -127,10 +131,12 @@ export default {
           //   }
           // });
           if (!this.editor) {
+            console.log(this.language)
+            this.language = this.language === 'nodejs' ? 'javascript' : this.language
             this.editor = monaco.editor.create(this.$refs.editor, {
               theme: "vs-dark",
               automaticLayout: true,
-              language: this.options.language,
+              language: this.language,
               formatOnPaste: true,
               formatOnType: true,
               links: true,
