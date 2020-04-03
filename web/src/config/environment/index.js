@@ -15,6 +15,10 @@ const default_config = {
   "pythonPath": ""
 }
 
+if (!fs.existsSync(`${os.homedir()}/.uiauto`)) {
+  fs.mkdirSync(`${os.homedir()}/.uiauto`)
+}
+
 var config = default_config;
 if (!fs.existsSync(configPath)) {
   fse.outputFileSync(configPath, JSON.stringify(default_config, null, "\t"), 'utf8');
