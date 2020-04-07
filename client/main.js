@@ -198,7 +198,7 @@ function createWindow() {
         if (index === 0) {
           try {
             // 清理chromedriver进程
-            let taskkill_shell = execSync('taskkill /f /im "chromedriver.exe"')
+            let taskkill_shell = execSync('taskkill /f /im "chromedriver.exe" 2>nul')
             console.log(taskkill_shell.toString())
           } catch (e) {
             // console.error('清理chromedriver进程错误：', e)
@@ -206,7 +206,7 @@ function createWindow() {
 
           try {
             // 清理iedrvierserver.exe进程
-            let taskkill_shell = execSync('taskkill /f /im "IEDriverServer.exe"')
+            let taskkill_shell = execSync('taskkill /f /im "IEDriverServer.exe" 2>nul')
             console.log(taskkill_shell.toString())
           } catch (e) {
             // console.error('清理IEDriverServer进程错误：', e)
