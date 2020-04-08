@@ -73,21 +73,36 @@
             @click.native.prevent="handleLogin"
           >登录</el-button>
         </div>
-        <div style="padding-top: 0;margin-top: 0;padding-left: 60%">
+        <div style="margin:10px 40px;text-align: end;">
           <el-link
             href="#"
             type="info"
             size="mini"
             :underline="false"
-            style="margin-right: 0"
+            style="margin-right: 10px;"
+            @click.native.prevent="handleResetPassword()"
+          >忘记密码</el-link>
+          <el-link
+            href="#"
+            type="info"
+            size="mini"
+            :underline="false"
+            style="margin-right: 10px;"
+            @click.native.prevent="handleResetUsername()"
+          >忘记用户名</el-link>
+          <el-link
+            href="#"
+            type="info"
+            size="mini"
+            :underline="false"
             @click.native.prevent="showRegisterDialog = true"
-          >没有账号？点击注册</el-link>
+          >快速注册</el-link>
         </div>
       </div>
     </el-form>
 
     <el-dialog
-      title="注册"
+      title="快速注册"
       :visible.sync="showRegisterDialog"
       width="500px"
       :before-close="cancelRegister"
@@ -97,7 +112,7 @@
           <span class="svg-container">
             <svg-icon icon-class="user" style="color: #333;" />
           </span>
-          <el-input v-model="regisForm.username" autocomplete="off" type="text" placeholder="账号" />
+          <el-input v-model="regisForm.username" autocomplete="off" type="text" placeholder="用户名" />
         </el-form-item>
         <el-form-item prop="password" style="margin: 30px 40px;">
           <span class="svg-container">
@@ -158,7 +173,7 @@
             size="max"
             type="primary"
             style="position: absolute;right: 5px;top: 5px;background: #2249a8;"
-            :disabled="canClick"
+            :disabled="isSendCode"
             @click="sendMsg"
           >{{ statusMsg }}</el-button>
         </el-form-item>
@@ -175,11 +190,15 @@
     </el-dialog>
 
     <settingForm ref="settingForm" />
+    <resetPassword ref="resetPassword" />
+    <resetUsername ref="resetUsername" />
   </div>
 </template>
 
 <script>
 import settingForm from "./components/setting-form";
+import resetPassword from "./components/reset-password";
+import resetUsername from "./components/reset-username";
 import { validUsername } from "@/utils/validate";
 import SocialSign from "./socialsignin";
 import { globalBus } from "@/store/globalBus";
@@ -189,7 +208,7 @@ const Base64 = require("js-base64").Base64;
 
 export default {
   name: "Login",
-  components: { SocialSign, settingForm },
+  components: { SocialSign, settingForm, resetPassword, resetUsername },
   data() {
     const remember = Cookies.get("remember")
       ? JSON.parse(Base64.decode(Cookies.get("remember")))
@@ -295,7 +314,7 @@ export default {
         email: [{ required: true, trigger: "blur", validator: checkEmail }],
         code: [{ required: true, trigger: "blur", validator: validateCode }]
       },
-      canClick: false,
+      isSendCode: false,
       timerid: ""
     };
   },
@@ -450,17 +469,20 @@ export default {
         });
         if (!phonePass) {
           this.$store
-            .dispatch("user/sendMsg", { mobile: this.regisForm.phone })
+            .dispatch("user/sendMsg", {
+              type: "registered",
+              mobile: this.regisForm.phone
+            })
             .then(() => {
               const self = this;
               this.statusMsg = "验证码已发送";
-              this.canClick = true;
+              this.isSendCode = true;
               let count = 60;
               this.statusMsg = `${count--}s后重新获取`;
               this.timerid = setInterval(function() {
                 self.statusMsg = `${count--}s后重新获取`;
                 if (count === 0) {
-                  self.canClick = false;
+                  self.isSendCode = false;
                   self.statusMsg = `重新发送`;
                   clearInterval(self.timerid);
                 }
@@ -494,6 +516,14 @@ export default {
     // 设置连接服务器信息
     setting() {
       this.$refs["settingForm"] && this.$refs["settingForm"].show();
+    },
+    // 忘记密码
+    handleResetPassword() {
+      this.$refs["resetPassword"] && this.$refs["resetPassword"].show();
+    },
+    // 忘记用户名
+    handleResetUsername() {
+      this.$refs["resetUsername"] && this.$refs["resetUsername"].show();
     }
   }
 };

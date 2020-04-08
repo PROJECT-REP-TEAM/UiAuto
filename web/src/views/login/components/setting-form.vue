@@ -1,6 +1,6 @@
 <template>
   <div class="setting">
-    <el-dialog :title="'服务器信息'" :visible.sync="dialogFormVisible" width="500px" @closed="reset">
+    <el-dialog title="服务器信息" :visible.sync="dialogFormVisible" width="500px" @closed="reset">
       <el-form v-if="dialogFormVisible" ref="setting-form" label-width="100px" status-icon>
         <el-form-item label="服务器地址">
           <el-input

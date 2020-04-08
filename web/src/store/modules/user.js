@@ -1,4 +1,4 @@
-import { login, logout, getInfo, sendMsg, register } from '@/api/user'
+import { login, logout, getInfo, sendMsg, register, smsRecoverPassword, smsGetUsername } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -107,7 +107,31 @@ const actions = {
           reject(error)
         })
     })
+  },
+
+  // 重置密码
+  smsRecoverPassword({ commit, state }, data) {
+    return new Promise((resolve, reject) => {
+      smsRecoverPassword(data)
+        .then(res => { resolve(res) })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  },
+
+  // 获取用户名
+  smsGetUsername({ commit, state }, data) {
+    return new Promise((resolve, reject) => {
+      smsGetUsername(data)
+        .then(res => { resolve(res) })
+        .catch(error => {
+          reject(error)
+        })
+    })
   }
+
+
 }
 
 export default {

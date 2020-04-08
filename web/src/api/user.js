@@ -38,10 +38,22 @@ export function logout() {
   })
 }
 
+// 获取验证码
 export function sendMsg(data) {
   return $http.post('/api/v1/users/sendCerificationCode', data)
 }
 
+// 短信注册
 export function register(data) {
   return $http.post('/api/v1/users/smsRegister', data)
+}
+
+// 重置密码
+export function smsRecoverPassword(data) {
+  return $http.post('/api/v1/users/smsRecoverPassword', data)
+}
+
+// 获取用户名
+export function smsGetUsername(data) {
+  return $http.post('/api/v1/users/smsGetUsername', data)
 }
