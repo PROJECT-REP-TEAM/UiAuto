@@ -103,6 +103,8 @@ class __Project__():
             'environment_options')['client_dir']
         self.executor_dir = global_variable.get_value(
             'environment_options')['executor_dir']
+        self.user_site_packages_dir = global_variable.get_value(
+            'environment_options')['user_site_packages_dir']
 
     # 执行
     def execute(self, current_node=None, options={}):
@@ -411,7 +413,8 @@ class __Project__():
             execute_result = self.execute_python(params=node_params, options={
                 'py_dir': plugin_dir,
                 'py_name': exec_name,
-                'method': node_operation['method']
+                'method': node_operation['method'],
+                'plugin_name': node_plugin['name']
             })
         # 基于nodejs开发的插件执行
         elif node_plugin['language'] == 'nodejs':
@@ -598,8 +601,10 @@ class __Project__():
     # 执行python插件的方法
     def execute_python(self, params, options):
         sys.path.insert(0, options['py_dir'])
-        user_site_packages_path = options['py_dir'] + '\\site-packages'
+        plugin_site_packages_path = options['py_dir'] + '\\site-packages'
+        user_site_packages_path = '%s\\%s' % (self.user_site_packages_dir, options['plugin_name'])
         sys.path.insert(1, user_site_packages_path)
+        sys.path.insert(2, plugin_site_packages_path)
         metaclass = importlib.import_module(options['py_name'])
         metaclass.print = print
         if options['py_name'] in sys.modules.keys():
@@ -607,6 +612,7 @@ class __Project__():
         result = getattr(metaclass, options['method'])(params)
         sys.path.remove(options['py_dir'])
         sys.path.remove(user_site_packages_path)
+        sys.path.remove(plugin_site_packages_path)
         return result
 
     # 执行nodejs插件的方法

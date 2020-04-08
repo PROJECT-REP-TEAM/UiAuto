@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.1.35",
-  "description": "1.1.35版本：解决执行器行脚本组件后执行结果没有返回的问题",
+  "version": "1.1.36",
+  "description": "1.1.36版本：python类插件的依赖库安装路径变更至'用户目录/.uiauto/site-packages/插件名称'",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

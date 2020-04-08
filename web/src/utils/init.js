@@ -13,6 +13,7 @@ const fse = window.require("fs-extra");
 const fs = window.require("fs");
 const path = window.require("path");
 const npm = window.require("npm");
+const os = window.require("os");
 
 export function nodeInit(filePath) {
     return new Promise((reslove, reject) => {
@@ -149,7 +150,7 @@ export function pythonInit(filePath, python_version) {
                 let content = rfs.toString();
                 const lineContents = content.split('\n');
                 console.log(lineContents[85]);
-                lineContents[85] = 'USER_SITE = "' + path.resolve(filePath + '/site-packages').replace(/\\/g, "\\\\") + '"';
+                lineContents[85] = 'USER_SITE = "' + path.resolve(`${os.homedir()}/.uiauto/site-packages/${path.basename(filePath)}`).replace(/\\/g, "\\\\") + '"';
                 fs.writeFileSync(sitePyPath, lineContents.join('\n'));
 
                 const pythonPath = path.join(path.resolve(), '/env/python/win32/python.exe');
