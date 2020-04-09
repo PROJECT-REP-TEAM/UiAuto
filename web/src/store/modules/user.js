@@ -1,4 +1,4 @@
-import { login, logout, getInfo, sendMsg, register, smsRecoverPassword, smsGetUsername } from '@/api/user'
+import { login, logout, getInfo, sendMsg, register, smsRecoverPassword, smsGetUsername, smsLogin } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -26,6 +26,22 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        const { data } = response
+        localStorage.setItem('access_token', `Bearer ${data.token}`)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        // commit('SET_TOKEN', data.token)
+        // setToken(data.token)
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  // 短信登录
+  smsLogin({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      smsLogin({ mobile: data.mobile, cerification_code: data.cerification_code }).then(response => {
         const { data } = response
         localStorage.setItem('access_token', `Bearer ${data.token}`)
         localStorage.setItem('user', JSON.stringify(data.user))

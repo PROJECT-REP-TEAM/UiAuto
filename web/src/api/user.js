@@ -48,6 +48,12 @@ export function register(data) {
   return $http.post('/api/v1/users/smsRegister', data)
 }
 
+// 短信登录
+export function smsLogin(data) {
+  data.platform = 'uiauto'
+  return $http.post('/api/v1/users/smsLogin', data)
+}
+
 // 重置密码
 export function smsRecoverPassword(data) {
   return $http.post('/api/v1/users/smsRecoverPassword', data)

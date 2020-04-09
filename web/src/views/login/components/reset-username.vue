@@ -1,14 +1,14 @@
 <template>
   <div class="reset-username">
     <el-dialog title="忘记用户名" :visible.sync="dialogFormVisible" width="500px" @closed="reset">
-      <el-form ref="resetForm" :model="resetForm" :rules="resetRules">
-        <el-form-item prop="mobile" style="margin: 30px 40px;">
+      <el-form ref="resetForm" :model="resetForm" :rules="resetRules" style="margin: 0 40px;">
+        <el-form-item prop="mobile">
           <span class="svg-container">
             <svg-icon icon-class="mobile" style="color: #333;" />
           </span>
           <el-input v-model="resetForm.mobile" placeholder="手机号" autocomplete="off" />
         </el-form-item>
-        <el-form-item prop="cerification_code" style="margin: 30px 40px;">
+        <el-form-item prop="cerification_code" style="margin-top: 20px;">
           <span class="svg-container">
             <svg-icon icon-class="code" style="color: #333;" />
           </span>
@@ -26,19 +26,12 @@
             @click="sendMsg"
           >{{ statusMsg }}</el-button>
         </el-form-item>
-        <el-form-item style="margin: 30px 40px;" v-if="showUsername">
+        <el-form-item style="margin-top: 20px;" v-if="showUsername">
           <span>您的用户名为：{{this.showUsername}}</span>
         </el-form-item>
-        <el-form-item style="border: 0;color: white;background: white;margin-right: 20px;">
-          <el-button
-            type="primary"
-            size="max"
-            @click="handleConfirm"
-            style="background: #2249a8;"
-          >确 定</el-button>
-          <el-button size="max" @click="dialogFormVisible = false">取 消</el-button>
-        </el-form-item>
       </el-form>
+      <el-button type="primary" size="max" @click="handleConfirm" style="background: #2249a8;">确 定</el-button>
+      <el-button size="max" @click="dialogFormVisible = false">取 消</el-button>
     </el-dialog>
   </div>
 </template>
@@ -46,9 +39,6 @@
 <script>
 export default {
   data() {
-    const validateUsername = (rule, value, callback) => {
-      callback();
-    };
     const checkMobile = (rule, value, callback) => {
       if (!/^1[34578]\d{9}$/.test(value)) {
         callback(new Error("请输入正确的手机号码"));
@@ -73,7 +63,7 @@ export default {
       statusMsg: "发送验证码",
       showUsername: "",
       isSendCode: false,
-      timer: "",
+      timer: null,
       resetForm: {
         mobile: "",
         cerification_code: ""
@@ -92,6 +82,8 @@ export default {
     },
     reset() {
       this.statusMsg = "发送验证码";
+      clearInterval(this.timer);
+      this.timer = null;
       this.showUsername = "";
       this.isSendCode = false;
       this.dialogFormVisible = false;

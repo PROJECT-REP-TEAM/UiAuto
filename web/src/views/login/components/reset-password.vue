@@ -1,10 +1,10 @@
 <template>
   <div class="reset-password">
     <el-dialog title="忘记密码" :visible.sync="dialogFormVisible" width="500px" @closed="reset">
-      <el-form ref="resetForm" :model="resetForm" :rules="resetRules">
-        <el-form-item prop="password" style="margin: 30px 40px;">
+      <el-form ref="resetForm" :model="resetForm" :rules="resetRules" style="margin: 0 40px;">
+        <el-form-item prop="password">
           <span class="svg-container">
-            <svg-icon icon-class="password" style="color: #333;" />
+            <svg-icon icon-class="password" style="color: #333;margin-left: 15px;" />
           </span>
           <el-input
             ref="resetPassword"
@@ -21,13 +21,13 @@
             />
           </span>
         </el-form-item>
-        <el-form-item prop="mobile" style="margin: 30px 40px;">
+        <el-form-item prop="mobile" style="margin-top: 20px;">
           <span class="svg-container">
             <svg-icon icon-class="mobile" style="color: #333;" />
           </span>
           <el-input v-model="resetForm.mobile" placeholder="手机号" autocomplete="off" />
         </el-form-item>
-        <el-form-item prop="cerification_code" style="margin: 30px 40px;">
+        <el-form-item prop="cerification_code" style="margin-top: 20px;">
           <span class="svg-container">
             <svg-icon icon-class="code" style="color: #333;" />
           </span>
@@ -45,11 +45,9 @@
             @click="sendMsg"
           >{{ statusMsg }}</el-button>
         </el-form-item>
-        <el-form-item style="border: 0;color: white;background: white;margin-right: 20px;">
-          <el-button type="primary" size="max" @click="handleReset" style="background: #2249a8;">确 定</el-button>
-          <el-button size="max" @click="dialogFormVisible = false">取 消</el-button>
-        </el-form-item>
       </el-form>
+      <el-button type="primary" size="max" @click="handleReset" style="background: #2249a8;">确 定</el-button>
+      <el-button size="max" @click="dialogFormVisible = false">取 消</el-button>
     </el-dialog>
   </div>
 </template>
@@ -88,7 +86,7 @@ export default {
       passwordType: "password",
       statusMsg: "发送验证码",
       isSendCode: false,
-      timer: "",
+      timer: null,
       resetForm: {
         password: "",
         mobile: "",
@@ -110,9 +108,12 @@ export default {
       this.dialogFormVisible = true;
     },
     reset() {
+      this.dialogFormVisible = false;
       this.statusMsg = "发送验证码";
       this.isSendCode = false;
-      this.dialogFormVisible = false;
+      this.passwordType = "password";
+      clearInterval(this.timer);
+      this.timer = null;
       this.resetForm = {
         password: "",
         mobile: "",
