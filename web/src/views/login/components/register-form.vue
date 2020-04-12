@@ -126,7 +126,7 @@ export default {
         callback(new Error("请正确填写邮箱"));
       } else {
         if (value !== "") {
-          var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+          const reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
           if (!reg.test(value)) {
             callback(new Error("请输入有效的邮箱"));
           }
