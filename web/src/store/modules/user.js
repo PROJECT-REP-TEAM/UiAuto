@@ -109,15 +109,8 @@ const actions = {
 
   // user register
   register({ commit, state }, data) {
-    const params = {
-      username: data.username,
-      password: data.password,
-      mobile: data.phone,
-      email: data.email,
-      cerification_code: data.code
-    }
     return new Promise((resolve, reject) => {
-      register(params)
+      register(data)
         .then(() => { resolve() })
         .catch(error => {
           reject(error)
