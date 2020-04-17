@@ -198,6 +198,7 @@ exports.execute_node = (project_name, params, newCB) => {
                 "projects_dir": config.projectsPath,
                 "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
+                "user_site_packages_dir": path.join(os.homedir(), '\\.uiauto\\site-packages'),
                 "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
             };
 

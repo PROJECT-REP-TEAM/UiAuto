@@ -1,8 +1,8 @@
 {
   "id": "uiauto_uiselector",
   "name": "UiAuto选择器",
-  "version": "1.0.8",
-  "description": "1.0.8版本：解决选择元素后获取下标不准确的问题",
+  "version": "1.0.9",
+  "description": "1.0.9版本：解决选择元素后获取下标不准确的问题",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",
