@@ -121,6 +121,11 @@ UIAUTO
 
 ## [常见问题](./quesions.md)
 
+## 问题讨论
+qq群号：1028434014，或者直接qq扫码进群<br><br>
+<img src="./images/qq_qun.png" /><br>
+
 ## 商务合作
 > 联系电话：0755-26470325<br>
 > 电子邮箱：legion@legion-tech.net
+
