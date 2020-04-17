@@ -22,6 +22,7 @@
         style="width: 100%"
         highlight-current-row
         @current-change="handleCurrentChange"
+        @row-dblclick="setCurrent"
       >
         <el-table-column type="index" width="50"></el-table-column>
         <!-- <el-table-column prop="operation_id" label="节点ID"></el-table-column> -->
