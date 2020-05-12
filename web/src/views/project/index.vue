@@ -13,15 +13,6 @@
         <span v-if="projectName">/ {{projectName}}</span>
       </div>
       <div class="middle-menu">
-        <el-button size="mini" @click="openBrowser('Internet Explorer')">
-          <img
-            src="../../assets/images/ie.png"
-            width="12"
-            height="12"
-            style="vertical-align: text-top;"
-          />&nbsp;
-          启动IE
-        </el-button>
         <el-button size="mini" @click="openBrowser('Chrome')">
           <img
             src="../../assets/images/chrome.png"

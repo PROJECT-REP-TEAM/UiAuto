@@ -87,7 +87,7 @@
         mounted() {
             // $('.file-selector .el-input__suffix').css('top', '-7px')
             if (this.element['element_screenshot']) {
-                this.screenshot_file = this.screenshot_dir + this.element['element_screenshot']
+                this.screenshot_file = this.element['element_screenshot']
             }
         },
         methods: {
@@ -122,7 +122,7 @@
                     .then(result => {
                         electron.window_maximize()
                         this.element = result
-                        this.screenshot_file = this.screenshot_dir + result['element_screenshot']
+                        this.screenshot_file = result['element_screenshot']
                         this.show_screentshot = true
                         this.$forceUpdate()
                         console.log(this.element, this.screenshot_file)
