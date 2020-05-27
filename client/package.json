@@ -1,6 +1,6 @@
 {
   "name": "ui-auto",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
@@ -126,6 +126,6 @@
   },
   "devDependencies": {
     "electron": "4.1.1",
-    "electron-builder": "20.39.0"
+    "electron-builder": "^22.6.1"
   }
 }

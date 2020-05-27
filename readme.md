@@ -6,9 +6,9 @@
 ## 开始使用<br>
 `在Windows系统下，下载安装，通过手机号注册即可使用。`<br>
 
-## 安装包下载<br>
-- v1.0.14 x64
-[百度网盘下载](https://pan.baidu.com/s/1WxPE0dB_ARv0TN-BtNOhXQ)   提取码：xmjo
+## 安装包下载<img src="./images/new.png" width="64" /><br>
+- v1.1.1 x64
+[阿里云下载](https://uiautodev.oss-cn-beijing.aliyuncs.com/UiAuto%20Setup%201.1.1%20x64.exe)
 
 ## 安装、配置
 - 双击安装包便可自动安装。
@@ -105,6 +105,14 @@ UIAUTO
 > UI选择器基于Python语言开发<br>
 > 标准Windows组件属性捕获是通过UIAutomationCore.dll的api实现。<br>
 > 网页元素的属性捕获是通过是向浏览器注入javascript脚本来实现，因此，浏览器必须通过webdriver启动。<br>
+
+## UI选择器的Chrome扩展程序安装 <img src="./images/new.png" width="64" />
+> Chrome扩展程序存放位置：C:/UiAuto/public/base_integration/uiauto-chrome-plugin
+- 添加扩展程序方法：
+  1.打开Chrome浏览器，输入地址[chrome://extensions]()跳转扩展程序管理页面。
+  2.打开开发者模式。
+  3.加载已解压的扩展程序。
+  <img src="./images/chrome-plugin/1.png" />
 
 ## 插件开发<br>
 - 目前UiAuto的插件支持NodeJS、Python、Java等三种语言开发。<br>
