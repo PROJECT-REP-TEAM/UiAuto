@@ -107,11 +107,11 @@ UIAUTO
 > 网页元素的属性捕获是通过是向浏览器注入javascript脚本来实现，因此，浏览器必须通过webdriver启动。<br>
 
 ## UI选择器的Chrome扩展程序安装 <img src="./images/new.png" width="64" />
-> Chrome扩展程序存放位置：C:/UiAuto/public/base_integration/uiauto-chrome-plugin
-- 添加扩展程序方法：
-  1.打开Chrome浏览器，输入地址[chrome://extensions]()跳转扩展程序管理页面。
-  2.打开开发者模式。
-  3.加载已解压的扩展程序。
+> Chrome扩展程序存放位置：[C:/UiAuto/public/base_integration/uiauto-chrome-plugin]()
+- 添加扩展程序方法：<br>
+  1.打开Chrome浏览器，输入地址[chrome://extensions]()跳转扩展程序管理页面。<br>
+  2.打开开发者模式。<br>
+  3.加载已解压的扩展程序。<br>
   <img src="./images/chrome-plugin/1.png" />
 
 ## 插件开发<br>
