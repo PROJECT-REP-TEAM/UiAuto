@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UiSelector", "UiSelector.csproj", "{16D66032-33F3-4AE2-995C-1F15CF4BCABD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16D66032-33F3-4AE2-995C-1F15CF4BCABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16D66032-33F3-4AE2-995C-1F15CF4BCABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16D66032-33F3-4AE2-995C-1F15CF4BCABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16D66032-33F3-4AE2-995C-1F15CF4BCABD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7B53EE86-1F6F-4043-9F2C-475467BC11B1}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Oqt2z2TeLe2d61LKw7OovPpjjxSohoVrV1qQKQua5f5AcuOkW96HV8ePC6tji2Yd0o6rKUcoDqnt0c2dNr1+DQ==",
+  "success": true,
+  "projectFilePath": "C:\\Projects\\UiSelector\\GlobalMouseHook\\GlobalMouseHook.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\guanhaimin\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\guanhaimin\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
