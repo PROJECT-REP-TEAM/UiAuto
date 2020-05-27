@@ -1,7 +1,0 @@
-{
-	"project_path": "C:\\uiauto-project\\demo2\\demo2.json",
-	"options": {
-		"plugins_dir": "C:\\uiauto-plugins",
-		"executor_dir": "Z:\\workspace\\legion\\code\\UiAuto\\client\\public\\pyscript\\executor"
-	}
-}

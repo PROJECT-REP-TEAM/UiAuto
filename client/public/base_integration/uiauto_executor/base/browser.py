@@ -50,3 +50,28 @@ def generate_xpath(html):
             xpath += "contains(text(), '" + html['text'] + "')"
     xpath = "//" + html['tag'].lower() + "[" + xpath + "]"
     return xpath
+
+
+def open_browser(params):
+    driver = None
+    try:
+        executable_path = ""
+        
+        if params['browser_type'] == "Internet Explorer":
+            executable_path = params["webdriver_dir"] + "IEDriverServer.exe"
+            driver = webdriver.Ie(executable_path=executable_path)
+
+        if params['browser_type'] == "Chrome":
+            option = webdriver.ChromeOptions()
+            executable_path = params['webdriver_dir'] + "chromedriver.exe"
+            option.set_capability("pageLoadStrategy", "none")
+            driver = webdriver.Chrome(executable_path=executable_path, chrome_options=option)
+
+        params['executor_url'] = driver.command_executor._url
+        params['session_id'] = driver.session_id
+
+
+        return params
+    except Exception as e:
+        driver = None
+        raise e

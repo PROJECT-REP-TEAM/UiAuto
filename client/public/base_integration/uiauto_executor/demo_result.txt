@@ -1,9 +1,0 @@
-{
-    "success": true,
-    "code": 0,
-    "message": null,
-    "data": null,
-    "error": null,
-    "params": null,
-    "failed_nodes": ""
-}
