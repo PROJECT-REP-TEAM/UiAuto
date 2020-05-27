@@ -1,0 +1,13 @@
+{
+  "id": "uiauto-chrome-plugin",
+  "name": "uiauto-chrome-plugin",
+  "version": "1.0.1",
+  "description": "1.0.0版本：通过WebSocket的方式与选择器进行同步",
+  "author": "guanhm",
+  "language": "nodejs",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+  },
+  "is_uiauto_base_integration": true
+}
