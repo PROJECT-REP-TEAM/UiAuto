@@ -22,6 +22,15 @@
           />&nbsp;
           启动Chrome
         </el-button>
+        <el-button size="mini" @click="openBrowser('Internet Explorer')">
+          <img
+            src="../../assets/images/ie.png"
+            width="12"
+            height="12"
+            style="vertical-align: text-top;"
+          />&nbsp;
+          启动IE
+        </el-button>
       </div>
       <div
         style="position: fixed;font-size: 14px;color: red;line-height: 40px;left: 45%;"
@@ -939,16 +948,14 @@ export default {
   },
   methods: {
     openBrowser(val) {
-      window["uiselector"]
-        .open_browser({
-          browser_type: val
+      window["executor"]
+        .execute_python(path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor\\base\\browser.py`), "open_browser", {
+          browser_type: val,
+          webdriver_dir: path.normalize(`${path.resolve()}\\env\\webdriver\\win32\\`)
         })
         .then(async result => {
           console.log(".>>>>>>>>>>>>>>>>..........", result);
-          await this.$store.commit("project/BROWSER", {
-            type: val,
-            browser_info: result
-          });
+          fs.writeFileSync(path.normalize(`${os.homedir()}\\.uiauto\\browser.json`), JSON.stringify(result));
         })
         .catch(error => {
           console.error(error);
@@ -1052,15 +1059,19 @@ export default {
           ]
         })
           .then(uploadTaskRes => {
+
+            let browser_info = {};
+            const browser_info_path = path.normalize(`${os.homedir()}\\.uiauto\\browser.json`);
+            if (fs.existsSync(browser_info_path)) {
+              browser_info = JSON.parse(fs.readFileSync(browser_info_path));
+            }
+
             self.executeJobId = uploadTaskRes.data[0].id;
             window["executor"]
               .execute(
                 this.projectName,
                 {
-                  uiauto_browser: _.pick(this.$store.state.project.browser, [
-                    "executor_url",
-                    "session_id"
-                  ])
+                  uiauto_browser: browser_info
                 },
                 newLogs => {
                   this.logMessage = _.concat(this.logMessage, newLogs);
@@ -1802,15 +1813,18 @@ export default {
             .then(() => {
               this.saveGraph("save").then(res => {
                 if (res) {
+                  let browser_info = {};
+                  const browser_info_path = path.normalize(`${os.homedir()}\\.uiauto\\browser.json`);
+                  if (fs.existsSync(browser_info_path)) {
+                    browser_info = JSON.parse(fs.readFileSync(browser_info_path));
+                  }
+
                   electron.window_minimize();
                   window["executor"]
                     .execute_node(
                       this.projectName,
                       {
-                        uiauto_browser: _.pick(
-                          this.$store.state.project.browser,
-                          ["executor_url", "session_id"]
-                        ),
+                        uiauto_browser: browser_info,
                         node_id: this.currentNode.id
                       },
                       newLogs => {
