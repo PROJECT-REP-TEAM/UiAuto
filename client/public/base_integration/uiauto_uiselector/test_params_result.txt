@@ -1,1 +1,0 @@
-{"wnd": {"control_type": 50030, "control_type_name": "DocumentControl", "name": "Text Area", "class_name": "", "rect": {"left": 1381, "right": 2374, "top": 277, "bottom": 1116, "width": 993, "height": 839}}, "element_screenshot": "element_1571928332.571683.png"}
