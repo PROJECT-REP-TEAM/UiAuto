@@ -16,5 +16,8 @@ namespace UiSelector.entity
         public string text;
         public string value;
         public Rect rect;
+        public float relative_x;
+        public float relative_y;
+        public IWnd main_window_property;
     }
 }

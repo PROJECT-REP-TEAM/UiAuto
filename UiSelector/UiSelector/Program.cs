@@ -25,13 +25,6 @@ namespace UiSelector
         static void Main()
         {
 
-            Console.WriteLine("真实的屏幕物理分辨率：" + PrimaryScreen.WorkingArea);
-            Console.WriteLine("当前系统的X轴DPI：" + PrimaryScreen.DpiX);
-            Console.WriteLine("当前系统的Y轴DPI：" + PrimaryScreen.DpiY);
-            Console.WriteLine("系统设置的分辨率：" + PrimaryScreen.DESKTOP);
-            Console.WriteLine("系统设置的X轴缩放比例：" + PrimaryScreen.ScaleX);
-            Console.WriteLine("系统设置的Y轴缩放比例：" + PrimaryScreen.ScaleY);
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

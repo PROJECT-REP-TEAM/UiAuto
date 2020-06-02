@@ -16,6 +16,7 @@ namespace UiSelector.entity
         public string value;
         public string xpath;
         public string full_xpath;
+        public HtmlFrame frame;
         public int left;
         public int top;
         public int width;

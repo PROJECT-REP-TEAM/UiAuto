@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="entity\ChromeSocket.cs" />
     <Compile Include="entity\FrameWindow.cs" />
+    <Compile Include="entity\HtmlFrame.cs" />
     <Compile Include="entity\IChromeDriver.cs" />
     <Compile Include="entity\IEBrowser.cs" />
     <Compile Include="entity\IHtml.cs" />

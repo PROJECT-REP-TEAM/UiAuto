@@ -35,6 +35,9 @@ namespace UiSelector
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, StringBuilder lParam);
 
+        [DllImport("user32.dll", EntryPoint = "SendMessage")]
+        public static extern int SendMessage(IntPtr hwnd, int wMsg, uint wParam, uint lParam);
+
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         public static extern long GetWindowLong(IntPtr hwnd, int nIndex);
         [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
@@ -483,6 +486,10 @@ namespace UiSelector
 
                     if (element.tagName.ToLower() == "iframe")
                     {
+                        HtmlFrame frame = new HtmlFrame();
+                        frame.xpath = UIElement.GenerateXPath(element, false);
+                        frame.full_xpath = UIElement.GenerateXPath(element, true);
+                        html.frame = frame;
                         FrameWindow frameWin = null;
                         if (FrameWindows.Count > 0)
                         {
@@ -495,6 +502,7 @@ namespace UiSelector
                             html.left -= temp.scrollLeft ;
                             html.top -= temp.scrollTop;
                             var nextHtml = GetSelectedHtmlElement(frameWin.Document, x - element.offsetLeft, y - element.offsetTop, frameWin.Children, Radio);
+                            html.frame.next_frame = nextHtml.frame;
                             html.element = nextHtml.element;
                             html.left += nextHtml.left;
                             html.top += nextHtml.top;
@@ -642,101 +650,104 @@ namespace UiSelector
 
         private void Cover_MouseClick(object sender, MouseEventArgs e)
         {
-            this.Visible = false;
+            try
+            {
+                this.Visible = false;
 
-            UIElement uie = new UIElement();
-             
+                UIElement uie = new UIElement();
+
+
+                uie.system.DesktopSize = PrimaryScreen.DESKTOP;
+                //Console.WriteLine(PrimaryScreen.DpiX);
+                uie.system.Radio = PrimaryScreen.DpiX / 96f;
+                CursorPoint cursorPos = new CursorPoint();
+                GetPhysicalCursorPos(ref cursorPos);
+                uie.system.PointInScreen = new System.Drawing.Point(cursorPos.X, cursorPos.Y);
+                uie.system.PointRelative_X = (float)Math.Round(1f * cursorPos.X / uie.system.DesktopSize.Width, 2);
+                uie.system.PointRelative_Y = (float)Math.Round(1f * cursorPos.Y / uie.system.DesktopSize.Height, 2);
+
+                int x = 0;
+                int y = 0;
+                int width = 0;
+                int height = 0;
+                string imgBase64 = "";
+                Bitmap bmp = null;
+
+                switch (ElementType)
+                {
+                    case "Native":
+                        uie.wnd.control_type = selectedElement.Current.ControlType.Id;
+                        uie.wnd.name = selectedElement.Current.Name;
+                        uie.wnd.class_name = selectedElement.Current.ClassName;
+                        string control_type_name = selectedElement.Current.ControlType.ProgrammaticName;
+                        uie.wnd.control_type_name = control_type_name.Split('.')[1] + "Control";
+                        uie.wnd.rect = selectedElement.Current.BoundingRectangle;
+                        Process p = Process.GetProcessById(selectedElement.Current.ProcessId);
+
+                        if (p.MainWindowHandle != IntPtr.Zero)
+                        {
+                            AutomationElement main = AutomationElement.FromHandle(p.MainWindowHandle);
+                            uie.wnd.main_window_property = new IWnd();
+                            uie.wnd.main_window_property.control_type = main.Current.ControlType.Id;
+                            uie.wnd.main_window_property.name = main.Current.Name;
+                            uie.wnd.main_window_property.class_name = main.Current.ClassName;
+                            control_type_name = main.Current.ControlType.ProgrammaticName;
+                            uie.wnd.main_window_property.control_type_name = control_type_name.Split('.')[1] + "Control";
+                            uie.wnd.main_window_property.rect = main.Current.BoundingRectangle;
+
+                            uie.wnd.relative_x = (float)Math.Round(1f * (selectedElement.Current.BoundingRectangle.Left - main.Current.BoundingRectangle.Left) / main.Current.BoundingRectangle.Width, 2);
+                            uie.wnd.relative_y = (float)Math.Round(1f * (selectedElement.Current.BoundingRectangle.Top - main.Current.BoundingRectangle.Top) / main.Current.BoundingRectangle.Height, 2);
+                        }
+                        break;
+                    case "IE":
+                        selectedHtml.xpath = UIElement.GenerateXPath(selectedHtml.element, false);
+                        selectedHtml.full_xpath = UIElement.GenerateXPath(selectedHtml.element, true);
+                        uie.html = selectedHtml;
+                        uie.html.browser = "Internet Explorer";
+                        break;
+                    case "Chrome":
+                        uie.html = selectedHtml;
+                        uie.html.browser = "Chrome";
+                        break;
+                }
+
+                bmp = SaveImage(this.Location.X, this.Location.Y, this.Size.Width, this.Size.Height);
+                imgBase64 = ImageUtil.GetBase64FromImage(bmp);
+                uie.element_screenshot = imgBase64;
+
+                //Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                //Console.WriteLine("选择结果：");
+                //Console.WriteLine(JsonConvert.SerializeObject(uie.html));
+                string resultPath = "";
+                string CurrentDir = System.IO.Directory.GetCurrentDirectory();
+                if (System.IO.Directory.Exists(CurrentDir + "\\public") == false)
+                {
+                    resultPath = "result.json";
+                }
+                else
+                {
+                    resultPath = CurrentDir + "\\public\\base_integration\\uiauto_uiselector\\result.json";
+                }
+
+                System.IO.File.WriteAllText(resultPath, JsonConvert.SerializeObject(uie, jsonSetting));
+                Console.WriteLine("<uiauto-uiselector>success</uiauto-uiselector>");
+
+                if (this.informationForm.IsHandleCreated)
+                {
+                    this.informationForm.Visible = false;
+                }
+                if (IsHandleCreated)
+                {
+                    this.selectThread.Abort();
+                    this.Close();
+                    this.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
             
-            uie.system.DesktopSize = PrimaryScreen.DESKTOP;
-            Console.WriteLine(PrimaryScreen.DpiX);
-            uie.system.Radio = PrimaryScreen.DpiX / 96f;
-            CursorPoint cursorPos = new CursorPoint();
-            GetPhysicalCursorPos(ref cursorPos);
-            uie.system.PointInScreen = new System.Drawing.Point(cursorPos.X, cursorPos.Y);
-            uie.system.PointRelative_X = (float) Math.Round(1f * cursorPos.X / uie.system.DesktopSize.Width, 2);
-            uie.system.PointRelative_Y = (float) Math.Round(1f * cursorPos.Y / uie.system.DesktopSize.Height, 2);
-
-            int x = 0;
-            int y = 0;
-            int width = 0;
-            int height = 0;
-            string imgBase64 = "";
-            Bitmap bmp = null;
-
-            switch (ElementType)
-            {
-                case "Native":
-                    uie.wnd.control_type = selectedElement.Current.ControlType.Id;
-                    uie.wnd.name = selectedElement.Current.Name;
-                    uie.wnd.class_name = selectedElement.Current.ClassName;
-                    string control_type_name = selectedElement.Current.ControlType.ProgrammaticName;
-                    uie.wnd.control_type_name = control_type_name.Split('.')[1] + "Control";
-                    uie.wnd.rect = selectedElement.Current.BoundingRectangle;
-                    try
-                    {
-                        object patternObj;
-                        if (selectedElement.TryGetCurrentPattern(ValuePattern.Pattern, out patternObj))
-                        {
-                            var valuePattern = (ValuePattern) patternObj;
-                            uie.wnd.value = valuePattern.Current.Value;
-                        }
-                        else
-                        {
-                            if (selectedElement.TryGetCurrentPattern(TextPattern.Pattern, out patternObj))
-                            {
-                                var textPattern = (TextPattern) patternObj;
-                                uie.wnd.text = textPattern.DocumentRange.GetText(100);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                    
-                    break;
-                case "IE":
-                    selectedHtml.xpath = UIElement.GenerateXPath(selectedHtml.element, false);
-                    selectedHtml.full_xpath = UIElement.GenerateXPath(selectedHtml.element, true);
-                    uie.html = selectedHtml;
-                    uie.html.browser = "Internet Explorer";
-                    break;
-                case "Chrome":
-                    uie.html = selectedHtml;
-                    uie.html.browser = "Chrome";
-                    break;
-            }
-
-            bmp = SaveImage(this.Location.X, this.Location.Y, this.Size.Width, this.Size.Height);
-            imgBase64 = ImageUtil.GetBase64FromImage(bmp);
-            uie.element_screenshot = imgBase64;
-
-            //Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-            //Console.WriteLine("选择结果：");
-            //Console.WriteLine(JsonConvert.SerializeObject(uie.html));
-            string resultPath = "";
-            string CurrentDir = System.IO.Directory.GetCurrentDirectory();
-            if (System.IO.Directory.Exists(CurrentDir + "\\public") == false)
-            {
-                resultPath = "result.json";
-            }
-            else
-            {
-                resultPath = CurrentDir + "\\public\\base_integration\\uiauto_uiselector\\result.json";
-            }
-            System.IO.File.WriteAllText(resultPath, JsonConvert.SerializeObject(uie, jsonSetting));
-            Console.WriteLine("<uiauto-uiselector>success</uiauto-uiselector>");
-
-            if (this.informationForm.IsHandleCreated)
-            {
-                this.informationForm.Visible = false;
-            }
-            if (IsHandleCreated)
-            {
-                this.selectThread.Abort();
-                this.Close();
-                this.Dispose();
-            }
         }
 
         private void Cover_KeyPress(object sender, KeyPressEventArgs e)
