@@ -11,6 +11,7 @@ const moment = require('moment');
 const {execSync} = require('child_process');
 const EventEmitter = require('events').EventEmitter;
 let listener = new EventEmitter();
+const electron = require("electron");
 
 const cleanProcess = () => {
     try {
@@ -143,6 +144,14 @@ exports.execute = async (project_name, params, newCB) => {
             // 清理多余进程
             cleanProcess();
 
+            const screenInfo = {};
+            let primaryScreen = electron.screen.getPrimaryDisplay();
+            screenInfo['scale'] = primaryScreen.scaleFactor;
+            screenInfo['width'] = primaryScreen.size.width;
+            screenInfo['height'] = primaryScreen.size.height;
+            screenInfo['logicWidth'] = primaryScreen.size.width * primaryScreen.scaleFactor;
+            screenInfo['logicHeight'] = primaryScreen.size.height * primaryScreen.scaleFactor;
+
             const project = fse.readJsonSync(`${config.projectsPath}/${project_name}/${project_name}.json`);
             console.log(project);
 
@@ -160,7 +169,8 @@ exports.execute = async (project_name, params, newCB) => {
                 "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
                 "user_site_packages_dir": path.join(os.homedir(), '\\.uiauto\\site-packages'),
-                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`),
+                "screen_information": screenInfo
             };
 
             if (newCB) {

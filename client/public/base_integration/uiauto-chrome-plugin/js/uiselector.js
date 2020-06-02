@@ -57,8 +57,10 @@ var UiAuto_GetElementFromPoint = function (x, y) {
             html = UiAuto_GetHtmlStructure(elObj.el);
             html.left += elObj.x - element.contentWindow.document.documentElement.scrollLeft;
             html.top += elObj.y - element.contentWindow.document.documentElement.scrollTop;
+            html.frame = elObj.frame;
         } else {
             html = UiAuto_GetHtmlStructure(element);
+            html.frame = null;
         }
     }
 
@@ -69,6 +71,11 @@ var UiAuto_GetIframeElement = function(element, _x, _y) {
     var elObj = {
         x: element.offsetLeft,
         y: element.offsetTop,
+        frame: {
+            xpath: UiAuto_ReadXPath(element),
+            full_xpath: UiAuto_ReadXPath(element, true),
+            next_frame: null
+        },
         el: null
     };
     _x = _x - element.offsetLeft;
@@ -78,6 +85,7 @@ var UiAuto_GetIframeElement = function(element, _x, _y) {
         elObj.x += elObj.el.offsetLeft;
         elObj.y += elObj.el.offsetTop;
         var nextEl = UiAuto_GetElementFromPoint(elObj.el, _x, _y);
+        el.frame.next_frame = nextEl.frame;
         elObj.x += nextEl.x - elObj.el.contentWindow.document.documentElement.scrollLeft;
         elObj.y += nextEl.y - elObj.el.contentWindow.document.documentElement.scrollTop;
         elObj.el = nextEl.el;
@@ -87,37 +95,44 @@ var UiAuto_GetIframeElement = function(element, _x, _y) {
 }
 
 var UiAuto_ReadXPath = function (element, isFull) {
-    if (element.id !== "" && !isFull) {//判断id属性，如果这个元素有id，则显 示//*[@id="xPath"]  形式内容
-        return "//*[@id='" + element.id + "']";
-    }
-    //这里需要需要主要字符串转译问题，可参考js 动态生成html时字符串和变量转译（注意引号的作用）
-    if (element == document.body) {//递归到body处，结束递归
-        return '/html/' + element.tagName.toLowerCase();
-    }
-    var ix = 1,//在nodelist中的位置，且每次点击初始化
-         siblings = element.parentNode.childNodes;//同级的子元素
+    try{
+        if (element.id !== "" && !isFull) {//判断id属性，如果这个元素有id，则显 示//*[@id="xPath"]  形式内容
+            return "//*[@id='" + element.id + "']";
+        }
+        //这里需要需要主要字符串转译问题，可参考js 动态生成html时字符串和变量转译（注意引号的作用）
+        if (element == document.body) {//递归到body处，结束递归
+            return '/html/' + element.tagName.toLowerCase();
+        }
+        if (element.parentNode === null) {
+            return '';
+        }
+        var ix = 1,//在nodelist中的位置，且每次点击初始化
+            siblings = element.parentNode.childNodes;//同级的子元素
 
-    var same_tags_count = 0;
-    for (var i = 0; i < siblings.length; i++) {
-        var sibling = siblings[i];
-        if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
-            same_tags_count++;
-        }
-    }
- 
-    for (var i = 0, l = siblings.length; i < l; i++) {
-        var sibling = siblings[i];
-        //如果这个元素是siblings数组中的元素，则执行递归操作
-        if (sibling == element) {
-            if (same_tags_count === 1) {
-                return arguments.callee(element.parentNode, isFull) + '/' + element.tagName.toLowerCase();
-            } else {
-                return arguments.callee(element.parentNode, isFull) + '/' + element.tagName.toLowerCase() + '[' + (ix) + ']';
+        var same_tags_count = 0;
+        for (var i = 0; i < siblings.length; i++) {
+            var sibling = siblings[i];
+            if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
+                same_tags_count++;
             }
-            //如果不符合，判断是否是element元素，并且是否是相同元素，如果是相同的就开始累加
-        } else if (sibling.nodeType == 1 && sibling.tagName == element.tagName) {
-            ix++;
         }
+    
+        for (var i = 0, l = siblings.length; i < l; i++) {
+            var sibling = siblings[i];
+            //如果这个元素是siblings数组中的元素，则执行递归操作
+            if (sibling == element) {
+                if (same_tags_count === 1) {
+                    return arguments.callee(element.parentNode, isFull) + '/' + element.tagName.toLowerCase();
+                } else {
+                    return arguments.callee(element.parentNode, isFull) + '/' + element.tagName.toLowerCase() + '[' + (ix) + ']';
+                }
+                //如果不符合，判断是否是element元素，并且是否是相同元素，如果是相同的就开始累加
+            } else if (sibling.nodeType == 1 && sibling.tagName == element.tagName) {
+                ix++;
+            }
+        }
+    } catch (e) {
+        console.log(e);
     }
 };
 

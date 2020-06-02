@@ -2,7 +2,7 @@
   "id": "uiauto-chrome-plugin",
   "name": "uiauto-chrome-plugin",
   "version": "1.0.1",
-  "description": "1.0.0版本：通过WebSocket的方式与选择器进行同步",
+  "description": "1.0.1版本：支持捕获iframe结构",
   "author": "guanhm",
   "language": "nodejs",
   "license": "ISC",

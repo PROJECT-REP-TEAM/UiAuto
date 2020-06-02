@@ -705,6 +705,7 @@ class __Project__():
                             result[input_property['id']] = input_property['value'].replace(
                                 '${%s}' % match_value, str(scope))
                 elif len(match_values) > 1:
+                    input_value = input_property['value']
                     for match_value in match_values:
                         # 检索@js表达式标记
                         javascript_match = re.findall(r'@\s??js', match_value)
@@ -713,12 +714,12 @@ class __Project__():
                             python_match = re.findall(r'@\s??py', match_value)
                             for py_match in python_match:
                                 match_value = match_value.replace(py_match, '')
-                                input_property['value'] = input_property['value'].replace(
+                                input_value = input_value.replace(
                                     py_match, '')
                             scope = eval(match_value, global_data)
-                            input_property['value'] = input_property['value'].replace(
+                            input_value = input_value.replace(
                                 '${%s}' % match_value, str(scope))
-                    result[input_property['id']] = input_property['value']
+                    result[input_property['id']] = input_value
                 else:
                     result[input_property['id']] = input_property['value']
             elif type(input_property['value']) is dict:
