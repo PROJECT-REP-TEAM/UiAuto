@@ -295,6 +295,9 @@ export default {
           });
           return false;
         } else {
+          if (plugin.plugin_id === "uiauto_uiselector") {
+            window.uiselector.exit_uiselector();
+          }
           this.$store.commit("plugin/MARK_PYTHON_DOWNLOADING", true);
         }
       }
@@ -359,6 +362,9 @@ export default {
               )
             )
           ) {
+            if (plugin.plugin_id === "uiauto_uiselector") {
+              window.uiselector.exit_uiselector();
+            }
             package_path = path.normalize(
               base_integration_path + plugin.plugin_id + "/package.json"
             );
