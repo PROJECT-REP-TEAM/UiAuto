@@ -124,6 +124,7 @@
             <el-row :gutter="40" class="panel-group">
               <el-col
                 v-for="(folder, idx) in local_folderLs"
+                v-show="hideFolder()"
                 :key="idx"
                 :xs="12"
                 :sm="12"
@@ -1265,6 +1266,12 @@ export default {
     },
     outFolder(params) {
       this.$refs['childFolder'].outFolder(params)
+    },
+    hideFolder() {
+      if (this.searchProjectLs.length) {
+        return false
+      }
+      return true
     }
   }
 }
