@@ -215,6 +215,7 @@ export default {
       }
     },
     commitCreateFolder() {
+      const self = this
       if (!this.folderName.trim()) {
         this.$parent.message('文件夹名称不能为空', 'warning')
       } else {
@@ -231,6 +232,20 @@ export default {
             '.json',
             fs.F_OK
           )
+          let index = _.findIndex(this.$parent.local_folderLs, function(e) {
+            return e.folder_name === self.folderName
+          })
+          if (index >= 0) {
+            this.$parent.message('已存在同名文件夹', 'warning')
+            return
+          }
+          index = _.findIndex(this.$parent.projectLs, function(e) {
+            return e.project_name === self.folderName
+          })
+          if (index >= 0) {
+            this.$parent.message('已存在同名项目', 'warning')
+            return
+          }
         } catch (e) {
           if (!fs.existsSync(this.$parent.projects_path + this.folderName)) {
             fse.ensureDirSync(this.$parent.projects_path + this.folderName)
@@ -384,7 +399,7 @@ export default {
       console.log('droping==============================')
       const project_name = event.dataTransfer.getData('item')
       // this.dropData = data
-      console.log('data: ', project_name)
+      console.log('project: ', project_name)
       // this.showProjectMove = true
       this.dropData = {
         folderName: data,

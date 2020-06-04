@@ -8,14 +8,16 @@
         size="mini"
         style="float:right;margin:5px 15px 5px 0;height:30px;"
         @click="syncProject"
-      >同步项目</el-button>
+      >同步项目
+      </el-button>
       <el-button
         class="button"
         type="primary"
         size="mini"
         style="float:right;margin:5px 15px;height:30px;"
         @click="dialogSelectVisible = true"
-      >导入项目</el-button>
+      >导入项目
+      </el-button>
       <el-dialog title="导入项目" :visible.sync="dialogSelectVisible" width="30%" center>
         <el-dialog
           title="正在导入项目环境"
@@ -43,7 +45,8 @@
             type="primary"
             style="height:32px;line-height: 7px;"
             @click="exportProject()"
-          >选择文件</el-button>
+          >选择文件
+          </el-button>
         </div>
         <div style="margin-top: 30px;">
           <el-button
@@ -51,11 +54,13 @@
             style="width: 70px;height: 32px;line-height: 7px;"
             :disabled="filePath === ''"
             @click="upload()"
-          >导入</el-button>
+          >导入
+          </el-button>
           <el-button
             style="color: #1890ff;border:1px solid #1890ff;width: 70px;height: 32px;line-height: 7px;"
             @click="dialogSelectVisible = false;filePath = '';"
-          >取消</el-button>
+          >取消
+          </el-button>
         </div>
       </el-dialog>
       <div :class="{'showSearch':showSearch}" class="header-search">
@@ -110,7 +115,8 @@
           <div
             v-if="showTip"
             style="height: 60px;line-height: 60px;text-align: center;color: #909399;"
-          >请到系统管理设置项目路径</div>
+          >请到系统管理设置项目路径
+          </div>
           <el-tab-pane>
             <span slot="label">
               <i class="el-icon-s-grid" /> 项目宫格
@@ -211,7 +217,8 @@
                       <div class="card-panel-text">{{ item.project_name }}</div>
                       <div
                         class="card-panel-num"
-                      >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}</div>
+                      >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}
+                      </div>
                       <div class="card-panel-num">{{ item.date }}</div>
                     </div>
                   </div>
@@ -223,7 +230,8 @@
                       <div class="card-panel-text">{{ item.project_name }}</div>
                       <div
                         class="card-panel-num"
-                      >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}</div>
+                      >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}
+                      </div>
                       <div class="card-panel-num">{{ item.date }}</div>
                     </div>
                   </div>
@@ -293,7 +301,8 @@
                     type="success"
                     size="mini"
                     @click="handleSetLineChartData(scope.row)"
-                  >查看</el-button>
+                  >查看
+                  </el-button>
                   <el-button type="info" size="mini" @click="download(scope.row)">导出</el-button>
                   <el-button type="danger" size="mini" @click="deleteProject(scope.row)">删除</el-button>
                 </template>
@@ -330,11 +339,13 @@
               type="primary"
               style="width: 70px;height: 32px;line-height: 7px;"
               @click="commitHandleClick()"
-            >确定</el-button>
+            >确定
+            </el-button>
             <el-button
               style="width: 70px;height: 32px;line-height: 7px;color: #1890ff;border: 1px solid #1890ff;"
               @click="cancelClick()"
-            >取消</el-button>
+            >取消
+            </el-button>
           </div>
         </el-dialog>
 
@@ -448,7 +459,8 @@ export default {
       return arr
     }
   },
-  created() {},
+  created() {
+  },
   mounted() {
     this.getProjectList()
     this.pluginViewsFn().then(result => {
@@ -462,7 +474,8 @@ export default {
         json = fse.readJsonSync(
           `${this.projects_path}/${projectItem}/${projectItem}.json`
         )
-      } catch (error) {}
+      } catch (error) {
+      }
       const initialStatus = {
         project_name: projectItem,
         project_type: json.project_type || '',
@@ -521,6 +534,8 @@ export default {
     },
     // 确定按钮
     commitHandleClick() {
+      const self = this
+      console.error(self.projectName)
       if (!this.projectName.trim()) {
         this.message('项目名称不能为空', 'warning')
       } else {
@@ -537,19 +552,34 @@ export default {
               '.json',
             fs.F_OK
           )
-          this.$confirm('文件已存在, 是否打开该文件?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
+          const index = _.findIndex(this.local_folderLs, function(element) {
+            return element.folder_name === self.projectName
           })
-            .then(() => {
-              this.$router.push({
-                path: '/project',
-                query: { projectName: this.projectName, projectType: 'local' }
-              })
+          // console.error('index>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + index)
+          // console.warn('folders>>>>>>' + this.local_folderLs)
+          // this.local_folderLs.forEach(function(element, index) {
+          //   console.error(element)
+          // })
+          if (index < 0) {
+            this.$confirm('文件已存在, 是否打开该文件?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
             })
-            .catch(() => {})
+              .then(() => {
+                this.$router.push({
+                  path: '/project',
+                  query: { projectName: this.projectName, projectType: 'local' }
+                })
+              })
+              .catch(() => {
+              })
+          } else {
+            this.$message('已存在同名文件夹', 'error')
+            return
+          }
         } catch (e) {
+          // console.error(e)
           if (!fs.existsSync(this.projects_path + this.projectName)) {
             fse.ensureDirSync(this.projects_path + this.projectName)
             var writeJson = _.extend(
@@ -782,7 +812,7 @@ export default {
             self.readDir(dirlist, fillPath) // 重新检索目录文件
           } else {
             zip
-              // .folder(fileName.split(".")[0])
+            // .folder(fileName.split(".")[0])
               .file(fileName, fs.readFileSync(fillPath)) // 压缩目录添加文件
           }
         }
@@ -853,9 +883,9 @@ export default {
               // 导入的json文件校验
               if (
                 !fs.existsSync(projectTempPath) ||
-                readJson.project_name !== projectName ||
-                (readJson.nodes && !readJson.nodes.length) ||
-                (readJson.edges && !readJson.edges.length)
+                  readJson.project_name !== projectName ||
+                  (readJson.nodes && !readJson.nodes.length) ||
+                  (readJson.edges && !readJson.edges.length)
               ) {
                 self.uploadLoading = false
                 fse.emptyDirSync(projectTempPath)
@@ -926,7 +956,8 @@ export default {
                   try {
                     fs.rmdirSync(cloneProjectTempPath)
                     fs.rmdirSync(projectTempPath)
-                  } catch (error) {}
+                  } catch (error) {
+                  }
                   self.addProject(projectName)
                 }
                 if (downPlugins.length) {
@@ -1008,13 +1039,13 @@ export default {
             pluginDownload({
               plugin: plugin,
               listener_name:
-                'downstate' + plugin.plugin_id + '@' + plugin.version,
+                  'downstate' + plugin.plugin_id + '@' + plugin.version,
               downloadPath:
-                environment.serverUrl +
-                '/downloads/plugins/' +
-                plugin.plugin_id +
-                '@' +
-                plugin.version,
+                  environment.serverUrl +
+                  '/downloads/plugins/' +
+                  plugin.plugin_id +
+                  '@' +
+                  plugin.version,
               configPath: path.normalize(
                 config.pluginsPath + '/..' + '/plugins_temp/'
               )
@@ -1030,7 +1061,8 @@ export default {
                     }
                     this.$store
                       .dispatch('plugin/pluginStatus', thePluginStatus)
-                      .then(pluginStatus => {})
+                      .then(pluginStatus => {
+                      })
                   })
                 cb(null, result)
               })
@@ -1070,6 +1102,38 @@ export default {
               message: '删除成功'
             })
             this.$store.commit('project/LOCAL_PROJECT_DELETE', item)
+            if (this.$refs['childFolder'].showOpenFolder) {
+              this.$store.commit('project/LOCAL_PROJECT_FOLDER_DELETE', { folder_name: this.$refs['childFolder'].tempFolderName })
+              let json = ''
+              try {
+                json = fse.readJsonSync(
+                  `${config.projectsPath}/${this.$refs['childFolder'].tempFolderName}/${this.$refs['childFolder'].tempFolderName}.json`
+                )
+              } catch (error) {
+                console.error(error)
+              }
+              const index = _.findIndex(json['projects'], function(element) {
+                return element === item.project_name
+              })
+              if (index !== -1) {
+                _.pull(json['projects'], item.project_name)
+              }
+              json['updateAt'] = moment().format('YYYY-MM-DD HH:mm:ss')
+              fse.writeFileSync(
+                `${config.projectsPath}/${this.$refs['childFolder'].tempFolderName}/${this.$refs['childFolder'].tempFolderName}.json`,
+                JSON.stringify(json, null, '\t'),
+                'utf8'
+              )
+              const data = {
+                folder_name: this.$refs['childFolder'].tempFolderName,
+                project_type: json.project_type || 'folder',
+                projects: json.projects || [],
+                json: json,
+                date: moment(json.updateAt).format('YYYY-MM-DD')
+              }
+              this.$store.commit('project/LOCAL_PROJECT_FOLDERS', data)
+            }
+            this.$refs['childFolder'].showOpenFolder = false
           })
           .catch(err => {
             console.log(err)
@@ -1207,183 +1271,215 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/.el-dialog {
-  margin-top: 18vh !important;
-  font-size: 14px;
-  font-weight: bold;
-  width: 31%;
-  border-radius: 10px;
-}
-/deep/.el-dialog__body {
-  text-align: center;
-}
-/deep/.el-tabs--border-card {
-  margin-top: 20px;
-  width: calc(100% - 20px);
-  border: none;
-  box-shadow: none;
-  background: transparent;
-}
-/deep/.el-tabs--border-card > .el-tabs__content {
-  padding: 0;
-}
-/deep/.el-tabs__nav {
-  float: right;
-}
-/deep/.el-input__inner {
-  height: 32px;
-}
-.navbar {
-  height: 40px;
-  overflow: hidden;
-  position: relative;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-  .left-menu {
-    float: left;
-    height: 100%;
-    line-height: 40px;
+  /deep/ .el-dialog {
+    margin-top: 18vh !important;
     font-size: 14px;
-    margin-left: 15px;
+    font-weight: bold;
+    width: 31%;
+    border-radius: 10px;
   }
-  .header-search {
-    float: right;
-    font-size: 0 !important;
-    line-height: 40px;
 
-    .search-icon {
-      cursor: pointer;
-      font-size: 18px;
-      margin-bottom: 5px;
-      vertical-align: middle;
+  /deep/ .el-dialog__body {
+    text-align: center;
+  }
+
+  /deep/ .el-tabs--border-card {
+    margin-top: 20px;
+    width: calc(100% - 20px);
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  /deep/ .el-tabs--border-card > .el-tabs__content {
+    padding: 0;
+  }
+
+  /deep/ .el-tabs__nav {
+    float: right;
+  }
+
+  /deep/ .el-input__inner {
+    height: 32px;
+  }
+
+  .navbar {
+    height: 40px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+
+    .left-menu {
+      float: left;
+      height: 100%;
+      line-height: 40px;
+      font-size: 14px;
+      margin-left: 15px;
     }
 
-    .header-search-select {
-      font-size: 14px;
-      margin-bottom: 5px;
-      transition: width 0.2s;
-      width: 0;
-      overflow: hidden;
-      background: transparent;
-      border-radius: 0;
-      display: inline-block;
-      vertical-align: middle;
+    .header-search {
+      float: right;
+      font-size: 0 !important;
+      line-height: 40px;
 
-      /deep/ .el-input__inner {
-        border-radius: 0;
-        border: 0;
-        padding-left: 0;
-        padding-right: 0;
-        box-shadow: none !important;
-        border-bottom: 1px solid #050505;
+      .search-icon {
+        cursor: pointer;
+        font-size: 18px;
+        margin-bottom: 5px;
         vertical-align: middle;
       }
+
+      .header-search-select {
+        font-size: 14px;
+        margin-bottom: 5px;
+        transition: width 0.2s;
+        width: 0;
+        overflow: hidden;
+        background: transparent;
+        border-radius: 0;
+        display: inline-block;
+        vertical-align: middle;
+
+        /deep/ .el-input__inner {
+          border-radius: 0;
+          border: 0;
+          padding-left: 0;
+          padding-right: 0;
+          box-shadow: none !important;
+          border-bottom: 1px solid #050505;
+          vertical-align: middle;
+        }
+      }
+
+      &.showSearch {
+        .header-search-select {
+          width: 210px;
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+  .slide-fade-enter-active {
+    transition: all 0.8s ease;
+  }
+
+  .slide-fade-leave-active {
+    transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+  }
+
+  .slide-fade-enter, .slide-fade-leave-to
+    /* .slide-fade-leave-active for below version 2.1.8 */
+  {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+
+  .welcome-container {
+    padding: 20px 0 20px 20px;
+    border-top: 1px solid #ddd;
+
+    textarea:focus {
+      outline: none;
     }
 
-    &.showSearch {
-      .header-search-select {
-        width: 210px;
-        margin-left: 10px;
+    .panel-group {
+      width: 100%;
+      height: 100%;
+
+      .card-panel-col-created {
+        margin-bottom: 0;
+        padding-right: 0 !important;
       }
-    }
-  }
-}
-.slide-fade-enter-active {
-  transition: all 0.8s ease;
-}
-.slide-fade-leave-active {
-  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active for below version 2.1.8 */ {
-  transform: translateX(10px);
-  opacity: 0;
-}
-.welcome-container {
-  padding: 20px 0 20px 20px;
-  border-top: 1px solid #ddd;
-  textarea:focus {
-    outline: none;
-  }
-  .panel-group {
-    width: 100%;
-    height: 100%;
-    .card-panel-col-created {
-      margin-bottom: 0;
-      padding-right: 0 !important;
-    }
-    .card-panel-col {
-      padding-right: 0 !important;
-    }
-    .card-panel {
-      height: 120px;
-      cursor: pointer;
-      font-size: 12px;
-      position: relative;
-      overflow: hidden;
-      color: #999999;
-      background: #fff;
-      box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
-      border-color: rgba(0, 0, 0, 0.05);
-      border-radius: 4px;
-      &:hover {
-        .card-panel-icon-wrapper {
-          color: #fff;
+
+      .card-panel-col {
+        padding-right: 0 !important;
+      }
+
+      .card-panel {
+        height: 120px;
+        cursor: pointer;
+        font-size: 12px;
+        position: relative;
+        overflow: hidden;
+        color: #999999;
+        background: #fff;
+        box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+
+        &:hover {
+          .card-panel-icon-wrapper {
+            color: #fff;
+          }
+
+          .icon-edit {
+            background: #40c9c6;
+          }
+
+          .icon-clipboard {
+            background: #36a3f7;
+          }
+
+          .icon-close {
+            background: #f4516c;
+          }
         }
+
         .icon-edit {
-          background: #40c9c6;
+          color: #40c9c6;
         }
+
         .icon-clipboard {
-          background: #36a3f7;
+          color: #36a3f7;
         }
+
         .icon-close {
-          background: #f4516c;
+          color: #f4516c;
         }
-      }
-      .icon-edit {
-        color: #40c9c6;
-      }
-      .icon-clipboard {
-        color: #36a3f7;
-      }
-      .icon-close {
-        color: #f4516c;
-      }
-      .card-panel-icon-wrapper {
-        float: left;
-        margin: 20px 20px 20px 30px;
-        padding: 16px;
-        //   transition: all 0.38s ease-out;
-        border-radius: 6px;
-      }
-      .card-panel-icon {
-        float: left;
-        font-size: 48px;
-      }
-      .card-panel-description {
-        font-weight: bold;
-        margin: 26px;
-        margin-left: 0px;
-        .card-panel-text {
-          line-height: 18px;
-          color: #454545;
-          font-size: 16px;
-          margin-bottom: 6px;
+
+        .card-panel-icon-wrapper {
+          float: left;
+          margin: 20px 20px 20px 30px;
+          padding: 16px;
+          //   transition: all 0.38s ease-out;
+          border-radius: 6px;
         }
-        .card-panel-num {
-          margin-bottom: 6px;
-          font-size: 14px;
+
+        .card-panel-icon {
+          float: left;
+          font-size: 48px;
+        }
+
+        .card-panel-description {
+          font-weight: bold;
+          margin: 26px;
+          margin-left: 0px;
+
+          .card-panel-text {
+            line-height: 18px;
+            color: #454545;
+            font-size: 16px;
+            margin-bottom: 6px;
+          }
+
+          .card-panel-num {
+            margin-bottom: 6px;
+            font-size: 14px;
+          }
         }
       }
     }
+
+    .title-name {
+      color: #333333;
+      vertical-align: sub;
+    }
   }
-  .title-name {
-    color: #333333;
-    vertical-align: sub;
+
+  .progress {
+    position: absolute;
+    margin: 35px calc((100% - 50px) / 2);
   }
-}
-.progress {
-  position: absolute;
-  margin: 35px calc((100% - 50px) / 2);
-}
 </style>
