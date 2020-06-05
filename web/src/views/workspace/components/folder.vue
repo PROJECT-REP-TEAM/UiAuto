@@ -74,6 +74,11 @@
       width="50%"
       center
     >
+      <el-row :gutter="24" style="margin-bottom: 5px;" type="flex" justify="end">
+        <el-col :span="6" align="right">
+          <el-button type="primary" icon="el-icon-circle-plus" size="mini" @click="showCreateProject">新建项目</el-button>
+        </el-col>
+      </el-row>
       <el-table
         border
         style="width: 100%;"
@@ -580,6 +585,9 @@ export default {
     },
     deleteProject(params) {
       this.$parent.deleteProject(params)
+    },
+    showCreateProject() {
+      this.$parent.showDialog = true
     }
   }
 }

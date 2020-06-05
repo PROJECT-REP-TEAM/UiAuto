@@ -536,7 +536,7 @@ export default {
     // 确定按钮
     commitHandleClick() {
       const self = this
-      console.error(self.projectName)
+      // console.error(self.projectName)
       if (!this.projectName.trim()) {
         this.message('项目名称不能为空', 'warning')
       } else {
@@ -577,7 +577,6 @@ export default {
               })
           } else {
             this.$message('已存在同名文件夹', 'error')
-            return
           }
         } catch (e) {
           // console.error(e)
@@ -693,6 +692,45 @@ export default {
               writeJson,
               'utf8'
             )
+          }
+          // console.warn('>>>>>>>>>>>>>>>>>>' + this.$refs['childFolder'].tempFolderName)
+          if (this.$refs['childFolder'].tempFolderName) {
+            // console.log('好好好好好好好好好或或或或或或或或或或')
+            this.$store.commit('project/LOCAL_PROJECT_FOLDER_DELETE', { folder_name: this.$refs['childFolder'].tempFolderName })
+            let json = ''
+            try {
+              json = fse.readJsonSync(
+                `${config.projectsPath}/${this.$refs['childFolder'].tempFolderName}/${this.$refs['childFolder'].tempFolderName}.json`
+              )
+            } catch (error) {
+              // console.error(error)
+            }
+            const index = _.findIndex(json['projects'], function(element) {
+              return element === self.projectName
+            })
+            // console.error('index>>>>>>>>>>>>>>' + index)
+            // console.warn(json)
+            const projects = json['projects']
+            if (index < 0) {
+              json['projects'] = _.concat(projects, self.projectName)
+            }
+            // console.log(self.projectName)
+            json['updateAt'] = moment().format('YYYY-MM-DD HH:mm:ss')
+            // console.error(json)
+            fse.writeFileSync(
+              `${config.projectsPath}/${this.$refs['childFolder'].tempFolderName}/${this.$refs['childFolder'].tempFolderName}.json`,
+              JSON.stringify(json, null, '\t'),
+              'utf8'
+            )
+            const data = {
+              folder_name: this.$refs['childFolder'].tempFolderName,
+              project_type: json.project_type || 'folder',
+              projects: json.projects || [],
+              json: json,
+              date: moment(json.updateAt).format('YYYY-MM-DD')
+            }
+            this.$store.commit('project/LOCAL_PROJECT_FOLDERS', data)
+            this.$refs['childFolder'].showOpenFolder = false
           }
           this.$router.push({
             path: '/project',
