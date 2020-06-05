@@ -1268,10 +1268,7 @@ export default {
       this.$refs['childFolder'].outFolder(params)
     },
     hideFolder() {
-      if (this.searchProjectLs.length) {
-        return false
-      }
-      return true
+      return !this.searchProjectLs.length
     }
   }
 }

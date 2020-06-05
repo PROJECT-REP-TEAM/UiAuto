@@ -217,8 +217,9 @@ export default {
           )
           this.showDialog = false
           this.$parent.addProject(this.form.project_name)
-
-          if (this.folder_name !== '') {
+          // console.warn('folderName>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + this.folderName)
+          if (this.folderName) {
+            // console.error('哈哈哈哈哈哈哈哈哈哈或或或或或或或')
             this.$store.commit('project/LOCAL_PROJECT_FOLDER_DELETE', {
               folder_name: this.folderName
             })
@@ -228,7 +229,7 @@ export default {
                 `${config.projectsPath}/${this.folderName}/${this.folderName}.json`
               )
             } catch (error) {
-              console.error(error)
+              console.log(error)
             }
             // console.error(json)
             const projectIndex = _.findIndex(json['projects'], function(e) {
@@ -252,7 +253,7 @@ export default {
             }
             this.$store.commit('project/LOCAL_PROJECT_FOLDERS', data)
           } else {
-            console.error('===============================')
+            console.log('===============================')
           }
           this.$parent.$refs['childFolder'].showOpenFolder = false
           this.$message({
