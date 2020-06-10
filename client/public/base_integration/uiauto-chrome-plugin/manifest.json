@@ -19,8 +19,8 @@
       "48": "images/logo.png"
    },
    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr/KDBnGvywcENmCNTTmbPkMCNPCxkUSLmBZyQaNAwsaz/J9ergzaUUl3BNVPVtKnN5DPfmM+5fs28fgsFLbfSfGliEJXjUKlbb20Ak/n1YEOj88oq6MztcMPMtTMDsoQpbVjsnzWtaUjmOZs4OBp9OlvLt6YDQQ/MrkiX/vmbUYEI659PxRT12bXvHOLosvd2NYukD3BO0f/mShoEiNTaU72d1l6d3Xoy15fahRIB08sdksWLz/yc0UP1eNMcflsoK9EQ0tF2qgB3SldexwmxrFsNTgqxARh+Bj4+z9Pr0bl5z4BDR92NdQRrOKOvu18C+IC4DDquPFkjfLlHJnLFwIDAQAB",
-   "manifest_version": 2,
+   "manifest_version": 3,
    "name": "UiAuto UiSelector",
    "permissions": [ "nativeMessaging", "contextMenus", "storage", "tabs", "activeTab", "https://*/*", "http://*/*" ],
-   "version": "1.3"
+   "version": "1.4"
 }

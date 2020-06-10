@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace UiSelector
@@ -16,11 +17,19 @@ namespace UiSelector
         /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            try
             {
-                components.Dispose();
+                if (disposing && (components != null))
+                {
+                    components.Dispose();
+                }
+                base.Dispose(disposing);
             }
-            base.Dispose(disposing);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
         }
 
         #region Windows 窗体设计器生成的代码
@@ -78,7 +87,7 @@ namespace UiSelector
             this.label4.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.label4.Size = new System.Drawing.Size(167, 17);
             this.label4.TabIndex = 4;
-            this.label4.Text = "[ESC]-取消选择";
+            this.label4.Text = "[鼠标右键]-取消选择";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label5

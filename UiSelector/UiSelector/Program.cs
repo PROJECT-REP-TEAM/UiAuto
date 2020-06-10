@@ -43,7 +43,7 @@ namespace UiSelector
                     switch (input)
                     {
                         case "start":
-                            Application.Run(new Cover(ChromeDriver));
+                            Application.Run(new Cover());
                             break;
                         case "open_chrome":
                             if (ChromeDriver == null)

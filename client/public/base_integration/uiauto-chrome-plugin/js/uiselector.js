@@ -55,8 +55,8 @@ var UiAuto_GetElementFromPoint = function (x, y) {
         if (element.tagName.toLowerCase() === "iframe") {
             var elObj = UiAuto_GetIframeElement(element, x, y);
             html = UiAuto_GetHtmlStructure(elObj.el);
-            html.left += elObj.x - element.contentWindow.document.documentElement.scrollLeft;
-            html.top += elObj.y - element.contentWindow.document.documentElement.scrollTop;
+            html.left += Math.round(elObj.x - element.contentWindow.document.documentElement.scrollLeft * radio);
+            html.top += Math.round(elObj.y - element.contentWindow.document.documentElement.scrollTop * radio);
             html.frame = elObj.frame;
         } else {
             html = UiAuto_GetHtmlStructure(element);

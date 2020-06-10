@@ -25,6 +25,10 @@ exports.start_process = () => {
             console.log("uiselector selected result", result);
             listener.emit("success", result);
             fs.unlinkSync(result_file_path);
+        } else {
+            if (data.indexOf("<uiauto-uiselector>cancel</uiauto-uiselector>") > -1) {
+                listener.emit("success", null);
+            }
         }
     });
 

@@ -121,11 +121,13 @@
                     })
                     .then(result => {
                         electron.window_maximize()
-                        this.element = result
-                        this.screenshot_file = result['element_screenshot']
-                        this.show_screentshot = true
-                        this.$forceUpdate()
-                        console.log(this.element, this.screenshot_file)
+                        if (!!result) {
+                          this.element = result
+                          this.screenshot_file = result['element_screenshot']
+                          this.show_screentshot = true
+                          this.$forceUpdate()
+                          console.log(this.element, this.screenshot_file)
+                        }
                     })
                     .catch(error => {
                         console.error(error)
