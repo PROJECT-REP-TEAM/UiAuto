@@ -86,24 +86,16 @@ export const executeDownload = function (plugin) {
             console.warn("正在下载");
             pluginDownload({
               plugin: plugin,
-              listener_name:
-                "downstate" + plugin.plugin_id + "@" + plugin.latestVersion,
-              downloadPath:
-                environment.serverUrl +
-                "/downloads/plugins/" +
-                plugin.plugin_id +
-                "@" +
-                plugin.latestVersion,
-              configPath: path.normalize(
-                config.pluginsPath + "/.." + "/plugins_temp/"
-              )
+              listener_name: `downstate${plugin.plugin_id}@${plugin.latestVersion}`,
+              downloadPath: `${environment.serverUrl}/downloads/plugins/${plugin.plugin_id}/${plugin.plugin_id}@${plugin.latestVersion}`,
+              configPath: path.normalize(`${config.pluginsPath}/../plugins_temp/`)
             })
               .then(result => {
                 console.warn(result);
                 store
                   .dispatch("plugin/pluginDownloadDelete", plugin.plugin_id)
                   .then(pluginDownloadDelete => {
-                    console.warn("已安装最新版本");
+                    console.warn(`${plugin.plugin_id}已安装最新版本`);
                     const thePluginStatus = {
                       plugin_id: plugin.plugin_id,
                       needUpdate: false,
@@ -317,13 +309,10 @@ export function pluginDownload(options = {}) {
           } else {
             pluginPath = config.pluginsPath + '/';
           }
-          var pluginTempPath = path.normalize(
-            config.pluginsPath + "/.." + "/plugins_temp/"
-          )
+          var pluginTempPath = path.normalize(`${config.pluginsPath}/../plugins_temp/`)
           const fileContent = fs.readFileSync(result.filePath)
           var hashId = crypto.createHash('md5').update(fileContent).digest('hex')
-          console.log('hashId')
-          console.log(hashId)
+          console.log('hashId', hashId)
           console.log(result.filePath)
           // console.log(pluginPath)
           if (options.plugin.attachment_md5 != null && options.plugin.attachment_md5 === hashId) {
@@ -336,7 +325,6 @@ export function pluginDownload(options = {}) {
                 return r;
               }
             }).then(files => {
-              console.log("decompress success")
               const downloadParams = {
                 plugin_id: options.plugin.plugin_id,
                 downloadRate: 90,
@@ -372,10 +360,7 @@ export function pluginDownload(options = {}) {
                         console.log("nodeInit success")
                         console.log(fse.readJsonSync(packagePath).dependencies)
                         console.log(folderPath)
-                        fse.moveSync(folderPath, pluginPath + folderName, {
-                          overwrite: true
-                        });
-                        console.log(pluginPath + folderName)
+                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
                         const downloadParams = {
                           plugin_id: options.plugin.plugin_id,
                           downloadRate: 100,
@@ -412,9 +397,7 @@ export function pluginDownload(options = {}) {
                     pythonInit(folderPath, package_json.python_version)
                       .then(returnVaule => {
                         console.log("pythonInit success")
-                        fse.moveSync(folderPath, pluginPath + folderName, {
-                          overwrite: true
-                        });
+                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
                         const downloadParams = {
                           plugin_id: options.plugin.plugin_id,
                           downloadRate: 100,
@@ -448,9 +431,7 @@ export function pluginDownload(options = {}) {
                         })
                       });
                   } else if (package_json.language === "java") {
-                    fse.moveSync(folderPath, pluginPath + folderName, {
-                      overwrite: true
-                    });
+                    fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
                     const downloadParams = {
                       plugin_id: options.plugin.plugin_id,
                       downloadRate: 100,

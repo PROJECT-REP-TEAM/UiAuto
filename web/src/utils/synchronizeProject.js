@@ -19,9 +19,8 @@ import environment from "@/config/environment";
 import { pluginViews } from "@/api/plugin";
 
 export function getSynchronizeParams(data = []) {
-    console.log("getSynchronizeParams");
     let needSynchronizeProjects = [];
-    let file_name_list = fs.readdirSync(config.projectsPath);
+    let file_name_list = _.difference(fs.readdirSync(config.projectsPath), ['.DS_Store']);
     console.log(`本地项目列表:`, file_name_list);
     // 本地云端项目列表
     let deleteLocalCloudProjectLs = _.compact(_.map(file_name_list, fileNameItem => {
@@ -262,56 +261,72 @@ function downloadProject(projects, index) {
 export function getDownloadParams(files, projectName) {
     return new Promise((resolve, reject) => {
         pluginViews({}).then(result => {
-            var screenDownloadPlugin = result.data;
-            var needDownPlugins = [];
-            var projectPlugins = []
-            var plugin_name_list = _.difference(fs.readdirSync(config.pluginsPath + "/"), [
-                "list.json",
-                "npm_i.sh"
-            ]);
-            console.warn("getDownloadParams");
+            // 线上插件库
+            let onlinePlugins = result.data;
+            console.log('线上插件库', onlinePlugins);
+            // 需要下载的插件及版本
+            let needDownPlugins = [];
+            // 项目用到的插件及版本
+            let projectPlugins = [];
+            // 本地拥有的插件及版本
+            let localPlugins = [];
+            _.each(_.difference(fs.readdirSync(config.pluginsPath), ['list.json', 'npm_i.sh', '.DS_Store']), item => {
+                let versions = _.difference(fs.readdirSync(`${config.pluginsPath}/${item}`), ['.DS_Store']);
+                localPlugins = _.concat(localPlugins, _.map(versions, versionItem => {
+                    return { plugin_id: item, version: versionItem }
+                }))
+            })
+            console.log("本地拥有的插件及版本", localPlugins);
             _.each(files, file => {
                 if (file.path.includes(projectName + ".json")) {
-                    var readJson = fse.readJsonSync(
-                        config.projectsPath + "/" + file.path
-                    );
-                    projectPlugins = _.uniq(
-                        _.map(readJson.nodes, "plugin_id")
-                    );
+                    let readJson = fse.readJsonSync(config.projectsPath + "/" + file.path);
+                    _.each(readJson.nodes, item => {
+                        if (!_.find(projectPlugins, { plugin_id: item.plugin_id, version: item.version })) {
+                            projectPlugins.push({ plugin_id: item.plugin_id, version: item.version })
+                        }
+                    })
                 }
             })
+            console.log("项目用到的插件及版本", projectPlugins);
 
-            var downPlugins = _.difference(projectPlugins, plugin_name_list);
-            var abnormalPlugins = _.difference(downPlugins, _.map(screenDownloadPlugin, "plugin_id"));
+            let downPlugins = _.differenceWith(projectPlugins, localPlugins, _.isEqual);
+            // (本地插件版本 + 线上插件版本) 都不存在
+            let abnormalPlugins = _.differenceWith(downPlugins, _.map(onlinePlugins, item => {
+                return { plugin_id: item.plugin_id, version: item.version }
+            }), _.isEqual);
+            console.warn('本地插件版本 + 线上插件版本都不存在', abnormalPlugins);
+
             if (abnormalPlugins.length) {
-                reject(`检测到${abnormalPlugins}插件本地且云端不存在`)
+                let target = _.map(abnormalPlugins, item => {
+                    return `${item.plugin_id} - ${item.version}`
+                })
+                reject(`检测到<br />${target.length > 5 ? `${_.chunk(target, 5)[0].join('<br />')} 等${target.length - 5}个...` : target.join('<br />')} <br />以上插件版本本地且云端不存在`)
             } else {
-                _.each(screenDownloadPlugin, webPlugin => {
-                    _.each(downPlugins, downPlugin => {
-                        if (webPlugin.plugin_id == downPlugin) {
-                            needDownPlugins.push(webPlugin);
+                _.each(onlinePlugins, onlinePluginItem => {
+                    _.each(downPlugins, downPluginItem => {
+                        if (onlinePluginItem.plugin_id == downPluginItem.plugin_id && onlinePluginItem.version == downPluginItem.version) {
+                            needDownPlugins.push(onlinePluginItem);
                         }
                     });
                 });
-                _.each(needDownPlugins, (plugin, idx) => {
+                console.log('需要下载的插件及版本', needDownPlugins)
+
+                _.each(needDownPlugins, (item, idx) => {
                     const downloadParams = {
-                        plugin_id: plugin.plugin_id,
+                        plugin_id: item.plugin_id,
                         downloadRate: 0,
                         downloadStatus: "text",
                         isDownloading: true
                     };
                     store.commit("plugin/PLUGIN_DOWNLOAD", downloadParams);
-                    console.warn("downloadParams");
                     const thePluginStatus = {
-                        plugin_id: plugin.plugin_id,
+                        plugin_id: item.plugin_id,
                         needUpdate: true,
                         buttonText: "等待下载"
                     };
 
                     store.commit("plugin/PLUGIN_STATUS", thePluginStatus);
-                    console.warn("thePluginStatus");
                 });
-                console.warn("-=-=-=-=-=thePluginStatus=-=-=-=-=");
                 download(needDownPlugins, 0)
                     .then(result => {
                         console.warn("download resolve end");
@@ -332,7 +347,7 @@ function download(webPlugin, index, downloaded = [], notDownloaded = [], errPlug
             downloaded.length === webPlugin.length
         ) {
             if (errPlugins.length) {
-                reject(`${_.map(errPlugins, 'plugin_id')}<br>插件安装失败，请手动安装`);
+                reject(`${_.map(errPlugins, 'plugin_id')} <br>插件安装失败，请手动安装`);
             } else {
                 resolve("DownloadEND");
             }
@@ -438,42 +453,26 @@ function executeDownload(plugin) {
                     .then(pluginStatus => {
                         pluginDownload({
                             plugin: plugin,
-                            listener_name:
-                                "downstate" + plugin.plugin_id + "@" + plugin.version,
-                            downloadPath:
-                                environment.serverUrl +
-                                "/downloads/plugins/" +
-                                plugin.plugin_id +
-                                "@" +
-                                plugin.version,
-                            configPath: path.normalize(
-                                config.pluginsPath + "/.." + "/plugins_temp/"
-                            )
+                            listener_name: `downstate${plugin.plugin_id}@${plugin.version}`,
+                            downloadPath: `${environment.serverUrl}/downloads/plugins/${plugin.plugin_id}/${plugin.plugin_id}@${plugin.version}`,
+                            configPath: path.normalize(`${config.pluginsPath}/../plugins_temp/`)
                         })
                             .then(result => {
                                 console.warn(result);
-                                store
-                                    .dispatch("plugin/pluginDownloadDelete", plugin.plugin_id)
-                                    .then(pluginDownloadDelete => {
-                                        console.warn("已安装最新版本2222222222");
-                                        const thePluginStatus = {
-                                            plugin_id: plugin.plugin_id,
-                                            needUpdate: false,
-                                            buttonText: "已安装最新版本"
-                                        };
-                                        store
-                                            .dispatch("plugin/pluginStatus", thePluginStatus)
-                                            .then(pluginStatus => {
-                                                console.warn("pluginStatus");
-                                                resolve(result);
-                                            });
-                                        if (plugin.language === "python") {
-                                            store.dispatch(
-                                                "plugin/markPythonDownloading",
-                                                false
-                                            );
-                                        }
+                                store.dispatch("plugin/pluginDownloadDelete", plugin.plugin_id).then(pluginDownloadDelete => {
+                                    console.warn(`${plugin.plugin_id}已安装最新版本`);
+                                    const thePluginStatus = {
+                                        plugin_id: plugin.plugin_id,
+                                        needUpdate: false,
+                                        buttonText: "已安装最新版本"
+                                    };
+                                    store.dispatch("plugin/pluginStatus", thePluginStatus).then(pluginStatus => {
+                                        resolve(result);
                                     });
+                                    if (plugin.language === "python") {
+                                        store.dispatch("plugin/markPythonDownloading", false);
+                                    }
+                                });
                             })
                             .catch(err => {
                                 console.warn("pluginDownload err");

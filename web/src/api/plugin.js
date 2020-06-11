@@ -10,7 +10,7 @@ import $http from './global/http-client'
 
 export function pluginList(data) {
   !data.attributes && (data.attributes = ["language", "plugin_id", "plugin_name", "author", "version", "plugin_description", "attachment_md5", "updatedAt"])
-  return $http.post('/api/v1/plugins/base/user/list', data)
+  return $http.post('/api/v1/plugins/uiautoPluginList', data)
 }
 
 export function pluginViews(data) {
