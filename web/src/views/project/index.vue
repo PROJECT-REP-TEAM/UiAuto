@@ -949,13 +949,24 @@ export default {
   methods: {
     openBrowser(val) {
       window["executor"]
-        .execute_python(path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor\\base\\browser.py`), "open_browser", {
-          browser_type: val,
-          webdriver_dir: path.normalize(`${path.resolve()}\\env\\webdriver\\win32\\`)
-        })
+        .execute_python(
+          path.normalize(
+            `${path.resolve()}\\public\\base_integration\\uiauto_executor\\base\\browser.py`
+          ),
+          "open_browser",
+          {
+            browser_type: val,
+            webdriver_dir: path.normalize(
+              `${path.resolve()}\\env\\webdriver\\win32\\`
+            )
+          }
+        )
         .then(async result => {
           console.log(".>>>>>>>>>>>>>>>>..........", result);
-          fs.writeFileSync(path.normalize(`${os.homedir()}\\.uiauto\\browser.json`), JSON.stringify(result));
+          fs.writeFileSync(
+            path.normalize(`${os.homedir()}\\.uiauto\\browser.json`),
+            JSON.stringify(result)
+          );
         })
         .catch(error => {
           console.error(error);
@@ -1059,9 +1070,10 @@ export default {
           ]
         })
           .then(uploadTaskRes => {
-
             let browser_info = {};
-            const browser_info_path = path.normalize(`${os.homedir()}\\.uiauto\\browser.json`);
+            const browser_info_path = path.normalize(
+              `${os.homedir()}\\.uiauto\\browser.json`
+            );
             if (fs.existsSync(browser_info_path)) {
               browser_info = JSON.parse(fs.readFileSync(browser_info_path));
             }
@@ -1168,13 +1180,43 @@ export default {
         });
       }
     },
+    versionFn(str1, str2) {
+      var arr1 = str1.split("."), //去除'.'，将剩下的数字转换为数组
+        arr2 = str2.split("."),
+        minLen = Math.min(arr1.length, arr2.length), //取出两个数组中的最小程度
+        maxLen = Math.max(arr1.length, arr2.length); //最大长度
+
+      //以最短的数组为基础进行遍历
+      for (let i = 0; i < minLen; i++) {
+        //这里需要转换后才进行比较，否则会出现'10'<'7'的情况
+        if (parseInt(arr1[i]) > parseInt(arr2[i])) {
+          return 1; //返回一个大于0的数，表示前者的index比后者的index大
+        } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
+          return -1; //返回一个小于0的数，表示前者的index比后者的index小
+        }
+
+        //因为不只进行一次计较，所以这里不对相等的两个数进行处理，否则有可能第一次比较就返回，不符合要求
+
+        //这个是为了区分'4.8'和'4.8.0'的情况
+        //在前面的比较都相同的情况下，则比较长度
+        //位数多的index大
+        if (i + 1 == minLen) {
+          if (arr1.length > arr2.length) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+      }
+    },
     readDir() {
       // 插件目录
       const plugins_path = config.pluginsPath + "/";
 
       // 过滤无用文件后的插件文件夹名列表
       var file_name_list = _.difference(fs.readdirSync(plugins_path), [
-        "list.json"
+        "list.json",
+        ".DS_Store"
       ]);
 
       let shapeList = null;
@@ -1193,7 +1235,13 @@ export default {
       // 整理list
       var list = [];
       _.each(file_name_list, file_name => {
-        var package_json_path = plugins_path + file_name + "/package.json";
+        let versionLs = _.difference(
+          fs.readdirSync(`${plugins_path}${file_name}`),
+          [".DS_Store"]
+        ).sort(this.versionFn);
+        let package_json_path = `${plugins_path}${file_name}/${
+          versionLs[versionLs.length - 1]
+        }/package.json`;
         if (fs.existsSync(package_json_path)) {
           var package_json = fse.readJsonSync(package_json_path);
           var operations = package_json.uiauto_config.operations;
@@ -1814,9 +1862,13 @@ export default {
               this.saveGraph("save").then(res => {
                 if (res) {
                   let browser_info = {};
-                  const browser_info_path = path.normalize(`${os.homedir()}\\.uiauto\\browser.json`);
+                  const browser_info_path = path.normalize(
+                    `${os.homedir()}\\.uiauto\\browser.json`
+                  );
                   if (fs.existsSync(browser_info_path)) {
-                    browser_info = JSON.parse(fs.readFileSync(browser_info_path));
+                    browser_info = JSON.parse(
+                      fs.readFileSync(browser_info_path)
+                    );
                   }
 
                   electron.window_minimize();
