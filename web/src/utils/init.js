@@ -139,18 +139,19 @@ export function nodeInit(filePath) {
     })
 }
 
-export function pythonInit(filePath, python_version) {
+export function pythonInit(filePath, plugin_version) {
     return new Promise((reslove, reject) => {
-        console.log("filePath");
-        console.log(filePath);
+        console.log("filePath", plugin_version);
+        console.log(filePath, fs.existsSync(filePath + '/requirements.txt'));
         if (fs.existsSync(filePath + '/requirements.txt')) {
-            if (!python_version) {
+            if (!!plugin_version) {
+                console.log("pip install")
                 const sitePyPath = path.join(path.resolve(), '/env/python/win32/Lib/site.py');
                 const rfs = fs.readFileSync(path.join(path.resolve(), '/env/python/win32/Lib/site.py'));
                 let content = rfs.toString();
                 const lineContents = content.split('\n');
                 console.log(lineContents[85]);
-                lineContents[85] = 'USER_SITE = "' + path.resolve(`${os.homedir()}/.uiauto/site-packages/${path.basename(filePath)}`).replace(/\\/g, "\\\\") + '"';
+                lineContents[85] = 'USER_SITE = "' + path.resolve(`${os.homedir()}/.uiauto/site-packages/${path.basename(filePath)}/${plugin_version}`).replace(/\\/g, "\\\\") + '"';
                 fs.writeFileSync(sitePyPath, lineContents.join('\n'));
 
                 const pythonPath = path.join(path.resolve(), '/env/python/win32/python.exe');

@@ -1,6 +1,6 @@
 {
   "name": "ui-auto",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
@@ -41,7 +41,8 @@
       "createStartMenuShortcut": true,
       "shortcutName": "UiAuto",
       "perMachine": true,
-      "include": "./build/script/installer.nsh"
+      "include": "./build/script/installer.nsh",
+      "artifactName": "${productName} Setup ${version} x64.${ext}"
     },
     "directories": {
       "buildResources": "build",
@@ -86,6 +87,13 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "redist",
+        "to": "redist",
+        "filter": [
+            "**/*"
+        ]
       }
     ]
   },
@@ -126,6 +134,6 @@
   },
   "devDependencies": {
     "electron": "4.1.1",
-    "electron-builder": "^22.6.1"
+    "electron-builder": "22.7.0"
   }
 }

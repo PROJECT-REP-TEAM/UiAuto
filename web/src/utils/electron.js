@@ -394,7 +394,7 @@ export function pluginDownload(options = {}) {
                         })
                       });
                   } else if (package_json.language === "python") {
-                    pythonInit(folderPath, package_json.python_version)
+                    pythonInit(folderPath, package_json.version)
                       .then(returnVaule => {
                         console.log("pythonInit success")
                         fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });

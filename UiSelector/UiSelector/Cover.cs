@@ -652,6 +652,7 @@ namespace UiSelector
         {
             try
             {
+                Console.WriteLine(e.Button);
                 if (e.Button == MouseButtons.Right)
                 {
                     Console.WriteLine("<uiauto-uiselector>cancel</uiauto-uiselector>");

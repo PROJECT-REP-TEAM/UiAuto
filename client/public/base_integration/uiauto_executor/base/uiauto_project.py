@@ -403,7 +403,7 @@ class __Project__():
     # 通用节点执行方法
     def Convention(self, current_node, node_plugin, node_operation, node_params, node_output, options):
         execute_result = None
-        plugin_dir = self.plugins_dir + "\\" + node_plugin['id']
+        plugin_dir = self.plugins_dir + "\\" + node_plugin['id'] + "\\" + node_plugin['version']
         exec_name = 'index'
         # 将UiAuto的基础设置参数传递给插件方法
         node_params["uiauto_config"] = self.global_variable.get_value(
@@ -414,7 +414,8 @@ class __Project__():
                 'py_dir': plugin_dir,
                 'py_name': exec_name,
                 'method': node_operation['method'],
-                'plugin_name': node_plugin['name']
+                'plugin_name': node_plugin['name'],
+                'version': node_plugin['version']
             })
         # 基于nodejs开发的插件执行
         elif node_plugin['language'] == 'nodejs':
@@ -422,7 +423,8 @@ class __Project__():
                 'js_path': plugin_dir + "\\" + exec_name + ".js",
                 'method': node_operation['method'],
                 'node': current_node,
-                'params': node_params
+                'params': node_params,
+                'version': node_plugin['version']
             })
         # 基于java开发的插件执行
         elif node_plugin['language'] == 'java':
@@ -432,7 +434,8 @@ class __Project__():
                 'plugin_dir': plugin_dir,
                 'main': node_plugin['main'],
                 'jar': node_plugin['jar'],
-                'method': node_operation['method']
+                'method': node_operation['method'],
+                'version': node_plugin['version']
             }))
             process.daemon = True
             process.start()
@@ -602,7 +605,7 @@ class __Project__():
     def execute_python(self, params, options):
         sys.path.insert(0, options['py_dir'])
         plugin_site_packages_path = options['py_dir'] + '\\site-packages'
-        user_site_packages_path = '%s\\%s' % (self.user_site_packages_dir, options['plugin_name'])
+        user_site_packages_path = '%s\\%s\\%s' % (self.user_site_packages_dir, options['plugin_name'], options['version'])
         sys.path.insert(1, user_site_packages_path)
         sys.path.insert(2, plugin_site_packages_path)
         metaclass = importlib.import_module(options['py_name'])
