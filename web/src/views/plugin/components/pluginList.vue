@@ -454,8 +454,7 @@ export default {
             var version_list = {};
             var plugin_list = [];
             _.map(webPluginList, thePlugin => {
-              var package_json_path =
-                plugins_path + thePlugin.plugin_id + "/package.json";
+              var package_json_path = `${plugins_path}${thePlugin.plugin_id}/${thePlugin.version}/package.json`;
               if (!fs.existsSync(package_json_path)) {
                 package_json_path =
                   base_integration_path + thePlugin.plugin_id + "/package.json";
@@ -530,6 +529,27 @@ export default {
           });
       });
     },
+    versionFn(str1, str2) {
+      var arr1 = str1.split("."),
+        arr2 = str2.split("."),
+        minLen = Math.min(arr1.length, arr2.length),
+        maxLen = Math.max(arr1.length, arr2.length);
+
+      for (let i = 0; i < minLen; i++) {
+        if (parseInt(arr1[i]) > parseInt(arr2[i])) {
+          return 1;
+        } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
+          return -1;
+        }
+        if (i + 1 == minLen) {
+          if (arr1.length > arr2.length) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+      }
+    },
     getLocalPlugins() {
       // 插件目录
       // const plugins_path = path.normalize(
@@ -539,12 +559,38 @@ export default {
         path.resolve(),
         "/public/base_integration/"
       );
-      const base_integration_file_list = fs.readdirSync(base_integration_path);
+      const base_integration_file_list = _.map(
+        _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+        file_name => {
+          let versionLs = _.difference(
+            fs.readdirSync(`${base_integration_path}${file_name}`),
+            [".DS_Store"]
+          ).sort(this.versionFn);
+          return {
+            plugin_id: file_name,
+            version: versionLs[versionLs.length - 1]
+          };
+        }
+      );
+
       const plugins_path = config.pluginsPath + "/";
-      let file_name_list = _.difference(fs.readdirSync(plugins_path), [
-        "list.json",
-        "npm_i.sh"
-      ]);
+      let file_name_list = _.map(
+        _.difference(fs.readdirSync(plugins_path), [
+          "list.json",
+          "npm_i.sh",
+          ".DS_Store"
+        ]),
+        file_name => {
+          let versionLs = _.difference(
+            fs.readdirSync(`${plugins_path}${file_name}`),
+            [".DS_Store"]
+          ).sort(this.versionFn);
+          return {
+            plugin_id: file_name,
+            version: versionLs[versionLs.length - 1]
+          };
+        }
+      );
       file_name_list = _.concat(file_name_list, base_integration_file_list);
       let plugin_list = [];
       let where = {};
@@ -565,23 +611,25 @@ export default {
         };
       } else {
         where = {
-          plugin_id: file_name_list
+          plugin_id: _.map(file_name_list, "plugin_id")
         };
       }
       pluginViews(where)
         .then(result => {
           var webPluginViews = result.data;
           if (this.searchName !== "") {
-            file_name_list = _.pullAll(
+            file_name_list = _.pullAllWith(
               file_name_list,
-              _.difference(file_name_list, _.map(webPluginViews, "plugin_id"))
+              _.map(webPluginViews, item => {
+                return { plugin_id: item.plugin_id, version: item.version };
+              }),
+              _.isEqual
             );
           }
-          _.map(file_name_list, file_name => {
-            var package_json_path = plugins_path + file_name + "/package.json";
+          _.map(file_name_list, item => {
+            var package_json_path = `${plugins_path}${item.plugin_id}/${item.version}/package.json`;
             if (!fs.existsSync(package_json_path)) {
-              package_json_path =
-                base_integration_path + file_name + "/package.json";
+              package_json_path = `${base_integration_path}/${item.plugin_id}/${item.version}/package.json`;
             }
             if (fs.existsSync(package_json_path)) {
               var package_json = fse.readJsonSync(package_json_path);
