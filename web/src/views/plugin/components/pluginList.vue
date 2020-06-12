@@ -13,7 +13,7 @@
           插件名称/描述：
           <el-input
             v-model.trim="searchName"
-            placeholder="插件名称/描述"
+            placeholder="插件名称"
             style="width: 200px;"
             class="filter-item"
             clearable
@@ -620,18 +620,9 @@ export default {
       let where = {};
       if (this.searchName !== "") {
         where = {
-          $or: [
-            {
-              plugin_id: {
-                $like: "%" + [this.searchName] + "%"
-              }
-            },
-            {
-              plugin_description: {
-                $like: "%" + this.searchName + "%"
-              }
-            }
-          ]
+          plugin_description: {
+            $like: "%" + this.searchName + "%"
+          }
         };
       } else {
         where = {
