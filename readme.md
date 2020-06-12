@@ -1,7 +1,7 @@
 <div align=center><img src="./images/icon.jpg" /></div><br>
 
 ## UiAuto更新公告
-# UiAuto 1.1.2 版本
+### UiAuto 1.1.2 版本
 - 更新内容：插件多版本共存。<br>
 - <span style="color: red;">安装须知：插件需要全部重新下载。</span>
 
