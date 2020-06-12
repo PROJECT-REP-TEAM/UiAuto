@@ -1,10 +1,10 @@
 const fse = require('fs-extra');
-const {PythonShell} = require('python-shell');
+const { PythonShell } = require('python-shell');
 const path = require('path');
 const uuid = require('uuid');
 const os = require('os')
 const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
-const EventEmitter=require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
 const listener = new EventEmitter();
 const child_process = require("child_process");
 
@@ -48,7 +48,7 @@ exports.execute = (params) => {
             listener.on("success", (data) => {
                 resolve(data);
                 listener.removeAllListeners()
-            }); 
+            });
 
             listener.on("error", (data) => {
                 reject(data);
@@ -74,17 +74,17 @@ exports.open_browser = (params) => {
 
             const shell_result = child_process.execSync("REG QUERY HKEY_CURRENT_USER\\SOFTWARE\\Google\\Chrome\\BLBeacon /v version");
             console.log("shell>>>>>>>>>>>>>>>>>", shell_result.toString().split("    "));
-        
+
             listener.on("success", (data) => {
                 resolve(data);
                 listener.removeAllListeners()
             });
-        
+
             listener.on("error", (data) => {
                 reject(data);
                 listener.removeAllListeners()
             });
-        
+
             if (window['uiselector_shell']) {
                 window['uiselector_shell'].stdin.write('open_chrome\n');
             } else {
@@ -98,13 +98,17 @@ exports.open_browser = (params) => {
 
 exports.restart_process = () => {
     console.log("重启UI选择器");
-    window['uiselector_shell'].stdin.write("exit_app\n");
+    try {
+        window['uiselector_shell'].stdin.write("exit_app\n");
+    } catch (error) {
+        console.log(error)
+    }
     setTimeout(() => {
         window['uiselector_shell'].kill();
         exports.start_process();
     }, 500)
-    
-    
+
+
 };
 
 exports.exit_uiselector = () => {
