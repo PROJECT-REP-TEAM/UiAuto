@@ -1,5 +1,10 @@
 <div align=center><img src="./images/icon.jpg" /></div><br>
 
+## UiAuto更新公告
+# UiAuto 1.1.2 版本
+- 更新内容：插件多版本共存。<br>
+- <span style="color: red;">安装须知：插件需要全部重新下载。</span>
+
 ## 关于 UiAuto<br>
 [UiAuto](#) 是览众独立开发的一款[RPA](#)工具，致力于减少人员处理重复性任务的时间，为客户提供高效的解决方案。通过它帮助企业解决业务流程自动化难题，主要用户处理标准、重复、繁琐、大批量的工作任务。[RPA](#)应用以更低的成本、更快的速度和更高的质量进行全天候服务，极大减少人为从事规律可循的机械性工作，释放员工创造力、提升员工满意度。<br>
 
@@ -7,8 +12,8 @@
 `在Windows系统下，下载安装，通过手机号注册即可使用。`<br>
 
 ## 安装包下载<img src="./images/new.png" width="64" /><br>
-- v1.1.1 x64
-[阿里云下载](https://uiautodev.oss-cn-beijing.aliyuncs.com/UiAuto%20Setup%201.1.1%20x64.exe)
+- v1.1.2 x64
+[阿里云下载](https://uiautodev.oss-cn-beijing.aliyuncs.com/UiAuto%20Setup%201.1.2%20x64.exe)
 
 ## 安装、配置
 - 双击安装包便可自动安装。
