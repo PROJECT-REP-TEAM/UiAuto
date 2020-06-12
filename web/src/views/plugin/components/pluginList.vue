@@ -313,30 +313,54 @@ export default {
           path.resolve(),
           "/public/base_integration/"
         );
-        const base_integration_file_list = fs.readdirSync(
-          base_integration_path
+        const base_integration_file_list = _.map(
+          _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+          file_name => {
+            let versionLs = _.difference(
+              fs.readdirSync(`${base_integration_path}${file_name}`),
+              [".DS_Store"]
+            ).sort(this.versionFn);
+            return {
+              plugin_id: file_name,
+              version: versionLs[versionLs.length - 1]
+            };
+          }
         );
-        var plugins_path = config.pluginsPath + "/";
-        var file_name_list = _.difference(fs.readdirSync(plugins_path), [
-          "list.json",
-          "npm_i.sh"
-        ]);
+
+        const plugins_path = config.pluginsPath + "/";
+        let file_name_list = _.map(
+          _.difference(fs.readdirSync(plugins_path), [
+            "list.json",
+            "npm_i.sh",
+            ".DS_Store"
+          ]),
+          file_name => {
+            let versionLs = _.difference(
+              fs.readdirSync(`${plugins_path}${file_name}`),
+              [".DS_Store"]
+            ).sort(this.versionFn);
+            return {
+              plugin_id: file_name,
+              version: versionLs[versionLs.length - 1]
+            };
+          }
+        );
         file_name_list = _.concat(file_name_list, base_integration_file_list);
         _.remove(screenDownloadPlugin, function(item) {
           let package_path = "";
           if (
             fs.existsSync(
               path.normalize(
-                base_integration_path + item.plugin_id + "/package.json"
+                `${base_integration_path}${item.plugin_id}/${item.version}/package.json`
               )
             )
           ) {
             package_path = path.normalize(
-              base_integration_path + item.plugin_id + "/package.json"
+              `${base_integration_path}${item.plugin_id}/${item.version}/package.json`
             );
           } else {
             package_path = path.normalize(
-              config.pluginsPath + "/" + item.plugin_id + "/package.json"
+              `${config.pluginsPath}/${item.plugin_id}/package.json`
             );
           }
 
@@ -358,7 +382,7 @@ export default {
           if (
             fs.existsSync(
               path.normalize(
-                base_integration_path + plugin.plugin_id + "/package.json"
+                `${base_integration_path}${plugin.plugin_id}/${plugin.version}/package.json`
               )
             )
           ) {
@@ -366,11 +390,11 @@ export default {
               window.uiselector.exit_uiselector();
             }
             package_path = path.normalize(
-              base_integration_path + plugin.plugin_id + "/package.json"
+              `${base_integration_path}${plugin.plugin_id}/${plugin.version}/package.json`
             );
           } else {
             package_path = path.normalize(
-              config.pluginsPath + "/" + plugin.plugin_id + "/package.json"
+              `${config.pluginsPath}/${plugin.plugin_id}/${plugin.version}/package.json`
             );
           }
           if (fs.existsSync(package_path)) {
