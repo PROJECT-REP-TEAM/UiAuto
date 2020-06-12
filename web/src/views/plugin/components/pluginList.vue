@@ -456,18 +456,7 @@ export default {
         var plugins_path = config.pluginsPath + "/";
         if (this.searchName !== "") {
           this.listQuery.where = {
-            $or: [
-              {
-                plugin_id: {
-                  $like: "%" + [this.searchName] + "%"
-                }
-              },
-              {
-                plugin_description: {
-                  $like: "%" + this.searchName + "%"
-                }
-              }
-            ]
+            plugin_name: this.searchName
           };
         } else {
           this.listQuery.where = {};
@@ -620,13 +609,11 @@ export default {
       let where = {};
       if (this.searchName !== "") {
         where = {
-          plugin_description: {
-            $like: "%" + this.searchName + "%"
-          }
+          plugin_name: this.searchName
         };
       } else {
         where = {
-          plugin_id: _.map(file_name_list, "plugin_id")
+          plugin_name: _.map(file_name_list, "plugin_id")
         };
       }
       pluginViews(where)
