@@ -750,7 +750,7 @@ class __Project__():
     def find_plugin_for_node(self, node):
         plugin = None
         plugin_path = self.plugins_dir + "\\" + \
-                      node['plugin_id'] + "\\package.json"
+                      node['plugin_id'] + "\\" + node['version'] + "\\package.json"
         if os.path.exists(plugin_path):
             with open(plugin_path, 'r', encoding='UTF-8') as plugin_file:
                 plugin = json.loads(plugin_file.read())
