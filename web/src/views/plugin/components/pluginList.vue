@@ -767,9 +767,9 @@ export default {
           file_name => {
             return {
               plugin_id: file_name,
-              version: fse.readJsonSync(
+              version: fs.existsSync(`${base_integration_path}${file_name}/package.json`) ? fse.readJsonSync(
                 `${base_integration_path}${file_name}/package.json`
-              ).version
+              ).version : ''
             };
           }
         );

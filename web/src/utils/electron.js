@@ -360,7 +360,7 @@ export function pluginDownload(options = {}) {
                         console.log("nodeInit success")
                         console.log(fse.readJsonSync(packagePath).dependencies)
                         console.log(folderPath)
-                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
+                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
                         const downloadParams = {
                           plugin_id: options.plugin.plugin_id,
                           downloadRate: 100,
@@ -397,7 +397,7 @@ export function pluginDownload(options = {}) {
                     pythonInit(folderPath, package_json.version)
                       .then(returnVaule => {
                         console.log("pythonInit success")
-                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
+                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
                         const downloadParams = {
                           plugin_id: options.plugin.plugin_id,
                           downloadRate: 100,
