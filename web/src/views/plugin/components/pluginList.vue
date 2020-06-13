@@ -316,13 +316,11 @@ export default {
         const base_integration_file_list = _.map(
           _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
           file_name => {
-            let versionLs = _.difference(
-              fs.readdirSync(`${base_integration_path}${file_name}`),
-              [".DS_Store"]
-            ).sort(this.versionFn);
             return {
               plugin_id: file_name,
-              version: versionLs[versionLs.length - 1]
+              version: fse.readJsonSync(
+                `${base_integration_path}${file_name}/package.json`
+              ).version
             };
           }
         );
@@ -456,7 +454,8 @@ export default {
         var plugins_path = config.pluginsPath + "/";
         if (this.searchName !== "") {
           this.listQuery.where = {
-            plugin_name: this.searchName
+            plugin_name: this.searchName,
+            plugin_description: this.searchName
           };
         } else {
           this.listQuery.where = {};
@@ -575,13 +574,11 @@ export default {
       const base_integration_file_list = _.map(
         _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
         file_name => {
-          let versionLs = _.difference(
-            fs.readdirSync(`${base_integration_path}${file_name}`),
-            [".DS_Store"]
-          ).sort(this.versionFn);
           return {
             plugin_id: file_name,
-            version: versionLs[versionLs.length - 1]
+            version: fse.readJsonSync(
+              `${base_integration_path}${file_name}/package.json`
+            ).version
           };
         }
       );
@@ -609,7 +606,8 @@ export default {
       let where = {};
       if (this.searchName !== "") {
         where = {
-          plugin_name: this.searchName
+          plugin_name: this.searchName,
+          plugin_description: this.searchName
         };
       } else {
         where = {
@@ -760,24 +758,51 @@ export default {
       if (_.includes(["下载", "更新"], this.searchStatus)) {
         let pluginList = [];
         let pluginStatusList = [];
-        let fileNameList = _.concat(
-          _.difference(fs.readdirSync(`${config.pluginsPath}/`), [
+        const base_integration_path = path.join(
+          path.resolve(),
+          "/public/base_integration/"
+        );
+        const base_integration_file_list = _.map(
+          _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+          file_name => {
+            return {
+              plugin_id: file_name,
+              version: fse.readJsonSync(
+                `${base_integration_path}${file_name}/package.json`
+              ).version
+            };
+          }
+        );
+
+        const plugins_path = config.pluginsPath + "/";
+        let fileNameList = _.map(
+          _.difference(fs.readdirSync(plugins_path), [
             "list.json",
             "npm_i.sh",
             ".DS_Store"
           ]),
-          fs.readdirSync(path.join(path.resolve(), "/public/base_integration/"))
+          file_name => {
+            let versionLs = _.difference(
+              fs.readdirSync(`${plugins_path}${file_name}`),
+              [".DS_Store"]
+            ).sort(this.versionFn);
+            return {
+              plugin_id: file_name,
+              version: versionLs[versionLs.length - 1]
+            };
+          }
         );
+        fileNameList = _.concat(fileNameList, base_integration_file_list);
+
         pluginViews({}).then(result => {
           _.each(result.data, pluginItem => {
-            var package_json_path = `${config.pluginsPath}/${pluginItem.plugin_id}/package.json`;
+            var package_json_path = `${config.pluginsPath}/${pluginItem.plugin_id}/${pluginItem.version}/package.json`;
             var base_integration_path = path.join(
               path.resolve(),
               "/public/base_integration/"
             );
             if (!fs.existsSync(package_json_path)) {
-              package_json_path =
-                base_integration_path + pluginItem.plugin_id + "/package.json";
+              package_json_path = `${base_integration_path}${pluginItem.plugin_id}/${pluginItem.version}/package.json`;
             }
             if (
               _.includes(
@@ -791,11 +816,11 @@ export default {
             }
 
             // 本地插件版本
-            let localPluginVersion = _.includes(
-              fileNameList,
-              pluginItem.plugin_id
-            )
-              ? fse.readJsonSync(package_json_path).version
+            let localPluginVersion = _.find(fileNameList, {
+              plugin_id: pluginItem.plugin_id
+            })
+              ? _.find(fileNameList, { plugin_id: pluginItem.plugin_id })
+                  .version
               : null;
             let thePluginStatus = {
               plugin_id: pluginItem.plugin_id,
@@ -810,7 +835,9 @@ export default {
                     )
                   ? true
                   : false,
-              buttonText: _.includes(fileNameList, pluginItem.plugin_id)
+              buttonText: _.find(fileNameList, {
+                plugin_id: pluginItem.plugin_id
+              })
                 ? checkPluginsVersion(
                     pluginItem.version,
                     localPluginVersion ? localPluginVersion : pluginItem.version
@@ -979,22 +1006,6 @@ export default {
   // margin-top: 6px;
   margin-bottom: 15px;
 }
-
-// .button {
-//   font-size: 12px;
-//   color: #fff;
-//   margin-top: 10px;
-//   margin-bottom: 15px;
-//   margin-left: 10px;
-//   padding: 10px 20px;
-//   border-radius: 8px;
-//   border: none;
-//   outline: none;
-//   -webkit-transition: all 0.6s ease;
-//   transition: all 0.6s ease;
-//   float: right;
-//   // display: inline-block;
-// }
 
 .card-panel > .el-card {
   height: 100%;
