@@ -318,9 +318,13 @@ export default {
           file_name => {
             return {
               plugin_id: file_name,
-              version: fse.readJsonSync(
+              version: fs.existsSync(
                 `${base_integration_path}${file_name}/package.json`
-              ).version
+              )
+                ? fse.readJsonSync(
+                    `${base_integration_path}${file_name}/package.json`
+                  ).version
+                : ""
             };
           }
         );
@@ -444,14 +448,46 @@ export default {
     },
     getWebPlugins() {
       return new Promise((reslove, reject) => {
-        // var plugins_path = path.normalize(
-        //   path.resolve() + "/.." + "/web/public/plugins/"
-        // );
         const base_integration_path = path.join(
           path.resolve(),
           "/public/base_integration/"
         );
-        var plugins_path = config.pluginsPath + "/";
+        const base_integration_file_list = _.map(
+          _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+          file_name => {
+            return {
+              plugin_id: file_name,
+              version: fs.existsSync(
+                `${base_integration_path}${file_name}/package.json`
+              )
+                ? fse.readJsonSync(
+                    `${base_integration_path}${file_name}/package.json`
+                  ).version
+                : ""
+            };
+          }
+        );
+
+        const plugins_path = config.pluginsPath + "/";
+        let fileNameList = _.map(
+          _.difference(fs.readdirSync(plugins_path), [
+            "list.json",
+            "npm_i.sh",
+            ".DS_Store"
+          ]),
+          file_name => {
+            let versionLs = _.difference(
+              fs.readdirSync(`${plugins_path}${file_name}`),
+              [".DS_Store"]
+            ).sort(this.versionFn);
+            return {
+              plugin_id: file_name,
+              version: versionLs[versionLs.length - 1]
+            };
+          }
+        );
+        fileNameList = _.concat(fileNameList, base_integration_file_list);
+
         if (this.searchName !== "") {
           this.listQuery.where = {
             plugin_name: this.searchName,
@@ -463,19 +499,21 @@ export default {
         pluginList(this.listQuery)
           .then(result => {
             var webPluginList = result.data.list;
-            var version_list = {};
-            var plugin_list = [];
+
             _.map(webPluginList, thePlugin => {
-              var package_json_path = `${plugins_path}${thePlugin.plugin_id}/${thePlugin.version}/package.json`;
-              if (!fs.existsSync(package_json_path)) {
-                package_json_path =
-                  base_integration_path + thePlugin.plugin_id + "/package.json";
-              }
-              if (thePlugin.plugin_id === "uiauto_logMonitor") {
-                thePlugin.is_uiauto_base_integration = true;
-              }
-              if (fs.existsSync(package_json_path)) {
-                var package_json = fse.readJsonSync(package_json_path);
+              let target = _.find(fileNameList, {
+                plugin_id: thePlugin.plugin_id
+              });
+              if (target) {
+                let package_json_path = `${plugins_path}${target.plugin_id}/${target.version}/package.json`;
+                if (!fs.existsSync(package_json_path)) {
+                  package_json_path = `${base_integration_path}${target.plugin_id}/package.json`;
+                }
+                if (target.plugin_id === "uiauto_logMonitor") {
+                  target.is_uiauto_base_integration = true;
+                }
+
+                let package_json = fse.readJsonSync(package_json_path);
                 thePlugin.is_uiauto_base_integration = !!package_json.is_uiauto_base_integration;
                 thePlugin.latestVersion = thePlugin.version;
                 const thePluginStatus = {
@@ -504,9 +542,6 @@ export default {
                     : "已安装最新版本"
                 };
                 this.$store.commit("plugin/PLUGIN_STATUS", thePluginStatus);
-                // thePlugin.isDownloading = this.download_plugin[thePlugin.plugin_id]? (this.download_plugin[thePlugin.plugin_id]["downloadStatus"] === "exception"? false: true ): false;
-                // thePlugin.needUpdate = thePlugin.version > package_json.version ? true : false;
-                // thePlugin.buttonText = this.download_plugin[thePlugin.plugin_id] ? (this.download_plugin[thePlugin.plugin_id]["downloadStatus"] === "exception" ? "重新下载" : "正在下载") : (thePlugin.version > package_json.version ? "更新" : "已安装最新版本");
               } else {
                 thePlugin.latestVersion = thePlugin.version;
                 const thePluginStatus = {
@@ -525,9 +560,6 @@ export default {
                     : "下载"
                 };
                 this.$store.commit("plugin/PLUGIN_STATUS", thePluginStatus);
-                // thePlugin.isDownloading = this.download_plugin[thePlugin.plugin_id]? (this.download_plugin[thePlugin.plugin_id]["downloadStatus"] === "exception" ? false : true) : false;
-                // thePlugin.needUpdate = true;
-                // thePlugin.buttonText = this.download_plugin[thePlugin.plugin_id]? (this.download_plugin[thePlugin.plugin_id]["downloadStatus"] === "exception"? "重新下载": "正在下载") : "下载";
               }
             });
             this.list = webPluginList;
@@ -767,9 +799,13 @@ export default {
           file_name => {
             return {
               plugin_id: file_name,
-              version: fs.existsSync(`${base_integration_path}${file_name}/package.json`) ? fse.readJsonSync(
+              version: fs.existsSync(
                 `${base_integration_path}${file_name}/package.json`
-              ).version : ''
+              )
+                ? fse.readJsonSync(
+                    `${base_integration_path}${file_name}/package.json`
+                  ).version
+                : ""
             };
           }
         );
