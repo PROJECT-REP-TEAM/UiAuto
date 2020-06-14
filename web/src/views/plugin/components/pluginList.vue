@@ -20,7 +20,7 @@
             @keyup.enter.native="handleSeach()"
           />
         </el-col>
-        <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6" class="advanced-search-groups">
+        <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="advanced-search-groups">
           插件状态：
           <el-select
             v-model="searchStatus"
