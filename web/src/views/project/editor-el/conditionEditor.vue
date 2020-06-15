@@ -82,7 +82,7 @@ export default {
       this.changeValue();
     },
     changeValue(val) {
-      console.error(val);
+      console.log(val);
       this.addCondition_value = this.currValue.length;
       this.$emit("changeValue", {
         input_id: this.inputId,
