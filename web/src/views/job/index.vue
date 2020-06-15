@@ -5,7 +5,7 @@
         <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6" class="advanced-search-groups">
           项目名称：
           <el-input
-            v-model="listQuery.name"
+            v-model="listQuery.project_name"
             placeholder="项目名称"
             style="width: 200px;"
             class="filter-item"
@@ -135,7 +135,7 @@ export default {
       message: [],
       total: 0,
       listQuery: {
-        name: "",
+        project_name: "",
         status: "all",
         createdAt: [
           new Date(moment().format("YYYY-MM-DD 00:00:00")),
@@ -162,7 +162,7 @@ export default {
     getList(listQuery) {
       this.loading = true;
       let _where = {};
-      listQuery.name && (_where.name = { $like: `%${listQuery.name}%` });
+      listQuery.project_name && (_where.project_name = { $like: `%${listQuery.project_name}%` });
       if (listQuery.createdAt) {
         const timeLimit = _.map(listQuery.createdAt, function(timeLimit) {
           return moment(timeLimit).format("YYYY-MM-DD HH:mm:ss");
