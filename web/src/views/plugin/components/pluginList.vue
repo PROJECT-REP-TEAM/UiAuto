@@ -13,7 +13,7 @@
           插件名称/描述：
           <el-input
             v-model.trim="searchName"
-            placeholder="插件名称"
+            placeholder="插件名称/描述"
             style="width: 200px;"
             class="filter-item"
             clearable

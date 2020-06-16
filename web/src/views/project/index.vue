@@ -342,7 +342,10 @@
                     >
                       <div
                         style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
-                      >{{item.data_label}}</div>
+                      >
+                        <span style="position: absolute;left: 5px;">{{item.version}}</span>
+                        <span>{{item.data_label}}</span>
+                      </div>
                       <svg
                         v-if="item.language==='nodejs'"
                         t="1565963200375"

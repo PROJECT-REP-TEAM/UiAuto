@@ -117,10 +117,13 @@ function start_socket_client_fn() {
     })
 
     socket_client.on('UIAUTO_UPDATE_CRON', (data) => {
-      const project_path = path.normalize(`${config.projectsPath}/${data.projectName}/${data.projectName}.json`)
-      const project_config = JSON.parse(fs.readFileSync(project_path, 'utf8'))
-      project_config.cron = data.cron
-      fs.writeFileSync(project_path, JSON.stringify(project_config, null, '\t'))
+      console.warn('UIAUTO_UPDATE_CRON!!!');
+      const project_path = path.normalize(`${config.projectsPath}/${data.projectName}/${data.projectName}.json`);
+      const project_config = JSON.parse(fs.readFileSync(project_path, 'utf8'));
+      if (project_config.project_type == 'cloud') {
+        project_config.cron = data.cron;
+        fs.writeFileSync(project_path, JSON.stringify(project_config, null, '\t'));
+      }
     });
 
     socket_client.on('GET_CLOUD_PROJECTS', datas => {
