@@ -160,7 +160,9 @@ export default {
       showDeleteFolder: false,
       isDelete: false,
       deleteInfo: '',
-      showDeleteProject: false
+      showDeleteProject: false,
+      show: false,
+      showCurrent: ''
     }
   },
   computed: {},
