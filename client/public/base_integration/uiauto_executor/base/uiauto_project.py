@@ -751,6 +751,9 @@ class __Project__():
         plugin = None
         plugin_path = self.plugins_dir + "\\" + \
                       node['plugin_id'] + "\\" + node['version'] + "\\package.json"
+        if not os.path.exists(plugin_path):
+            plugin_path = self.plugins_dir + "\\" + \
+                      node['plugin_id'] + "\\" + self.get_latest_version(node=node) + "\\package.json"
         if os.path.exists(plugin_path):
             with open(plugin_path, 'r', encoding='UTF-8') as plugin_file:
                 plugin = json.loads(plugin_file.read())
@@ -758,6 +761,20 @@ class __Project__():
             raise Exception('当前节点的插件不存在')
 
         return plugin
+
+    
+    def get_latest_version(self, node):
+        plugin_path = "%s\\%s" % (self.plugins_dir, node['plugin_id'])
+        version_list = os.listdir(plugin_path)
+        reverse_version = {}
+        for version in version_list:
+            if os.path.isdir("%s\\%s" % (plugin_path, version)):
+                reverse_version[int(version.replace(".", ""))] = version
+        
+        max_verstion = max(reverse_version.keys())
+
+        return reverse_version[max_verstion]
+
 
     # 查找节点对应的操作
     def find_operation_for_node(self, plugin, node):
