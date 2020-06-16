@@ -107,6 +107,7 @@ import moment from 'moment'
 import cron from './cron'
 import environment from '@/config/environment'
 import config from '@/config/environment/index'
+import { updateCron } from "@/api/task";
 
 export default {
   name: 'Edit',
@@ -269,10 +270,18 @@ export default {
         )
         this.showDialog = false
         this.$parent.addProject(this.propProjectName)
+        if(this.readJson.project_type === "cloud") {
+          updateCron({
+            name: this.readJson.project_name,
+            cron: this.readJson.cron,
+            deviceId: fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`).deviceId
+          })
+        }
         this.$message({
           message: '修改成功',
           type: 'success'
         })
+        
       }
     }
   }

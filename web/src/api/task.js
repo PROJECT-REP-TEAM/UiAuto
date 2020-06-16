@@ -12,3 +12,7 @@ export function uploadTask(data) {
     return $http.post('/api/v1/tasks/synchronize/upload', data)
 }
 
+export function updateCron(data) {
+    return $http.post('/api/v1/tasks/updateCron', data)
+}
+

@@ -102,8 +102,11 @@
                   v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
                 >
                   <div
-                    style="width: calc(100% - 35px);height: 100%;padding: 0 0 0 35px;float: left;overflow: hidden;"
-                  >{{item.data_label}}</div>
+                    style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
+                  >
+                    <span style="position: absolute;left: 25px;">{{item.version}}</span>
+                    <span style="display: block;">{{item.data_label}}</span>
+                  </div>
                   <svg
                     v-if="item.language==='nodejs'"
                     t="1565963200375"
@@ -344,7 +347,7 @@
                         style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
                       >
                         <span style="position: absolute;left: 5px;">{{item.version}}</span>
-                        <span>{{item.data_label}}</span>
+                        <span style="display: block;">{{item.data_label}}</span>
                       </div>
                       <svg
                         v-if="item.language==='nodejs'"
