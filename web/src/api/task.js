@@ -16,3 +16,7 @@ export function updateCron(data) {
     return $http.post('/api/v1/tasks/updateCron', data)
 }
 
+// uiauto详细日志
+export function uiautoLogList(data) {
+    return $http.post('/api/v1/uiautoLogs/base/user/list', data)
+  }

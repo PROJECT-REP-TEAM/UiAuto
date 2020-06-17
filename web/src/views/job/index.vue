@@ -2,7 +2,7 @@
   <div class="app-main-content" style="padding: 0 10px;">
     <div class="filter-container">
       <el-row>
-        <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6" class="advanced-search-groups">
+        <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" class="advanced-search-groups">
           项目名称：
           <el-input
             v-model="listQuery.project_name"
@@ -12,7 +12,7 @@
             @keyup.enter.native="handleFilter()"
           />
         </el-col>
-        <el-col :xs="24" :sm="12" :md="7" :lg="7" :xl="7" class="advanced-search-groups">
+        <el-col :xs="24" :sm="12" :md="12" :lg="7" :xl="7" class="advanced-search-groups">
           任务状态：
           <el-select
             v-model="listQuery.status"
@@ -28,7 +28,7 @@
             />
           </el-select>
         </el-col>
-        <el-col :xs="24" :sm="24" :md="11" :lg="11" :xl="11" class="advanced-search-groups">
+        <el-col :xs="24" :sm="24" :md="24" :lg="9" :xl="9" class="advanced-search-groups">
           任务时间：
           <el-date-picker
             v-model="listQuery.createdAt"
@@ -68,41 +68,12 @@
         </template>
       </el-table-column>
       <el-table-column prop="updatedAt" align="center" label="任务时间"></el-table-column>
-      <!-- <el-table-column prop="message" align="center" label="错误信息"></el-table-column> -->
-      <el-table-column prop="message" fixed="right" align="center" label="错误信息">
+      <el-table-column fixed="right" align="center" label="操作">
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            slot="reference"
-            v-if="scope.row.status=='fail'"
-            @click="viewClick(scope.row.message)"
-          >查看详情</el-button>
+          <el-button type="primary" slot="reference" @click="logFn(scope.row.id)">日志</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-      title="详情信息"
-      :visible.sync="showDialog"
-      center
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      top="5vh"
-    >
-      <el-table
-        border
-        style="width: 100%"
-        :data="message"
-        :show-header="false"
-        max-height="calc(100vh - 200px)"
-      >
-        <el-table-column>
-          <template slot-scope="{row}">
-            <font v-if="row.log.indexOf('[error]') > -1" style="color: red;">{{row.log}}</font>
-            <font v-else>{{row.log}}</font>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
     <div style="width: 100%;">
       <center>
         <pagination
@@ -114,13 +85,52 @@
         />
       </center>
     </div>
+
+    <el-dialog
+      width="70%"
+      title="日志详情"
+      :visible.sync="innerVisible"
+      append-to-body
+      @closed="cancel"
+    >
+      <el-table
+        v-infinite-scroll="detailLogLoadMore"
+        :data="detailLogTableData"
+        style="width: 100%"
+        height="calc(40vh)"
+        size="mini"
+      >
+        <el-table-column type="index" />
+        <el-table-column prop="bank_name" label="类型" width="100">
+          <template slot-scope="{row}">
+            <el-tag
+              :type="['warning', 'danger', 'success'][['warn', 'fail', 'success'].indexOf(row.status)]"
+              effect="dark"
+              size="mini"
+            >{{ ['警告', '失败', '成功'][['warn', 'fail', 'success'].indexOf(row.status)] }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="content" label="内容" min-width="300" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="updatedAt" label="创建时间" min-width="150" show-overflow-tooltip />
+        <div slot="append" style="text-align: center">
+          <!--在此处添加你想要插入在表格最后一行的内容-->
+          <div
+            v-if="detailLogIsMore"
+            v-loading="true"
+            element-loading-spinner="el-icon-loading"
+            style="height:40px;line-height:40px"
+          >&nbsp;</div>
+          <div v-else style="height:40px;line-height:40px;color:#ccc">--- 已经到底了 ---</div>
+        </div>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import _ from "lodash";
 import moment from "moment";
-import { taskList } from "@/api/task";
+import { taskList, uiautoLogList } from "@/api/task";
 import Pagination from "@/components/Pagination";
 
 export default {
@@ -150,7 +160,13 @@ export default {
         { label: "运行中", key: "running" },
         { label: "成功", key: "success" },
         { label: "失败", key: "fail" }
-      ]
+      ],
+      innerVisible: false,
+      detailLogTableData: [],
+      detailLogPageIndex: 1,
+      detailLogPageSize: 10,
+      detailLogIsMore: false,
+      detailLogWhere: {}
     };
   },
   created() {
@@ -162,7 +178,8 @@ export default {
     getList(listQuery) {
       this.loading = true;
       let _where = {};
-      listQuery.project_name && (_where.project_name = { $like: `%${listQuery.project_name}%` });
+      listQuery.project_name &&
+        (_where.project_name = { $like: `%${listQuery.project_name}%` });
       if (listQuery.createdAt) {
         const timeLimit = _.map(listQuery.createdAt, function(timeLimit) {
           return moment(timeLimit).format("YYYY-MM-DD HH:mm:ss");
@@ -196,17 +213,56 @@ export default {
     refresh() {
       this.getList(this.listQuery);
     },
-    viewClick(data) {
-      if (JSON.parse(data)) {
-        _.each(_.compact(JSON.parse(data).split("\n")), item => {
-          if (item !== " ") {
-            this.message.push({ log: item });
-          }
+    cancel() {
+      this.innerVisible = false;
+      this.detailLogTableData = [];
+      this.detailLogPageIndex = 1;
+      this.detailLogPageSize = 10;
+      this.detailLogIsMore = false;
+      this.detailLogWhere = {};
+    },
+    logFn(taskId) {
+      this.innerVisible = true;
+      this.detailLogLoadList(taskId);
+    },
+    detailLogLoadList(taskId) {
+      this.detailLogWhere = { taskId: taskId };
+      uiautoLogList({
+        pageIndex: this.detailLogPageIndex,
+        pageSize: this.detailLogPageSize,
+        where: this.detailLogWhere,
+        order: [
+          ["createdAt", "DESC"],
+          ["id", "DESC"]
+        ]
+      }).then(({ data }) => {
+        this.detailLogTableData = data.list;
+        this.detailLogPageIndex = data.pageIndex;
+        this.detailLogPageSize = data.pageSize;
+        this.detailLogIsMore = data.isMore;
+      });
+    },
+    getRemote: _.debounce(function() {
+      if (this.detailLogIsMore) {
+        this.detailLogPageIndex++;
+        uiautoLogList({
+          pageIndex: this.detailLogPageIndex,
+          pageSize: this.detailLogPageSize,
+          where: this.detailLogWhere,
+          order: [
+            ["createdAt", "DESC"],
+            ["id", "DESC"]
+          ]
+        }).then(({ data }) => {
+          this.detailLogTableData = this.detailLogTableData.concat(data.list);
+          this.detailLogPageIndex = data.pageIndex;
+          this.detailLogPageSize = data.pageSize;
+          this.detailLogIsMore = data.isMore;
         });
       }
-      console.log(this.message);
-      // this.message = JSON.parse(data).split("\n");
-      this.showDialog = true;
+    }, 500),
+    detailLogLoadMore() {
+      this.getRemote();
     }
   }
 };
