@@ -104,10 +104,10 @@
         <el-table-column prop="bank_name" label="类型" width="100">
           <template slot-scope="{row}">
             <el-tag
-              :type="['warning', 'danger', 'success'][['warn', 'fail', 'success'].indexOf(row.status)]"
+              :type="['primary', 'warning', 'danger', 'success'][['info', 'warn', 'fail', 'success'].indexOf(row.status)]"
               effect="dark"
               size="mini"
-            >{{ ['警告', '失败', '成功'][['warn', 'fail', 'success'].indexOf(row.status)] }}</el-tag>
+            >{{ ['信息', '警告', '失败', '成功'][['info', 'warn', 'fail', 'success'].indexOf(row.status)] }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="content" label="内容" min-width="300" show-overflow-tooltip></el-table-column>
