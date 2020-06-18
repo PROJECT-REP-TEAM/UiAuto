@@ -4,6 +4,7 @@ const express = window.require('express')
 const { router } = require('./router')
 const socket = require('./socket/client')
 const websocket = require('./socket/websockets')
+const bodyParser = require('body-parser')
 
 export function start_server() {
   const app = express()
@@ -15,6 +16,9 @@ export function start_server() {
     res.header('Access-Control-Allow-Methods', 'POST,GET')
     next()
   })
+
+  app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded({extended: false}))
 
   app.listen(config.express.port, '0.0.0.0', () => {
     console.info('服务启动监听地址：' + config.express.domain)

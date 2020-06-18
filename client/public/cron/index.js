@@ -96,7 +96,9 @@ exports.cronFn = function () {
                             if (runner.hasOwnProperty("restart")) {
                                 runner.restart();
                             }
-                            runner.execute(newJob.project_name, {}).then((res) => {
+                            runner.execute(newJob.project_name, {
+                                uiauto_task_id: newJob.task_id
+                            }).then((res) => {
                                 console.log('-=-=-execute res-=-=-=-=')
                                 console.log(res)
                                 ipc.send('window_maximize', null)

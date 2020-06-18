@@ -4,8 +4,9 @@ import traceback
 import time
 import os
 import socketio
+import threading
+import requests
 
-# sio = socketio.Client()
 # sio.connect('http://localhost:63360')
 
 # 日志类
@@ -18,16 +19,46 @@ class Logger(object):
 
         self.line = ""
 
+        self.project_name = None
+        self.device_id = None
+        self.task_id = None
+
+
     def set_log_file(self, filename):
         # sio.connect('http://localhost:63360')
         self.log = open(filename, "ab", buffering=0)
         pass
+
 
     def reset_log_file(self):
         # sio.disconnect()
         if self.log is not None:
             self.log.close()
             self.log = None
+        
+    
+    def init_socket_data(self, server_url, project_name, device_id, task_id, token=None):
+        self.server_url = server_url
+        self.project_name = project_name
+        self.device_id = device_id
+        self.task_id = task_id
+        self.token = token
+
+
+    def send_log(self, status, content):
+        try:
+            if self.project_name is not None:
+                
+                res = requests.post(url="http://127.0.0.1:3000/uiauto/common/send_log", data={
+                    "deviceId": self.device_id,
+                    "project_name": self.project_name,
+                    "taskId": self.task_id,
+                    "status": status,
+                    "content": content
+                })
+        except Exception as e:
+            print(e)
+
 
     def write(self, message):
         self.terminal.write(message)
@@ -55,6 +86,7 @@ LEVEL_LOG = "log"
 LEVEL_ERROR = "error"
 LEVEL_WARN = "warn"
 LEVEL_SUCCESS = "success"
+LEVEL_INFO = "info"
 IS_PRODUCT = True
 
 
@@ -69,6 +101,18 @@ def print(*value, sep=" ", end="\n", flush=False, level=LEVEL_LOG):
     #         pass
     # 日志打印时间的格式
     date_format = "%Y-%m-%d %H:%M:%S"
+
+    if level is not LEVEL_LOG:
+        content = ""
+        for v in value:
+            if isinstance(v, str):
+                content = content + " " + v
+            elif isinstance(v, dict):
+                content = content + " " + json.dumps(v)
+            elif isinstance(v, list):
+                content = content + " " + json.dumps(v)
+
+        sys.stdout.send_log(status=level, content=content)
 
     if IS_PRODUCT is False:
         value = ("filename: %s line: %s -" %

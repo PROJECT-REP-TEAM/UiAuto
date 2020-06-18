@@ -12,6 +12,7 @@ const {execSync} = require('child_process');
 const EventEmitter = require('events').EventEmitter;
 let listener = new EventEmitter();
 const electron = require("electron");
+const delay = require('delay');
 
 const cleanProcess = () => {
     try {
@@ -50,7 +51,7 @@ exports.restart = () => {
     listener = new EventEmitter();
 };
 
-const listen_logger = (log_dir, log_file,  newCB) => {
+const listen_logger = (log_dir, log_file, options) => {
 
     if (!fs.existsSync(log_dir)) {
         fs.mkdirSync(log_dir)
@@ -70,7 +71,7 @@ const listen_logger = (log_dir, log_file,  newCB) => {
 
             // newCB(buffer.toString().replace("\n", "<br>"));
             const lines = buffer.toString().split("[line:]");
-            _.forEach(lines, (line) => {
+            _.forEach(lines, async (line) => {
                 console.log(line)
                 const logItem = {}
                 line = line.replace("[line:]", "").replace(/\\n/g, "<br>")
@@ -92,13 +93,40 @@ const listen_logger = (log_dir, log_file,  newCB) => {
                     logItem['line'] = line
                     // line = "<span style='color: green'>" + line + "</span>"
                 }
+                if (line.indexOf("[info]") > -1) {
+                    logItem['type'] = 'info'
+                    logItem['color'] = 'blue'
+                    logItem['line'] = line
+                    // line = "<span style='color: green'>" + line + "</span>"
+                }
                 if (line.indexOf("[log]") > -1) {
                     logItem['type'] = 'log'
                     logItem['color'] = 'white'
                     logItem['line'] = line
                     // line = "<span style='color: green'>" + line + "</span>"
                 }
-                newCB(logItem);
+
+                if (!!options && options.newCB) {
+                    options.newCB(logItem);
+                }
+
+                // if (!!options && options.updateLog) {
+                //     if (logItem['type'] != "log") {
+                //         try {
+                //             await options.updateLog({
+                //                 "deviceId": config.deviceId,
+                //                 "project_name": options.project_name,
+                //                 "taskId": options.task_id,
+                //                 "status": logItem['type'],
+                //                 "content": logItem['line']
+                //             });
+                //         } catch (e) {
+                //             console.log(e);
+                //         }
+                //     }
+                // }
+
+                // await delay(1000)
             });
         } else {
             console.log('文件读取错误');
@@ -136,7 +164,7 @@ const start_recording = (project_name) => {
 
 };
 
-exports.execute = async (project_name, params, newCB) => {
+exports.execute = async (project_name, params, options) => {
     return new Promise(async (resolve, reject) => {
         let record_shell = null;
         try {
@@ -170,13 +198,15 @@ exports.execute = async (project_name, params, newCB) => {
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
                 "user_site_packages_dir": path.join(os.homedir(), '\\.uiauto\\site-packages'),
                 "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`),
-                "screen_information": screenInfo
+                "screen_information": screenInfo,
+                "server_url": config.serverUrl,
+                "device_id": config.deviceId
             };
 
-            if (newCB) {
-                listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`),
-                    executor_params['environment_options']['log_file'], newCB);
-            }
+            options['project_name'] = project_name;
+            options['task_id'] = params['uiauto_task_id'];
+            listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`),
+                executor_params['environment_options']['log_file'], options);
 
             const result = await send_command('execute_project', project_name, executor_params);
             resolve(result);

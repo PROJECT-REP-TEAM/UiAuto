@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.1.42",
-  "description": "1.1.42版本：修复旧版本插件丢失的问题",
+  "version": "1.1.43",
+  "description": "1.1.43版本：执行日志同步到后端",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

@@ -10,7 +10,7 @@ import jpype
 import socketio
 import eventlet
 from execute_result import ExecuteResult
-from logger import print, LEVEL_ERROR, LEVEL_SUCCESS
+from logger import print, LEVEL_ERROR, LEVEL_SUCCESS, LEVEL_INFO, LEVEL_WARN
 
 project_config_store = None
 
@@ -60,7 +60,7 @@ def execute_project(project_name):
     execute_result = ExecuteResult()
     try:
         project = get_project(project_name=project_name)
-        print("项目【%s】开始执行" % project_name)
+        print("项目【%s】开始执行" % project_name, level=LEVEL_INFO)
 
         start_node = project.find_node(shape_type="Start")
         end_node = project.find_node(shape_type="End")
@@ -81,7 +81,7 @@ def execute_project(project_name):
                 '缺少开始节点' if start_node is None else '缺少结束节点')
             execute_result.error = None
 
-    except Exception:
+    except Exception as e:
         print('>>>>>>>>', traceback.format_exc())
         execute_result.success = False
         execute_result.code = -1
@@ -115,7 +115,7 @@ class __Project__():
             if current_node is None:
                 raise Exception("不能执行空节点")
 
-            print("节点【%s】开始执行" % current_node["label"])
+            print("节点【%s】开始执行" % current_node["label"], level=LEVEL_INFO)
             # 获取当前节点的参数
             node_params = self.generate_node_params(node=current_node)
             print("节点【%s】参数：" % current_node["label"], node_params)
@@ -142,7 +142,7 @@ class __Project__():
                 # 节点执行异常，执行重试
                 if not node_result.success:
                     if 'retry_count' in general_property.keys() and int(general_property['retry_count']) > 0:
-                        print("节点【%s】执行异常，执行重试" % current_node["label"], level=LEVEL_ERROR)
+                        print("节点【%s】执行异常，执行重试" % current_node["label"], level=LEVEL_WARN)
                         retry_count = int(general_property['retry_count'])
                         retry_index = 0
                         while retry_index < retry_count:
@@ -181,11 +181,11 @@ class __Project__():
                             print(next_node['shapeType'])
                             if next_node['shapeType'] == "Abnormal":
                                 print("节点【%s】 -> 异常线路【%s】开始执行" %
-                                      (current_node['label'], next_node['label']))
+                                      (current_node['label'], next_node['label']), level=LEVEL_INFO)
                                 abnormal_node_result = self.execute(
                                     current_node=next_node, options=options)
                                 print("节点【%s】 -> 异常线路【%s】执行完成" %
-                                      (current_node['label'], next_node['label']))
+                                      (current_node['label'], next_node['label']), level=LEVEL_SUCCESS)
                                 # 判断异常处理执行结果；若成功，则继续下一个异常处理；若失败，则跳出遍历
                                 if not abnormal_node_result.success:
                                     is_kill_flow = True
@@ -204,8 +204,9 @@ class __Project__():
                     # 终止流程
                     pass
                 else:
-                    print('节点【%s】执行完成，返回结果：' %
-                          (current_node['label']), node_result.data)
+                    print('节点【%s】返回结果：' % (current_node['label']), node_result.data)
+                    print('节点【%s】执行完成' % (current_node['label']), level=LEVEL_INFO)
+                    
 
                     if next_lines and len(next_lines) > 0:
 
@@ -215,7 +216,7 @@ class __Project__():
                             next_node = self.find_node(node_id=next_line['target'])
                             if next_node and next_node['shapeType'] == 'Wait':
                                 print('节点【%s】 -> 等待节点【%s】的支路执行开始' %
-                                      (current_node['label'], next_node['label']))
+                                      (current_node['label'], next_node['label']), level=LEVEL_INFO)
                                 wait_node_result = self.execute(
                                     current_node=next_node, options=options)
 
@@ -230,7 +231,7 @@ class __Project__():
                                     break
                                 else:
                                     print('节点【%s】 -> 等待节点【%s】的支路执行完成' %
-                                          (current_node['label'], next_node['label']))
+                                          (current_node['label'], next_node['label']), level=LEVEL_SUCCESS)
                                     is_kill_flow = (
                                             is_kill_flow or wait_node_result.data)
 
@@ -267,8 +268,8 @@ class __Project__():
                                 else:
                                     raise Exception("下一节点不存在")
             else:
-                print('节点【%s】执行完成，返回结果：' %
-                      (current_node['label']), node_result.data)
+                print('节点【%s】返回结果：' % (current_node['label']), node_result.data)
+                print('节点【%s】执行完成' % (current_node['label']), level=LEVEL_INFO)
 
         except Exception as e:
             print("节点【%s】执行异常，错误信息：" % current_node["label"], e, level=LEVEL_ERROR)

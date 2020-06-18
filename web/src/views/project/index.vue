@@ -823,7 +823,7 @@ const { stop, views } = window.require(
   path.normalize(path.resolve() + "/public/runner/child_process_cache")
 );
 
-import { uploadTask, editTask } from "@/api/task";
+import { uploadTask, editTask, updateLog } from "@/api/task";
 import { getProjectPermission } from "@/api/role";
 
 export default {
@@ -1093,15 +1093,19 @@ export default {
               .execute(
                 this.projectName,
                 {
-                  uiauto_browser: browser_info
+                  uiauto_browser: browser_info,
+                  uiauto_task_id: uploadTaskRes.data[0].id
                 },
-                newLogs => {
-                  this.logMessage = _.concat(this.logMessage, newLogs);
-                  setTimeout(() => {
-                    $("#logMessageId").scrollTop(
-                      $("#logMessageBox")[0].offsetHeight
-                    );
-                  }, 0);
+                {
+                  newCB: newLogs => {
+                    this.logMessage = _.concat(this.logMessage, newLogs);
+                    setTimeout(() => {
+                      $("#logMessageId").scrollTop(
+                        $("#logMessageBox")[0].offsetHeight
+                      );
+                    }, 0);
+                  },
+                  updateLog: updateLog
                 }
               )
               .then(res => {

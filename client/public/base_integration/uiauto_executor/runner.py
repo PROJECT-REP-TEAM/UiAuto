@@ -5,7 +5,7 @@ from queue import LifoQueue
 from execute_result import ExecuteResult
 import global_variable
 import uiauto_project as UiAutoProject
-from logger import print, LEVEL_ERROR, LEVEL_SUCCESS
+from logger import print, LEVEL_ERROR, LEVEL_SUCCESS, LEVEL_INFO, LEVEL_WARN
 from urllib.parse import unquote, quote
 import jpype
 import copy
@@ -92,7 +92,7 @@ def handle_command(command, execute_option_file):
     if command == "execute_project":
 
         # 连接socket.io
-        sio.connect('http://localhost:63390')
+        sio.connect('http://127.0.0.1:63390')
         sio.emit('SHELL_INIT', {})
         sio.disconnect()
 
@@ -108,6 +108,12 @@ def handle_command(command, execute_option_file):
 
         print("------------------------------------------------------------------------------------")
         print("\n")
+        
+        server_url = execute_option['environment_options']['server_url']
+        task_id = execute_option['params']['uiauto_task_id']
+        device_id = execute_option['environment_options']['device_id']
+        sys.stdout.init_socket_data(server_url=server_url, project_name=execute_option['project_name'], task_id=task_id, device_id=device_id)
+
 
         # 初始化共享变量存取空间
         global_variable.__init()
@@ -134,6 +140,7 @@ def handle_command(command, execute_option_file):
             result_file.write(execute_result.to_string())
         sys.stderr.write('finish')
         sys.stdout.reset_log_file()
+        # sys.stdout.reset_socket()
 
     elif command == "execute_python":
         with open(execute_option_file, "rb") as __execute_option_file:

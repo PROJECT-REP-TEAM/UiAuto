@@ -20,3 +20,7 @@ export function updateCron(data) {
 export function uiautoLogList(data) {
     return $http.post('/api/v1/uiautoLogs/base/user/list', data)
   }
+
+export function updateLog(data) {
+  return $http.post('/api/v1/uiautoLogs/updateLog', data)
+}
