@@ -327,7 +327,10 @@ class __Project__():
 
                 # 节点执行
                 execute_result.data = getattr(
-                    self, current_node["shapeType"])()
+                    self, current_node["shapeType"])(current_node=current_node, node_plugin=node_plugin,
+                                                         node_operation=node_operation,
+                                                         node_params=node_params, node_output=node_output,
+                                                         options=options)
 
             # 根据通用属性控制节点执行完之后是否等待
             if 'waiting_time_after_execution' in general_property.keys() and \
