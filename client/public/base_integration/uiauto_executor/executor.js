@@ -203,8 +203,6 @@ exports.execute = async (project_name, params, options) => {
                 "device_id": config.deviceId
             };
 
-            options['project_name'] = project_name;
-            options['task_id'] = params['uiauto_task_id'];
             listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`),
                 executor_params['environment_options']['log_file'], options);
 
