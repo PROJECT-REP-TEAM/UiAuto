@@ -63,7 +63,7 @@ const listen_logger = (log_dir, log_file, options) => {
         interval: 100
     }, function (curr, prev) {
 
-        if (curr.mtime > prev.mtime) {
+        if (curr.mtime >= prev.mtime) {
             //文件内容有变化，那么通知相应的进程可以执行相关操作。例如读物文件写入数据库等
             let buffer = new Buffer(curr.size - prev.size);
             const fd = fs.openSync(log_file, "a+");

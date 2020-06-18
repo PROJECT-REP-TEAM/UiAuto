@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.1.45",
-  "description": "1.1.45版本：修复节点无超时时间时缺少参数的问题",
+  "version": "1.1.46",
+  "description": "1.1.46版本：修复日志输出提示文件读取错误的问题",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

@@ -469,6 +469,7 @@
               <span v-else-if="item.type === 'error'" style="color: #e65d6e" v-text="item.line"></span>
               <span v-else-if="item.type === 'success'" style="color: green" v-text="item.line"></span>
               <span v-else-if="item.type === 'log'" v-text="item.line"></span>
+              <span v-else-if="item.type === 'info'" style="color: #4169E1" v-text="item.line"></span>
             </div>
           </div>
         </div>
