@@ -75,6 +75,7 @@ function start_socket_client_fn() {
       electron.window_minimize();
       let params = data.params ? data.params : {};
       params['taskId'] = data.taskId;
+      params['uiauto_task_id'] = data.taskId;
 
       if (runner.hasOwnProperty("restart")) {
         runner.restart();
