@@ -4,6 +4,7 @@ const _ = require('lodash');
 const crypto = require('crypto');
 const path = window.require('path');
 const os = window.require("os");
+const axios = window.require("axios");
 const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
 const ipc = window.require('electron').ipcRenderer;
 // const { execute } = window.require(path.normalize(path.resolve() + "/public/runner/index.js"));
@@ -96,17 +97,55 @@ exports.cronFn = function () {
                             if (runner.hasOwnProperty("restart")) {
                                 runner.restart();
                             }
-                            runner.execute(newJob.project_name, {
-                                uiauto_task_id: newJob.task_id
-                            }).then((res) => {
-                                console.log('-=-=-execute res-=-=-=-=')
-                                console.log(res)
-                                ipc.send('window_maximize', null)
-                            }).catch((err) => {
-                                console.error('-=-=-execute err-=-=-=-=')
-                                console.error(err);
-                                ipc.send('window_maximize', null)
-                            });
+                            axios.post(config.serverUrl + "/api/v1/tasks/synchronize/upload", {
+                                uploadData: [
+                                    {
+                                        project_code: newJob.project_name,
+                                        project_name: newJob.project_name,
+                                        status: "running",
+                                        deviceId: JSON.parse(
+                                            fs.readFileSync(`${os.homedir()}/.uiauto/uiauto.conf`, "utf8")
+                                        ).deviceId,
+                                        project_type: "local"
+                                    }
+                                ]
+                            }, {
+                                headers: {
+                                    "Authorization": localStorage.getItem('access_token')
+                                }
+                            }).then(uploadTaskRes => {
+                                runner.execute(newJob.project_name, { uiauto_task_id: uploadTaskRes.data[0].id }).then((res) => {
+                                    console.log('-=-=-execute res-=-=-=-=')
+                                    ipc.send('window_maximize', null);
+                                    axios.post(config.serverUrl + "/api/v1/tasks/edit", {
+                                        id: uploadTaskRes.data[0].id,
+                                        value: {
+                                            status: "success",
+                                            message: JSON.stringify(res)
+                                        }
+                                    }, {
+                                        headers: {
+                                            "Authorization": localStorage.getItem('access_token')
+                                        }
+                                    })
+                                }).catch((err) => {
+                                    console.error('-=-=-execute err-=-=-=-=')
+                                    console.error(err);
+                                    ipc.send('window_maximize', null);
+                                    axios.post(config.serverUrl + "/api/v1/tasks/edit", {
+                                        id: uploadTaskRes.data[0].id,
+                                        value: {
+                                            status: "fail",
+                                            message: JSON.stringify(res)
+                                        }
+                                    }, {
+                                        headers: {
+                                            "Authorization": localStorage.getItem('access_token')
+                                        }
+                                    })
+                                });
+                            })
+
                         },
                         start: true,
                         timeZone: 'Asia/Shanghai'
