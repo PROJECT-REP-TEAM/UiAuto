@@ -37,6 +37,10 @@
         v-if="!hasModificationRights"
       >您没有权限修改本云端项目</div>
       <div class="right-menu">
+        <div class="right-menu-item" @click="updateVersionFn">
+          <img src="../../assets/images/update.png" class="icon" />
+          <span class="icon-text">更新</span>
+        </div>
         <div class="right-menu-item" @click="executecurrentNode">
           <img src="../../assets/images/run.png" class="icon" />
           <span class="icon-text">执行当前节点</span>
@@ -1940,6 +1944,90 @@ export default {
               console.log("执行当前节点出错", err);
               this.$message.error("执行当前节点出错");
             });
+        }
+      }
+    },
+    // 更新项目插件版本号
+    async updateVersionFn() {
+      const base_integration_path = path.join(
+        path.resolve(),
+        "/public/base_integration/"
+      );
+      const base_integration_file_list = _.map(
+        _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+        file_name => {
+          return {
+            plugin_id: file_name,
+            version: fs.existsSync(
+              `${base_integration_path}${file_name}/package.json`
+            )
+              ? fse.readJsonSync(
+                  `${base_integration_path}${file_name}/package.json`
+                ).version
+              : ""
+          };
+        }
+      );
+
+      const plugins_path = config.pluginsPath + "/";
+      let file_name_list = _.map(
+        _.difference(fs.readdirSync(plugins_path), [
+          "list.json",
+          "npm_i.sh",
+          ".DS_Store"
+        ]),
+        file_name => {
+          let versionLs = _.difference(
+            fs.readdirSync(`${plugins_path}${file_name}`),
+            [".DS_Store"]
+          ).sort(this.versionFn);
+          return {
+            plugin_id: file_name,
+            version: versionLs[versionLs.length - 1]
+          };
+        }
+      );
+      file_name_list = _.concat(file_name_list, base_integration_file_list);
+      // 当前json
+      let projectJson = _.cloneDeep(await this.editor.getCurrentPage().save());
+
+      this.$confirm("此操作将使用本地插件库最新插件版本号, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          _.each(projectJson.nodes, item => {
+            let target = _.find(file_name_list, { plugin_id: item.plugin_id });
+            if (target) {
+              item.version = target.version;
+            }
+          });
+          const curPage = this.editor.getCurrentPage();
+          curPage.read(projectJson);
+          this.saveGraph("save");
+        })
+        .catch(() => {});
+    },
+    // 版本号排序
+    versionFn(str1, str2) {
+      var arr1 = str1.split("."),
+        arr2 = str2.split("."),
+        minLen = Math.min(arr1.length, arr2.length),
+        maxLen = Math.max(arr1.length, arr2.length);
+
+      for (let i = 0; i < minLen; i++) {
+        if (parseInt(arr1[i]) > parseInt(arr2[i])) {
+          return 1;
+        } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
+          return -1;
+        }
+        if (i + 1 == minLen) {
+          if (arr1.length > arr2.length) {
+            return 1;
+          } else {
+            return -1;
+          }
         }
       }
     },
