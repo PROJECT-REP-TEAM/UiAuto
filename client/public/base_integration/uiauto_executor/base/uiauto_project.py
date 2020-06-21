@@ -268,8 +268,15 @@ class __Project__():
                                 else:
                                     raise Exception("下一节点不存在")
             else:
-                print('节点【%s】返回结果：' % (current_node['label']), node_result.data)
-                print('节点【%s】执行完成' % (current_node['label']), level=LEVEL_INFO)
+                if not node_result.success:
+                    print('节点【%s】执行出错' % (current_node['label']), level=LEVEL_ERROR)
+                    print("节点【%s】执行异常，异常信息：" % current_node['label'], node_result.error, level=LEVEL_ERROR)
+                    execute_result.success = False
+                    execute_result.code = -1
+                    execute_result.error = node_result.error
+                else:
+                    print('节点【%s】返回结果：' % (current_node['label']), node_result.data)
+                    print('节点【%s】执行完成' % (current_node['label']), level=LEVEL_INFO)
 
         except Exception as e:
             print("节点【%s】执行异常，错误信息：" % current_node["label"], e, level=LEVEL_ERROR)
