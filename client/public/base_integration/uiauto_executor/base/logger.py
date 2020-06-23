@@ -45,7 +45,7 @@ class Logger(object):
         self.token = token
 
 
-    def send_log(self, status, content):
+    def send_log(self, status, content, options):
         try:
             if self.project_name is not None:
                 
@@ -54,7 +54,9 @@ class Logger(object):
                     "project_name": self.project_name,
                     "taskId": self.task_id,
                     "status": status,
-                    "content": content
+                    "content": content,
+                    "nodeId": (options['node_id'] if options is not None else None),
+                    "logOrder": (options['logOrder'] if options is not None else None)
                 })
         except Exception as e:
             print(e)
@@ -90,7 +92,7 @@ LEVEL_INFO = "info"
 IS_PRODUCT = True
 
 
-def print(*value, sep=" ", end="\n", flush=False, level=LEVEL_LOG):
+def print(*value, sep=" ", end="\n", flush=False, level=LEVEL_LOG, options=None):
 
     # for v in value:
     #     if isinstance(v, dict):
@@ -112,7 +114,7 @@ def print(*value, sep=" ", end="\n", flush=False, level=LEVEL_LOG):
             elif isinstance(v, list):
                 content = content + " " + json.dumps(v)
 
-        sys.stdout.send_log(status=level, content=content)
+        sys.stdout.send_log(status=level, content=content, options=options)
 
     if IS_PRODUCT is False:
         value = ("filename: %s line: %s -" %
