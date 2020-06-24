@@ -15,9 +15,10 @@ export const doGetUiSelectorStaticAssets = (req, res) => {
 }
 
 
-export const sendLog = (req, res) => {
+export const sendLog = async (req, res) => {
   try{
-    updateLog(req.body)
+    await updateLog(req.body)
+    res.json("success")
   } catch (e) {
     console.log(e);
   }
