@@ -204,7 +204,7 @@ class __Project__():
                     # 终止流程
                     pass
                 else:
-                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), level=LEVEL_INFO, node_result.data, options={"node_id": current_node['id'], "logOrder": 4})
+                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 4})
                     
 
                     if next_lines and len(next_lines) > 0:
@@ -215,7 +215,7 @@ class __Project__():
                             next_node = self.find_node(node_id=next_line['target'])
                             if next_node and next_node['shapeType'] == 'Wait':
                                 print('节点【%s】 -> 等待节点【%s】的支路执行开始' %
-                                      (current_node['label'], next_node['label']), level=LEVEL_INFO, node_id=current_node['id'], node_result.data, options={"node_id": current_node['id'], "logOrder": 5})
+                                      (current_node['label'], next_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 5})
                                 wait_node_result = self.execute(
                                     current_node=next_node, options=options)
 
@@ -274,7 +274,7 @@ class __Project__():
                     execute_result.code = -1
                     execute_result.error = node_result.error
                 else:
-                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), level=LEVEL_INFO, node_result.data, options={"node_id": current_node['id'], "logOrder": 8})
+                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 8})
 
         except Exception as e:
             print("节点【%s】执行异常，错误信息：" % current_node["label"], e, level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 9})
