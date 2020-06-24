@@ -114,11 +114,11 @@ exports.cronFn = function () {
                                     "Authorization": localStorage.getItem('access_token')
                                 }
                             }).then(uploadTaskRes => {
-                                runner.execute(newJob.project_name, { uiauto_task_id: uploadTaskRes.data[0].id }).then((res) => {
+                                runner.execute(newJob.project_name, { uiauto_task_id: uploadTaskRes.data.data[0].id }).then((res) => {
                                     console.log('-=-=-execute res-=-=-=-=')
                                     ipc.send('window_maximize', null);
                                     axios.post(config.serverUrl + "/api/v1/tasks/edit", {
-                                        id: uploadTaskRes.data[0].id,
+                                        id: uploadTaskRes.data.data[0].id,
                                         value: {
                                             status: "success",
                                             message: JSON.stringify(res)
