@@ -31,9 +31,9 @@
       ]
     },
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
       "allowElevation": false,
-      "allowToChangeInstallationDirectory": false,
+      "allowToChangeInstallationDirectory": true,
       "installerIcon": "./build/icon.ico",
       "uninstallerIcon": "./build/icon.ico",
       "installerHeaderIcon": "./build/icon.ico",
