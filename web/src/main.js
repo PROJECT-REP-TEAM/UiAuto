@@ -32,6 +32,7 @@ window['uiselector'] = window.require(`${path.resolve()}/public/base_integration
 window['py_shell'] = executor.start();
 window['uiselector'].start_process();
 
+
 // import VueI18n from 'vue-i18n'
 
 import '@/icons' // icon
@@ -39,6 +40,7 @@ import '@/assets/iconfont/iconfont.css' // 第三方icon
 import '@/permission' // permission control
 // import VueDND from 'awe-dnd'
 import * as _ from 'lodash'
+import RouterLinkGroup from "@/components/RouterLinkGroup"
 
 // Vue.use(VueDND)
 /**
@@ -52,6 +54,7 @@ import * as _ from 'lodash'
 
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })
+Vue.component("router-link-group", RouterLinkGroup)
 
 // Vue.use(VueI18n)
 // const i18n = new VueI18n({

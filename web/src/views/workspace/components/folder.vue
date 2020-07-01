@@ -140,7 +140,7 @@ import config from '@/config/environment/index'
 
 export default {
   name: 'Folder',
-  components: [],
+  components: {},
   data() {
     return {
       projects_path: '',
@@ -205,7 +205,7 @@ export default {
 
         const files = fs.readdirSync(self.projects_path)
         files.forEach(function(fileName, index) {
-          const file = fs.statSync(self.projects_path + '\\' + fileName)
+          const file = fs.statSync(self.projects_path + '/' + fileName)
           if (file.isDirectory()) {
             json = fse.readJsonSync(
               `${self.projects_path}/${fileName}/${fileName}.json`

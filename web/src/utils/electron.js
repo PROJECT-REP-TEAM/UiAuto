@@ -86,8 +86,8 @@ export const executeDownload = function (plugin) {
             console.warn("正在下载");
             pluginDownload({
               plugin: plugin,
-              listener_name: `downstate${plugin.plugin_id}@${plugin.latestVersion}`,
-              downloadPath: `${environment.serverUrl}/downloads/plugins/${plugin.plugin_id}/${plugin.plugin_id}@${plugin.latestVersion}`,
+              listener_name: `downstate${plugin.plugin_id}@${plugin.latestVersion || plugin.version}`,
+              downloadPath: `${environment.serverUrl}/downloads/plugins/${plugin.plugin_id}/${plugin.plugin_id}@${plugin.latestVersion || plugin.version}`,
               configPath: path.normalize(`${config.pluginsPath}/../plugins_temp/`)
             })
               .then(result => {

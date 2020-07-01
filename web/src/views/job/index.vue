@@ -64,6 +64,7 @@
           <el-tag type="primary" v-if="scope.row.status=='running'" effect="dark">运行中</el-tag>
           <el-tag v-if="scope.row.status=='success'" effect="dark" type="success">成功</el-tag>
           <el-tag v-if="scope.row.status=='todo'" effect="dark" type="primary">待执行</el-tag>
+          <el-tag v-if="scope.row.status=='info'" effect="dark" type="primary">信息</el-tag>
           <el-tag v-if="scope.row.status=='fail'" effect="dark" type="danger">失败</el-tag>
         </template>
       </el-table-column>
@@ -158,6 +159,7 @@ export default {
       sortOptions: [
         { label: "全部", key: "all" },
         { label: "运行中", key: "running" },
+        { label: "信息", key: "info" },
         { label: "成功", key: "success" },
         { label: "失败", key: "fail" }
       ],
@@ -177,7 +179,9 @@ export default {
     // 获取任务列表信息
     getList(listQuery) {
       this.loading = true;
-      let _where = {};
+      let _where = {
+        userId: JSON.parse(localStorage.getItem("user")).userId
+      };
       listQuery.project_name &&
         (_where.project_name = { $like: `%${listQuery.project_name}%` });
       if (listQuery.createdAt) {

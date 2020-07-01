@@ -102,7 +102,7 @@
               >
                 <div
                   class="leftItem"
-                  v-bind:style="{ background: item.background_color}"
+                  v-bind:style="{ background: (download_plugin[item.plugin_id] && (download_plugin[item.plugin_id].downloadStatus === 'success' || download_plugin[item.plugin_id].downloadStatus === 'text') && download_plugin[item.plugin_id].downloadRate ) ? '#3a71a8': ((download_plugin[item.plugin_id] && download_plugin[item.plugin_id].downloadStatus === 'exception' && download_plugin[item.plugin_id].downloadRate) ? '#F56C6C': item.background_color), opacity: download_plugin[item.plugin_id] && download_plugin[item.plugin_id].downloadRate / 100}"
                   v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
                 >
                   <div
@@ -204,106 +204,11 @@
             </div>
           </div>
 
-          <!-- <el-collapse
-            v-else
-            style="width: calc(100% - 20px);margin: 10px;height: 94%;float:left;overflow-y: auto;overflow-x: hidden;border: none;"
-          >-->
-          <!-- v-model="activeNames" -->
-          <!-- <el-collapse-item
-              v-for="leftItem in leftList"
-              :key="leftItem.id"
-              :title="leftItem.title"
-              :name="leftItem.id"
-              style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
-            >
-              <div
-                class="getItem"
-                v-for="(item,idx) in leftItem.msg"
-                :key="idx"
-                :data-type="item.data_type"
-                :data-shape="item.data_shape"
-                :data-shape-type="item.data_shape_type"
-                :data-size="item.data_size"
-                :data-label="item.data_label"
-                :data-color="item.data_color"
-                :data-operation_id="item.operation_id"
-                :data-plugin_id="item.plugin_id"
-                :data-input="item.input"
-                :data-output="item.output"
-                :data-version="item.version"
-                :data-operation-name="item.operation_name"
-                :data-category-name="item.category_name"
-                :data-language="item.language"
-              >
-                <div
-                  class="leftItem"
-                  v-bind:style="{ background: item.background_color}"
-                  v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                >
-                  <div
-                    style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
-                  >{{item.data_label}}</div>
-                  <svg
-                    v-if="item.language==='nodejs'"
-                    t="1565963200375"
-                    class="icon"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="4393"
-                    style="float:right;"
-                    v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                  >
-                    <path
-                      d="M875.2 262.3L546.7 72.7c-20.7-11.8-48.3-11.8-69 0L148.8 262.3c-21.5 12.2-34.5 34.9-34.5 59.7v379.2c0 24.8 13.4 47.9 34.5 60.1l86.1 49.5c41.8 20.7 56.8 20.7 75.9 20.7 62.1 0 97.4-37.8 97.4-102.7V354.4c0-5.3-4.1-9.3-9.3-9.3h-41.4c-5.3 0-9.3 4.1-9.3 9.3v374.3c0 28.8-30 57.7-78.8 33.3l-90.1-52c-3.2-2-5.3-5.3-5.3-8.9V321.9c0-3.7 2-7.3 5.3-8.9l328.1-190c3.2-1.6 7.3-1.6 10.2 0l328.5 189.6c3.2 1.6 5.3 5.3 5.3 8.9v379.2c0 3.7-2 7.3-4.9 8.9L517.9 899.3c-2.8 1.6-7.3 1.6-10.2 0l-84.4-49.9c-2.4-1.2-5.7-1.6-8.1-0.4-23.1 13.4-27.6 15-49.5 22.7-5.7 1.6-13.4 4.9 2.8 14.2l109.6 65c10.6 6.1 22.3 9.3 34.5 9.3 11.8-0.4 24-3.2 34.1-9.7l328.5-189.6c21.1-12.2 34.5-34.9 34.5-59.7V321.9c0-24.3-13.4-47.5-34.5-59.6z"
-                      fill="#689F63"
-                      p-id="4394"
-                    />
-                    <path
-                      d="M614.1 641.1c-86.9 0-106-21.9-112.5-65-0.8-4.9-4.5-8.1-9.3-8.1h-42.6c-5.3 0-9.3 4.1-9.3 9.3 0 55.2 30 121.4 173.8 121.4l-0.4-0.4c103.9 0 163.6-41 163.6-112.5 0-70.6-47.9-89.7-149-103.1-101.9-13.4-112.5-20.3-112.5-44.3 0-19.5 8.9-45.9 84.4-45.9 67.8 0 92.6 14.6 102.7 60.1 1.2 4.1 4.9 7.3 9.3 7.3H755c2.4 0 5.3-0.8 6.9-2.8 1.6-2 2.8-4.5 2.4-7.3-6.9-78.4-58.9-114.9-164-114.9-93.4 0-149.4 39.4-149.4 105.6 0 71.9 55.6 91.8 145.8 100.7 107.6 10.6 116.1 26.4 116.1 47.5 0 36.5-29.3 52.4-98.7 52.4z"
-                      fill="#689F63"
-                      p-id="4395"
-                    />
-                  </svg>
-                  <svg
-                    v-if="item.language==='python'"
-                    t="1572263765671"
-                    class="icon"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="4139"
-                    id="mx_n_1572263765672"
-                    data-spm-anchor-id="a313x.7781069.0.i18"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    style="float:right;"
-                    v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                  >
-                    <path
-                      d="M386.92 498.112a130.632 130.632 0 0 1 23.172-2.082l-6.244-0.03h207.646c9.006 0 17.612-1.234 25.816-3.508 38.74-10.726 66.69-45.074 66.69-87.326v-174.448c0-49.664-42.3-86.968-92.578-95.212-31.862-5.248-78.516-7.654-110.178-7.498-31.658 0.172-61.962 2.808-88.554 7.498C334.286 149.152 320 177.856 320 230.718V288h192v32H257.64c-71.256 0-129.076 85.142-129.626 190.484-0.004 0.506-0.014 1.01-0.014 1.516 0 19.046 1.88 37.44 5.37 54.808C149.296 646.14 198.902 704 257.64 704H288v-91.87c0-53.654 40.292-103.466 98.92-114.018z m20.392-244.108c-19.184 0-34.768-15.57-34.768-34.806 0-19.328 15.548-35.04 34.768-35.04 19.148 0 34.798 15.71 34.798 35.04 0.002 19.236-15.618 34.806-34.798 34.806z"
-                      p-id="4140"
-                      fill="#0075AA"
-                      data-spm-anchor-id="a313x.7781069.0.i13"
-                      class
-                    />
-                    <path
-                      d="M887.902 445.086C869.56 372.042 822.066 320 766.36 320H736v81.344c0 67.83-44.572 116.948-98.978 125.362a107.886 107.886 0 0 1-16.602 1.292H412.702a102.82 102.82 0 0 0-26.098 3.344C348.36 541.378 320 573.2 320 614.472v174.454c0 49.664 49.954 78.852 98.962 93.102 58.654 17.062 122.534 20.136 192.732 0C658.3 868.708 704 841.786 704 788.926V736h-192v-32h254.36c50.48 0 94.214-42.73 115.628-105.098C890.948 572.808 896 543.282 896 512c0-23.536-2.866-46.076-8.098-66.914zM615.734 765.64c19.18 0 34.762 15.57 34.762 34.8 0 19.3-15.582 35.042-34.762 35.042-19.154 0-34.798-15.742-34.798-35.042 0-19.26 15.612-34.8 34.798-34.8z"
-                      p-id="4141"
-                      fill="#FFD400"
-                      data-spm-anchor-id="a313x.7781069.0.i16"
-                      class
-                    />
-                  </svg>
-                </div>
-              </div>
-          </el-collapse-item>-->
-          <!-- </el-collapse> -->
-
+          <!-- :unique-opened="true" -->
           <el-menu
             v-else
             class="el-menu-vertical-demo"
             style="height: 94%;border: none;overflow: scroll;"
-            :unique-opened="true"
             ref="multipleSubmenu"
           >
             <el-submenu
@@ -319,130 +224,138 @@
               <span v-for="(msg,msgIdx) in leftItem.msg" :key="msgIdx">
                 <el-submenu :index="''+(leftIdx + 1)+'-'+''+(msgIdx+1)">
                   <template slot="title">{{msg.child_title}}</template>
-                  <el-menu-item
-                    v-for="(item,idx) in msg.child_msg"
-                    :key="idx"
-                    :index="''+(leftIdx + 1)+'-'+''+(msgIdx+1)+'-'+''+(idx+1)"
-                    v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                    style="padding: 0;min-width: 100%;"
-                    class="getItem"
-                    :data-type="item.data_type"
-                    :data-shape="item.data_shape"
-                    :data-shape-type="item.data_shape_type"
-                    :data-size="item.data_size"
-                    :data-label="item.data_label"
-                    :data-color="item.data_color"
-                    :data-operation_id="item.operation_id"
-                    :data-plugin_id="item.plugin_id"
-                    :data-input="item.input"
-                    :data-output="item.output"
-                    :data-version="item.version"
-                    :data-operation-name="item.operation_name"
-                    :data-category-name="item.category_name"
-                    :data-language="item.language"
-                    :data-attribution-name="item.attribution_name"
-                  >
-                    <div
-                      class="leftItem"
-                      v-bind:style="{ background: item.background_color}"
+                  <router-link-group>
+                    <el-menu-item
+                      v-for="(item,idx) in msg.child_msg"
+                      :key="idx"
+                      :index="''+(leftIdx + 1)+'-'+''+(msgIdx+1)+'-'+''+(idx+1)"
                       v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
+                      style="padding: 0;min-width: 100%;"
+                      class="getItem"
+                      :data-type="item.data_type"
+                      :data-shape="item.data_shape"
+                      :data-shape-type="item.data_shape_type"
+                      :data-size="item.data_size"
+                      :data-label="item.data_label"
+                      :data-color="item.data_color"
+                      :data-operation_id="item.operation_id"
+                      :data-plugin_id="item.plugin_id"
+                      :data-input="item.input"
+                      :data-output="item.output"
+                      :data-version="item.version"
+                      :data-operation-name="item.operation_name"
+                      :data-category-name="item.category_name"
+                      :data-language="item.language"
+                      :data-attribution-name="item.attribution_name"
                     >
                       <div
-                        style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
+                        class="leftItem"
+                        v-bind:style="{ background: (download_plugin[item.plugin_id] && (download_plugin[item.plugin_id].downloadStatus === 'success' || download_plugin[item.plugin_id].downloadStatus === 'text') && download_plugin[item.plugin_id].downloadRate ) ? '#3a71a8': ((download_plugin[item.plugin_id] && download_plugin[item.plugin_id].downloadStatus === 'exception' && download_plugin[item.plugin_id].downloadRate) ? '#F56C6C': item.background_color), opacity: download_plugin[item.plugin_id] && download_plugin[item.plugin_id].downloadRate / 100}"
+                        v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
                       >
-                        <span style="position: absolute;left: 5px;">{{item.version}}</span>
-                        <span style="display: block;">{{item.data_label}}</span>
+                        <div
+                          style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
+                        >
+                          <span style="position: absolute;left: 5px;">{{item.version}}</span>
+                          <span style="display: block;">{{item.data_label}}</span>
+                        </div>
+                        <svg
+                          v-if="item.language==='nodejs'"
+                          t="1565963200375"
+                          class="icon"
+                          viewBox="0 0 1024 1024"
+                          version="1.1"
+                          xmlns="http://www.w3.org/2000/svg"
+                          p-id="4393"
+                          style="float:right;"
+                          v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
+                        >
+                          <path
+                            d="M875.2 262.3L546.7 72.7c-20.7-11.8-48.3-11.8-69 0L148.8 262.3c-21.5 12.2-34.5 34.9-34.5 59.7v379.2c0 24.8 13.4 47.9 34.5 60.1l86.1 49.5c41.8 20.7 56.8 20.7 75.9 20.7 62.1 0 97.4-37.8 97.4-102.7V354.4c0-5.3-4.1-9.3-9.3-9.3h-41.4c-5.3 0-9.3 4.1-9.3 9.3v374.3c0 28.8-30 57.7-78.8 33.3l-90.1-52c-3.2-2-5.3-5.3-5.3-8.9V321.9c0-3.7 2-7.3 5.3-8.9l328.1-190c3.2-1.6 7.3-1.6 10.2 0l328.5 189.6c3.2 1.6 5.3 5.3 5.3 8.9v379.2c0 3.7-2 7.3-4.9 8.9L517.9 899.3c-2.8 1.6-7.3 1.6-10.2 0l-84.4-49.9c-2.4-1.2-5.7-1.6-8.1-0.4-23.1 13.4-27.6 15-49.5 22.7-5.7 1.6-13.4 4.9 2.8 14.2l109.6 65c10.6 6.1 22.3 9.3 34.5 9.3 11.8-0.4 24-3.2 34.1-9.7l328.5-189.6c21.1-12.2 34.5-34.9 34.5-59.7V321.9c0-24.3-13.4-47.5-34.5-59.6z"
+                            fill="#689F63"
+                            p-id="4394"
+                          />
+                          <path
+                            d="M614.1 641.1c-86.9 0-106-21.9-112.5-65-0.8-4.9-4.5-8.1-9.3-8.1h-42.6c-5.3 0-9.3 4.1-9.3 9.3 0 55.2 30 121.4 173.8 121.4l-0.4-0.4c103.9 0 163.6-41 163.6-112.5 0-70.6-47.9-89.7-149-103.1-101.9-13.4-112.5-20.3-112.5-44.3 0-19.5 8.9-45.9 84.4-45.9 67.8 0 92.6 14.6 102.7 60.1 1.2 4.1 4.9 7.3 9.3 7.3H755c2.4 0 5.3-0.8 6.9-2.8 1.6-2 2.8-4.5 2.4-7.3-6.9-78.4-58.9-114.9-164-114.9-93.4 0-149.4 39.4-149.4 105.6 0 71.9 55.6 91.8 145.8 100.7 107.6 10.6 116.1 26.4 116.1 47.5 0 36.5-29.3 52.4-98.7 52.4z"
+                            fill="#689F63"
+                            p-id="4395"
+                          />
+                        </svg>
+                        <svg
+                          v-if="item.language==='java'"
+                          t="1572767890841"
+                          class="icon"
+                          viewBox="0 0 1024 1024"
+                          version="1.1"
+                          xmlns="http://www.w3.org/2000/svg"
+                          p-id="2391"
+                          data-spm-anchor-id="a313x.7781069.0.i2"
+                          style="float:right;"
+                          v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
+                        >
+                          <path
+                            d="M701.72245 245.828637s-162.696653 40.05327-190.648146 134.112978c-27.951493 94.059708 107.42585 114.379856 24.790581 191.957666 0 0 71.165674-36.847202 71.165675-85.796181s-67.37258-73.73956-48.316797-120.746836c19.055783-47.097588 143.008687-119.527627 143.008687-119.527627z"
+                            fill="#E83418"
+                            p-id="2392"
+                            data-spm-anchor-id="a313x.7781069.0.i1"
+                            class="selected"
+                          />
+                          <path
+                            d="M594.2966 68.501477s64.843851 74.371742-34.950655 184.326322-185.590687 106.116329-55.948141 286.017375c0 0-141.11214-93.427526-103.5876-183.69414s234.539666-126.481633 194.486396-286.649557z"
+                            fill="#E83418"
+                            p-id="2393"
+                          />
+                          <path
+                            d="M408.073731 545.79918s-88.324911 23.526216-88.324911 38.788905c0 15.262689 223.702253 34.318472 370.549191-7.631345 0 0-102.323235 46.375094-266.284253 46.375094s-251.06672-48.903823-15.940027-77.532654zM371.226529 645.593685s-45.110729 12.056621-45.110729 29.893196c0 17.791419 96.588438 69.269127 331.760286 12.688804 0 0-30.525378-15.894871-35.582837-21.629669 0 0-324.761124 46.42025-251.06672-20.952331zM390.282312 738.389029s-65.476033 55.270803 207.1752 20.320148l45.110729 22.894033s-73.73956 29.215857-163.328835 29.215858-175.385457-38.111567-88.957094-72.430039zM322.27755 804.497244s-81.370904 15.262689-81.370905 33.054108 125.217269 34.950655 275.812145 34.950654 291.074834-26.054946 256.756361-61.637782c0 0 15.894871 6.999162 15.894871 18.423601s-36.847202 64.843851-333.656832 64.84385-266.916435-44.478547-266.916436-44.478546 7.044318-34.363628 133.480796-45.155885z"
+                            fill="#06509B"
+                            p-id="2394"
+                            data-spm-anchor-id="a313x.7781069.0.i0"
+                            class="selected"
+                          />
+                          <path
+                            d="M303.221767 910.613573s366.710941 52.742073 523.040613-54.63862c0 0 12.056621 62.269965-228.172686 76.900471s-294.867928-22.261851-294.867927-22.261851zM708.08943 552.798342s81.370904-17.159236 81.370904 48.948979-99.162323 105.484147-99.162323 105.484147 136.641707-21.629669 136.641708-110.586762-118.850289-43.846364-118.850289-43.846364z"
+                            fill="#06509B"
+                            p-id="2395"
+                          />
+                        </svg>
+                        <svg
+                          v-if="item.language==='python'"
+                          t="1572263765671"
+                          class="icon"
+                          viewBox="0 0 1024 1024"
+                          version="1.1"
+                          xmlns="http://www.w3.org/2000/svg"
+                          p-id="4139"
+                          id="mx_n_1572263765672"
+                          data-spm-anchor-id="a313x.7781069.0.i18"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                          style="float:right;"
+                          v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
+                        >
+                          <path
+                            d="M386.92 498.112a130.632 130.632 0 0 1 23.172-2.082l-6.244-0.03h207.646c9.006 0 17.612-1.234 25.816-3.508 38.74-10.726 66.69-45.074 66.69-87.326v-174.448c0-49.664-42.3-86.968-92.578-95.212-31.862-5.248-78.516-7.654-110.178-7.498-31.658 0.172-61.962 2.808-88.554 7.498C334.286 149.152 320 177.856 320 230.718V288h192v32H257.64c-71.256 0-129.076 85.142-129.626 190.484-0.004 0.506-0.014 1.01-0.014 1.516 0 19.046 1.88 37.44 5.37 54.808C149.296 646.14 198.902 704 257.64 704H288v-91.87c0-53.654 40.292-103.466 98.92-114.018z m20.392-244.108c-19.184 0-34.768-15.57-34.768-34.806 0-19.328 15.548-35.04 34.768-35.04 19.148 0 34.798 15.71 34.798 35.04 0.002 19.236-15.618 34.806-34.798 34.806z"
+                            p-id="4140"
+                            fill="#0075AA"
+                            data-spm-anchor-id="a313x.7781069.0.i13"
+                            class
+                          />
+                          <path
+                            d="M887.902 445.086C869.56 372.042 822.066 320 766.36 320H736v81.344c0 67.83-44.572 116.948-98.978 125.362a107.886 107.886 0 0 1-16.602 1.292H412.702a102.82 102.82 0 0 0-26.098 3.344C348.36 541.378 320 573.2 320 614.472v174.454c0 49.664 49.954 78.852 98.962 93.102 58.654 17.062 122.534 20.136 192.732 0C658.3 868.708 704 841.786 704 788.926V736h-192v-32h254.36c50.48 0 94.214-42.73 115.628-105.098C890.948 572.808 896 543.282 896 512c0-23.536-2.866-46.076-8.098-66.914zM615.734 765.64c19.18 0 34.762 15.57 34.762 34.8 0 19.3-15.582 35.042-34.762 35.042-19.154 0-34.798-15.742-34.798-35.042 0-19.26 15.612-34.8 34.798-34.8z"
+                            p-id="4141"
+                            fill="#FFD400"
+                            data-spm-anchor-id="a313x.7781069.0.i16"
+                            class
+                          />
+                        </svg>
                       </div>
-                      <svg
-                        v-if="item.language==='nodejs'"
-                        t="1565963200375"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="4393"
-                        style="float:right;"
-                        v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                      >
-                        <path
-                          d="M875.2 262.3L546.7 72.7c-20.7-11.8-48.3-11.8-69 0L148.8 262.3c-21.5 12.2-34.5 34.9-34.5 59.7v379.2c0 24.8 13.4 47.9 34.5 60.1l86.1 49.5c41.8 20.7 56.8 20.7 75.9 20.7 62.1 0 97.4-37.8 97.4-102.7V354.4c0-5.3-4.1-9.3-9.3-9.3h-41.4c-5.3 0-9.3 4.1-9.3 9.3v374.3c0 28.8-30 57.7-78.8 33.3l-90.1-52c-3.2-2-5.3-5.3-5.3-8.9V321.9c0-3.7 2-7.3 5.3-8.9l328.1-190c3.2-1.6 7.3-1.6 10.2 0l328.5 189.6c3.2 1.6 5.3 5.3 5.3 8.9v379.2c0 3.7-2 7.3-4.9 8.9L517.9 899.3c-2.8 1.6-7.3 1.6-10.2 0l-84.4-49.9c-2.4-1.2-5.7-1.6-8.1-0.4-23.1 13.4-27.6 15-49.5 22.7-5.7 1.6-13.4 4.9 2.8 14.2l109.6 65c10.6 6.1 22.3 9.3 34.5 9.3 11.8-0.4 24-3.2 34.1-9.7l328.5-189.6c21.1-12.2 34.5-34.9 34.5-59.7V321.9c0-24.3-13.4-47.5-34.5-59.6z"
-                          fill="#689F63"
-                          p-id="4394"
-                        />
-                        <path
-                          d="M614.1 641.1c-86.9 0-106-21.9-112.5-65-0.8-4.9-4.5-8.1-9.3-8.1h-42.6c-5.3 0-9.3 4.1-9.3 9.3 0 55.2 30 121.4 173.8 121.4l-0.4-0.4c103.9 0 163.6-41 163.6-112.5 0-70.6-47.9-89.7-149-103.1-101.9-13.4-112.5-20.3-112.5-44.3 0-19.5 8.9-45.9 84.4-45.9 67.8 0 92.6 14.6 102.7 60.1 1.2 4.1 4.9 7.3 9.3 7.3H755c2.4 0 5.3-0.8 6.9-2.8 1.6-2 2.8-4.5 2.4-7.3-6.9-78.4-58.9-114.9-164-114.9-93.4 0-149.4 39.4-149.4 105.6 0 71.9 55.6 91.8 145.8 100.7 107.6 10.6 116.1 26.4 116.1 47.5 0 36.5-29.3 52.4-98.7 52.4z"
-                          fill="#689F63"
-                          p-id="4395"
-                        />
-                      </svg>
-                      <svg
-                        v-if="item.language==='java'"
-                        t="1572767890841"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="2391"
-                        data-spm-anchor-id="a313x.7781069.0.i2"
-                        style="float:right;"
-                        v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                      >
-                        <path
-                          d="M701.72245 245.828637s-162.696653 40.05327-190.648146 134.112978c-27.951493 94.059708 107.42585 114.379856 24.790581 191.957666 0 0 71.165674-36.847202 71.165675-85.796181s-67.37258-73.73956-48.316797-120.746836c19.055783-47.097588 143.008687-119.527627 143.008687-119.527627z"
-                          fill="#E83418"
-                          p-id="2392"
-                          data-spm-anchor-id="a313x.7781069.0.i1"
-                          class="selected"
-                        />
-                        <path
-                          d="M594.2966 68.501477s64.843851 74.371742-34.950655 184.326322-185.590687 106.116329-55.948141 286.017375c0 0-141.11214-93.427526-103.5876-183.69414s234.539666-126.481633 194.486396-286.649557z"
-                          fill="#E83418"
-                          p-id="2393"
-                        />
-                        <path
-                          d="M408.073731 545.79918s-88.324911 23.526216-88.324911 38.788905c0 15.262689 223.702253 34.318472 370.549191-7.631345 0 0-102.323235 46.375094-266.284253 46.375094s-251.06672-48.903823-15.940027-77.532654zM371.226529 645.593685s-45.110729 12.056621-45.110729 29.893196c0 17.791419 96.588438 69.269127 331.760286 12.688804 0 0-30.525378-15.894871-35.582837-21.629669 0 0-324.761124 46.42025-251.06672-20.952331zM390.282312 738.389029s-65.476033 55.270803 207.1752 20.320148l45.110729 22.894033s-73.73956 29.215857-163.328835 29.215858-175.385457-38.111567-88.957094-72.430039zM322.27755 804.497244s-81.370904 15.262689-81.370905 33.054108 125.217269 34.950655 275.812145 34.950654 291.074834-26.054946 256.756361-61.637782c0 0 15.894871 6.999162 15.894871 18.423601s-36.847202 64.843851-333.656832 64.84385-266.916435-44.478547-266.916436-44.478546 7.044318-34.363628 133.480796-45.155885z"
-                          fill="#06509B"
-                          p-id="2394"
-                          data-spm-anchor-id="a313x.7781069.0.i0"
-                          class="selected"
-                        />
-                        <path
-                          d="M303.221767 910.613573s366.710941 52.742073 523.040613-54.63862c0 0 12.056621 62.269965-228.172686 76.900471s-294.867928-22.261851-294.867927-22.261851zM708.08943 552.798342s81.370904-17.159236 81.370904 48.948979-99.162323 105.484147-99.162323 105.484147 136.641707-21.629669 136.641708-110.586762-118.850289-43.846364-118.850289-43.846364z"
-                          fill="#06509B"
-                          p-id="2395"
-                        />
-                      </svg>
-                      <svg
-                        v-if="item.language==='python'"
-                        t="1572263765671"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="4139"
-                        id="mx_n_1572263765672"
-                        data-spm-anchor-id="a313x.7781069.0.i18"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        style="float:right;"
-                        v-bind:class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small'  }"
-                      >
-                        <path
-                          d="M386.92 498.112a130.632 130.632 0 0 1 23.172-2.082l-6.244-0.03h207.646c9.006 0 17.612-1.234 25.816-3.508 38.74-10.726 66.69-45.074 66.69-87.326v-174.448c0-49.664-42.3-86.968-92.578-95.212-31.862-5.248-78.516-7.654-110.178-7.498-31.658 0.172-61.962 2.808-88.554 7.498C334.286 149.152 320 177.856 320 230.718V288h192v32H257.64c-71.256 0-129.076 85.142-129.626 190.484-0.004 0.506-0.014 1.01-0.014 1.516 0 19.046 1.88 37.44 5.37 54.808C149.296 646.14 198.902 704 257.64 704H288v-91.87c0-53.654 40.292-103.466 98.92-114.018z m20.392-244.108c-19.184 0-34.768-15.57-34.768-34.806 0-19.328 15.548-35.04 34.768-35.04 19.148 0 34.798 15.71 34.798 35.04 0.002 19.236-15.618 34.806-34.798 34.806z"
-                          p-id="4140"
-                          fill="#0075AA"
-                          data-spm-anchor-id="a313x.7781069.0.i13"
-                          class
-                        />
-                        <path
-                          d="M887.902 445.086C869.56 372.042 822.066 320 766.36 320H736v81.344c0 67.83-44.572 116.948-98.978 125.362a107.886 107.886 0 0 1-16.602 1.292H412.702a102.82 102.82 0 0 0-26.098 3.344C348.36 541.378 320 573.2 320 614.472v174.454c0 49.664 49.954 78.852 98.962 93.102 58.654 17.062 122.534 20.136 192.732 0C658.3 868.708 704 841.786 704 788.926V736h-192v-32h254.36c50.48 0 94.214-42.73 115.628-105.098C890.948 572.808 896 543.282 896 512c0-23.536-2.866-46.076-8.098-66.914zM615.734 765.64c19.18 0 34.762 15.57 34.762 34.8 0 19.3-15.582 35.042-34.762 35.042-19.154 0-34.798-15.742-34.798-35.042 0-19.26 15.612-34.8 34.798-34.8z"
-                          p-id="4141"
-                          fill="#FFD400"
-                          data-spm-anchor-id="a313x.7781069.0.i16"
-                          class
-                        />
-                      </svg>
-                    </div>
-                  </el-menu-item>
+                    </el-menu-item>
+                    <div
+                      v-if="leftItem.type==='online'"
+                      slot="link1"
+                      @click="downPlugin(msg.child_msg)"
+                    >下载</div>
+                    <!-- <div v-else slot="link2" @click="updatePlugin(msg.child_msg)">更新</div> -->
+                  </router-link-group>
                 </el-submenu>
               </span>
             </el-submenu>
@@ -782,6 +695,22 @@
         </div>
       </el-col>
     </el-row>
+    <!-- <el-dialog
+      class="child-process"
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%"
+      style="display: float; top:100px; left: 400px;"
+      :modal="false"
+      :close-on-click-modal="false"
+      :append-to-body="true"
+    >
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>-->
   </div>
 </template>
 <script>
@@ -794,6 +723,7 @@ const fs = window.require("fs");
 const path = window.require("path");
 const fse = window.require("fs-extra");
 import config from "@/config/environment/index";
+import environment from "@/config/environment";
 import _ from "lodash";
 import $ from "jquery";
 import moment from "moment";
@@ -826,6 +756,8 @@ const { stop, views } = window.require(
 
 import { uploadTask, editTask, updateLog } from "@/api/task";
 import { getProjectPermission } from "@/api/role";
+import { pluginViews } from "@/api/plugin";
+let { pluginDownload, executeDownload } = require("@/utils/electron.js");
 
 export default {
   components: {
@@ -851,8 +783,12 @@ export default {
     projectSelector
   },
   data() {
-    var leftList = this.readDir();
+    let leftList = [];
+    this.getPluginLs().then(res => {
+      this.leftList = res;
+    });
     return {
+      dialogVisible: false,
       dialogFormVisible: false,
       size: this.$store.getters.size,
       input: "",
@@ -894,7 +830,9 @@ export default {
       ],
       searchPluginLs: [],
       pluginSearchInput: "",
-      currentNode: {}
+      currentNode: {},
+      webPlugin: [],
+      localPlugin: []
     };
   },
   mounted() {
@@ -958,6 +896,192 @@ export default {
     this.initTerminal();
   },
   methods: {
+    // 左侧插件集
+    async getPluginLs() {
+      let pluginLs = [];
+      this.webPlugin = (await pluginViews({})).data;
+      // 线上插件集
+      let onlinePluginLs = _.map(this.webPlugin, item => {
+        return {
+          plugin_id: item.plugin_id,
+          version: item.version,
+          plugin_package_json: JSON.parse(item.plugin_package_json),
+          type: "online"
+        };
+      });
+      // 本地插件集
+      let base_integration_path = path.join(
+        path.resolve(),
+        "/public/base_integration/"
+      );
+      let base_integration_file_list = _.map(
+        _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+        file_name => {
+          return {
+            plugin_id: file_name,
+            version: fs.existsSync(
+              `${base_integration_path}${file_name}/package.json`
+            )
+              ? fse.readJsonSync(
+                  `${base_integration_path}${file_name}/package.json`
+                ).version
+              : "",
+            type: "local"
+          };
+        }
+      );
+      this.localPlugin = _.map(
+        _.difference(fs.readdirSync(`${config.pluginsPath}/`), [
+          "list.json",
+          "npm_i.sh",
+          ".DS_Store"
+        ]),
+        file_name => {
+          let versionLs = _.difference(
+            fs.readdirSync(`${config.pluginsPath}/${file_name}`),
+            [".DS_Store"]
+          ).sort(this.versionFn);
+          return {
+            plugin_id: file_name,
+            version: versionLs[versionLs.length - 1],
+            type: "local"
+          };
+        }
+      );
+      this.localPlugin = _.concat(this.localPlugin, base_integration_file_list);
+
+      pluginLs = _.concat(
+        pluginLs,
+        _.differenceBy(this.localPlugin, onlinePluginLs, "plugin_id"),
+        _.differenceBy(onlinePluginLs, this.localPlugin, "plugin_id")
+      );
+      _.each(this.localPlugin, localItem => {
+        _.each(onlinePluginLs, onlineItem => {
+          if (localItem.plugin_id === onlineItem.plugin_id) {
+            pluginLs.push(
+              _.find(_.concat(this.localPlugin, onlinePluginLs), {
+                plugin_id: localItem.plugin_id,
+                version: [localItem.version, onlineItem.version].sort(
+                  this.versionFn
+                )[[localItem.version, onlineItem.version].length - 1]
+              })
+            );
+          }
+        });
+      });
+
+      let shapeList = null;
+      let conventionHeight = null;
+      if (this.$store.getters.size == "mini") {
+        shapeList = require("@/views/project/miniNodeConfig.json");
+        conventionHeight = 29;
+      } else if (this.$store.getters.size == "small") {
+        shapeList = require("@/views/project/smallNodeConfig.json");
+        conventionHeight = 39;
+      } else {
+        shapeList = require("@/views/project/mediumNodeConfig.json");
+        conventionHeight = 48;
+      }
+
+      // 整理list
+      let list = [];
+      _.each(pluginLs, item => {
+        if (
+          !_.includes(
+            [
+              "uiauto-chrome-plugin",
+              "uiauto_logMonitor",
+              "uiauto_executor",
+              "uiauto_uiselector"
+            ],
+            item.plugin_id
+          )
+        ) {
+          let package_json = "";
+          let operations = "";
+          if (item.type === "local") {
+            let package_json_path = `${config.pluginsPath}/${item.plugin_id}/${item.version}/package.json`;
+            if (fs.existsSync(package_json_path)) {
+              package_json = fse.readJsonSync(package_json_path);
+              operations = package_json.uiauto_config.operations;
+            }
+          } else {
+            package_json = item.plugin_package_json;
+            operations = package_json.uiauto_config.operations;
+          }
+
+          _.each(operations, operation => {
+            let target = _.find(list, {
+              id:
+                operation.attribution_id ||
+                package_json.uiauto_config.attribution_id
+            });
+            let nameLength = operation.operation_name.length + 2;
+            let target_msg = {
+              operation_id: operation.operation_id,
+              category_id: operation.category_id,
+              plugin_id: package_json.id,
+              data_label: operation.operation_name,
+              data_type: "node",
+              data_shape: shapeList[operation.type].data_shape,
+              data_shape_type: operation.type,
+              data_size:
+                operation.type == "Convention"
+                  ? `${nameLength * 16} * ${conventionHeight}`
+                  : shapeList[operation.type].data_size,
+              data_color: shapeList[operation.type].data_color,
+              background_color:
+                item.type == "online"
+                  ? "#C0C4CC"
+                  : operation.background_color || "#3a71a8",
+              input: JSON.stringify(operation.input),
+              output: JSON.stringify(operation.output),
+              operation_name: operation.operation_name,
+              category_name: operation.category_name,
+              version: package_json.version,
+              language: package_json.language,
+              attribution_name:
+                operation.attribution_name ||
+                package_json.uiauto_config.attribution_name,
+              type: item.type
+            };
+            if (target) {
+              target.msg.push(target_msg);
+            } else {
+              list.push({
+                type: item.type,
+                title:
+                  operation.attribution_name ||
+                  package_json.uiauto_config.attribution_name,
+                id:
+                  operation.attribution_id ||
+                  package_json.uiauto_config.attribution_id,
+                msg: [target_msg]
+              });
+            }
+          });
+        }
+      });
+      let returnList = [];
+      _.each(list, (listItem, idx) => {
+        returnList = [];
+        _.each(listItem.msg, msgItem => {
+          let target = _.find(returnList, { child_id: msgItem.category_id });
+          let target_msg = msgItem;
+          if (target) {
+            target.child_msg.push(target_msg);
+          } else {
+            returnList.push({
+              child_title: msgItem.category_name,
+              child_id: msgItem.category_id,
+              child_msg: [target_msg]
+            });
+          }
+        });
+        list[idx].msg = returnList;
+      });
+      return list;
+    },
     openBrowser(val) {
       window["executor"]
         .execute_python(
@@ -1167,27 +1291,6 @@ export default {
             };
             editTask(postBody);
           });
-        // } else {
-        //   execute(this.projectName, {
-        //     // silent: true
-        //   })
-        //     .then(res => {
-        //       console.log("-=-=-=执行成功-=-=-=-=");
-        //       console.log(res);
-        //       self.loading = false;
-        //       electron.window_maximize();
-        //     })
-        //     .catch(err => {
-        //       console.log("-=-=-=执行失败-=-=-=-=");
-        //       console.warn(err);
-        //       self.loading = false;
-        //       electron.window_maximize();
-        //       this.$message({
-        //         message: "执行出错",
-        //         type: "warning"
-        //       });
-        //     });
-        // }
       } else {
         this.$message({
           message: "正在执行，请稍候…",
@@ -1224,110 +1327,6 @@ export default {
         }
       }
     },
-    readDir() {
-      // 插件目录
-      const plugins_path = config.pluginsPath + "/";
-
-      // 过滤无用文件后的插件文件夹名列表
-      var file_name_list = _.difference(fs.readdirSync(plugins_path), [
-        "list.json",
-        ".DS_Store"
-      ]);
-
-      let shapeList = null;
-      let conventionHeight = null;
-      if (this.$store.getters.size == "mini") {
-        shapeList = require("@/views/project/miniNodeConfig.json");
-        conventionHeight = 29;
-      } else if (this.$store.getters.size == "small") {
-        shapeList = require("@/views/project/smallNodeConfig.json");
-        conventionHeight = 39;
-      } else {
-        shapeList = require("@/views/project/mediumNodeConfig.json");
-        conventionHeight = 48;
-      }
-
-      // 整理list
-      var list = [];
-      _.each(file_name_list, file_name => {
-        let versionLs = _.difference(
-          fs.readdirSync(`${plugins_path}${file_name}`),
-          [".DS_Store"]
-        ).sort(this.versionFn);
-        let package_json_path = `${plugins_path}${file_name}/${
-          versionLs[versionLs.length - 1]
-        }/package.json`;
-        if (fs.existsSync(package_json_path)) {
-          var package_json = fse.readJsonSync(package_json_path);
-          var operations = package_json.uiauto_config.operations;
-          _.each(operations, operation => {
-            // var target = _.find(list, { id: operation.category_id });
-            var target = _.find(list, {
-              id:
-                operation.attribution_id ||
-                package_json.uiauto_config.attribution_id
-            });
-            var nameLength = operation.operation_name.length + 2;
-            var target_msg = {
-              operation_id: operation.operation_id,
-              category_id: operation.category_id,
-              plugin_id: package_json.id,
-              data_label: operation.operation_name,
-              data_type: "node",
-              data_shape: shapeList[operation.type].data_shape,
-              data_shape_type: operation.type,
-              data_size:
-                operation.type == "Convention"
-                  ? `${nameLength * 16} * ${conventionHeight}`
-                  : shapeList[operation.type].data_size,
-              data_color: shapeList[operation.type].data_color,
-              background_color: operation.background_color || "#3a71a8",
-              input: JSON.stringify(operation.input),
-              output: JSON.stringify(operation.output),
-              operation_name: operation.operation_name,
-              category_name: operation.category_name,
-              version: package_json.version,
-              language: package_json.language,
-              attribution_name:
-                operation.attribution_name ||
-                package_json.uiauto_config.attribution_name
-            };
-            if (target) {
-              target.msg.push(target_msg);
-            } else {
-              list.push({
-                title:
-                  operation.attribution_name ||
-                  package_json.uiauto_config.attribution_name,
-                id:
-                  operation.attribution_id ||
-                  package_json.uiauto_config.attribution_id,
-                msg: [target_msg]
-              });
-            }
-          });
-        }
-      });
-      let returnList = [];
-      _.each(list, (listItem, idx) => {
-        returnList = [];
-        _.each(listItem.msg, msgItem => {
-          let target = _.find(returnList, { child_id: msgItem.category_id });
-          let target_msg = msgItem;
-          if (target) {
-            target.child_msg.push(target_msg);
-          } else {
-            returnList.push({
-              child_title: msgItem.category_name,
-              child_id: msgItem.category_id,
-              child_msg: [target_msg]
-            });
-          }
-        });
-        list[idx].msg = returnList;
-      });
-      return list;
-    },
     // 画布保存方法
     saveGraph(type) {
       let self = this;
@@ -1357,7 +1356,15 @@ export default {
         const data = page.save();
         // 收集必填项未填值信息
         let errorMessage = [];
+        let missPlugin = [];
         _.each(data.nodes, node => {
+          let target = _.find(self.localPlugin, {
+            plugin_id: node.plugin_id,
+            version: node.version
+          });
+          if (!target) {
+            missPlugin.push(node);
+          }
           if (!node.general_property) {
             node.general_property = general_property_temporary;
           }
@@ -1388,13 +1395,13 @@ export default {
             });
           }
         });
-        var cron = "";
-        var retry_count = "";
-        var retry_interval = "";
-        var time_out = "";
-        var description = "";
-        var createAt = "";
-        var automatic_recording = "";
+        let cron = "",
+          retry_count = "",
+          retry_interval = "",
+          time_out = "",
+          description = "",
+          createAt = "",
+          automatic_recording = "";
         try {
           var json = fse.readJsonSync(
             `${config.projectsPath}/${self.projectName}/${self.projectName}.json`
@@ -1475,6 +1482,45 @@ export default {
             });
           }
           resolve(true);
+        }
+
+        if (missPlugin.length) {
+          return self
+            .$confirm("提示", {
+              title: "提示",
+              message: "该项目存在未下载的插件，是否自动下载对应插件？",
+              showCancelButton: true,
+              confirmButtonText: "继续",
+              cancelButtonText: "取消",
+              type: "warning"
+            })
+            .then(() => {
+              let errorPlugin = [];
+              _.each(missPlugin, item => {
+                let target = _.find(self.webPlugin, {
+                  plugin_id: item.plugin_id,
+                  version: item.version
+                });
+                if (target) {
+                  self.downPlugin([target]);
+                } else {
+                  errorPlugin.push(item);
+                }
+              });
+              self.$notify({
+                title: "警告",
+                message: `${_.map(
+                  errorPlugin,
+                  "plugin_id"
+                )}插件本地且云端不存在`,
+                type: "warning"
+              });
+              resolve(true);
+            })
+            .catch(err => {
+              console.log("err", err);
+              reject(false);
+            });
         }
       };
 
@@ -1688,6 +1734,10 @@ export default {
         self.attributionName = "";
         self.language = "";
         self.version = "";
+      });
+      currentPage.on("dblclick", ev => {
+        console.log("ev", ev);
+        this.dialogVisible = true;
       });
       // 监听连线事件
       currentPage.on("dragedge:beforeshowanchor", ev => {
@@ -2055,6 +2105,37 @@ export default {
     },
     viewProjectDescription() {
       this.dialogFormVisible = true;
+    },
+    // 右键下载插件
+    downPlugin(plugin) {
+      let target = _.find(this.webPlugin, { plugin_id: plugin[0].plugin_id });
+      if (target) {
+        if (target.language === "python") {
+          if (this.$store.state.plugin.has_python_downloading) {
+            this.$message({
+              message: "当前已有python插件在下载，请稍候再下载！",
+              type: "error"
+            });
+            return false;
+          } else {
+            if (target.plugin_id === "uiauto_uiselector") {
+              window.uiselector.exit_uiselector();
+            }
+            this.$store.commit("plugin/MARK_PYTHON_DOWNLOADING", true);
+          }
+        }
+      }
+      executeDownload(target)
+        .then(result => {
+          this.getPluginLs().then(res => {
+            this.leftList = res;
+          });
+        })
+        .catch(err => {});
+    },
+    // 右键更新插件
+    updatePlugin(plugin) {
+      console.log(plugin);
     }
   },
   computed: {
@@ -2077,6 +2158,9 @@ export default {
       set() {
         return _.map(this.input, "name").concat(["组件返回值"]);
       }
+    },
+    download_plugin() {
+      return this.$store.state.plugin.pluginDownload;
     }
   },
   async beforeRouteLeave(to, from, next) {
@@ -2447,5 +2531,12 @@ export default {
 }
 .block-container {
   padding: 10px;
+}
+
+.child-process {
+  pointer-events: none;
+  .el-dialog {
+    pointer-events: auto;
+  }
 }
 </style>
