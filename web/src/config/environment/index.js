@@ -12,8 +12,11 @@ const default_config = {
   "pluginsPath": path.normalize('C:\\UiAuto_files\\plugins'), // `${os.homedir()}\\.uiauto\\plugins`,
   "projectsPath": path.normalize('C:\\UiAuto_files\\projects'),// `${os.homedir()}\\.uiauto\\projects`,
   "serverUrl": "http://rpa-api.legion-tech.net",
-  "pythonPath": ""
+  "pythonPath": "",
+  "pipSource": [],
+  "npmSource": []
 }
+
 
 if (!fs.existsSync(`${os.homedir()}/.uiauto`)) {
   fs.mkdirSync(`${os.homedir()}/.uiauto`)
@@ -44,6 +47,15 @@ if (!fs.existsSync(config.projectsPath)) {
   fs.mkdirSync(config.projectsPath);
 }
 
+if (!config.hasOwnProperty("pipSource")) {
+  config['pipSource'] = default_config.pipSource;
+  fs.writeFileSync(configPath, JSON.stringify(config), 'utf8');
+}
+if (!config.hasOwnProperty("npmSource")) {
+  config['npmSource'] = default_config.npmSource;
+  fs.writeFileSync(configPath, JSON.stringify(config), 'utf8');
+}
+
 // All configurations will extend these options
 // ============================================
 var all = {
@@ -70,6 +82,8 @@ var all = {
   pythonPath: config.pythonPath,
 
   serverUrl: config.serverUrl || "",
+
+  package_source: config.package_source
 };
 // Export the config object based on the NODE_ENV
 // ==============================================

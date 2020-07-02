@@ -21,5 +21,7 @@ export const sendLog = async (req, res) => {
     res.json("success")
   } catch (e) {
     console.log(e);
+    res.json("error")
   }
+
 }
