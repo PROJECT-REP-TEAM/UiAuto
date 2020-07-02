@@ -55,8 +55,8 @@ class Logger(object):
                     "taskId": self.task_id,
                     "status": status,
                     "content": content,
-                    "nodeId": (options['node_id'] if options is not None else None),
-                    "logOrder": (options['logOrder'] if options is not None else None)
+                    "nodeId": (options['node_id'] if options is not None and 'node_id' in options.keys() else None),
+                    "logOrder": (options['logOrder'] if options is not None and 'logOrder' in options.keys() else None)
                 })
         except Exception as e:
             print(e)

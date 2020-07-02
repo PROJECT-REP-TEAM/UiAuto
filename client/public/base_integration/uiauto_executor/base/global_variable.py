@@ -9,12 +9,12 @@ def __init():
 # 设置值
 def set_value(key, value, readonly=False):
     if key in global_data_store.keys() and global_data_store[key]["readonly"] is True:
-        raise Exception("不允许修改只读变量")
-
-    global_data_store[key] = {
-        "readonly": readonly,
-        "value": value
-    }
+        pass
+    else:
+        global_data_store[key] = {
+            "readonly": readonly,
+            "value": value
+        }
 
 # 取值
 def get_value(key):
