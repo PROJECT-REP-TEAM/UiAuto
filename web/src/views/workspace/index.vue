@@ -144,7 +144,7 @@
                   >
                     <div class="card-panel-text">{{ folder.folder_name }}</div>
                     <div class="card-panel-num">文件夹</div>
-                    <div class="card-panel-num">{{ folder.json.updateAt }}</div>
+                    <div class="card-panel-num">{{ folder.date }}</div>
                   </div>
                   <transition name="slide-fade">
                     <div
