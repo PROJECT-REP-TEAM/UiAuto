@@ -191,7 +191,7 @@ export default {
         project_type: json.project_type || 'folder',
         projects: json.projects || [],
         json: json,
-        date: moment(json.updatedAt).format('YYYY-MM-DD')
+        date: moment(json.updateAt).format('YYYY-MM-DD')
       }
       this.$store.commit('project/LOCAL_PROJECT_FOLDERS', initialStatus)
     },
