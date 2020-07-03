@@ -85,7 +85,6 @@ export default {
   },
   methods: {
     showMenu(e) {
-      console.log(e);
       let menuHeight = 10 + (Object.keys(this.$scopedSlots).length - 1) * 37;
 
       this.left = e.clientX;
