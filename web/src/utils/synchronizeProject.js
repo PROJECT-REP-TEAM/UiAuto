@@ -147,7 +147,8 @@ function downloadProject(projects, index) {
                 }
                 Notification({
                     type: 'error',
-                    message: projectDownloadStatus.errLog
+                    message: projectDownloadStatus.errLog,
+                    offset: 25
                 })
                 store.commit("project/PROJECT_DOWNLOAD", projectDownloadStatus);
                 store.commit("project/PROJECT_DOWNLOADDELETE", projectDownloadStatus);
@@ -209,7 +210,8 @@ function downloadProject(projects, index) {
                             type: 'error',
                             message: downderr,
                             duration: 0,
-                            dangerouslyUseHTMLString: true
+                            dangerouslyUseHTMLString: true,
+                            offset: 25
                         })
                         const projectDownloadStatus = {
                             project_name: projects[index].project.projectName,
@@ -232,7 +234,8 @@ function downloadProject(projects, index) {
                         type: '文件解压出错',
                         message: downderr,
                         duration: 0,
-                        dangerouslyUseHTMLString: true
+                        dangerouslyUseHTMLString: true,
+                        offset: 25
                     })
                     const projectDownloadStatus = {
                         project_name: projects[index].project.projectName,

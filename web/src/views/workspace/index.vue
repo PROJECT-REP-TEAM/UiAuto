@@ -826,7 +826,7 @@ export default {
           JSON.stringify(readJson, null, "\t"),
           "utf8"
         );
-        var targetDir = `${this.projects_path}${params.project_name}`;
+        let targetDir = `${this.projects_path}${params.project_name}`;
 
         const target = zip.folder(params.project_name);
         this.readDir(target, targetDir);

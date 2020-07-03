@@ -350,7 +350,7 @@
                       </div>
                     </el-menu-item>
                     <div
-                      v-if="leftItem.type==='online'"
+                      v-if="msg.child_type==='online'"
                       slot="link1"
                       @click="downPlugin(msg.child_msg)"
                     >下载</div>
@@ -1067,14 +1067,14 @@ export default {
         returnList = [];
         _.each(listItem.msg, msgItem => {
           let target = _.find(returnList, { child_id: msgItem.category_id });
-          let target_msg = msgItem;
           if (target) {
-            target.child_msg.push(target_msg);
+            target.child_msg.push(msgItem);
           } else {
             returnList.push({
               child_title: msgItem.category_name,
               child_id: msgItem.category_id,
-              child_msg: [target_msg]
+              child_msg: [msgItem],
+              child_type: _.find(pluginLs, { plugin_id: msgItem.plugin_id }) ? _.find(pluginLs, { plugin_id: msgItem.plugin_id }).type : ''
             });
           }
         });
