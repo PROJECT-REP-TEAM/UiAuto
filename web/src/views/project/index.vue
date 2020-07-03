@@ -220,6 +220,11 @@
               <template slot="title">
                 <span>{{leftItem.title}}</span>
               </template>
+              <div
+                v-if="leftItem.type==='online'"
+                slot="title"
+                style="background: #e65d6e;width: 5px;height: 5px;border-radius: 50%;display: inline-block;vertical-align: text-top;"
+              ></div>
 
               <span v-for="(msg,msgIdx) in leftItem.msg" :key="msgIdx">
                 <el-submenu :index="''+(leftIdx + 1)+'-'+''+(msgIdx+1)">
