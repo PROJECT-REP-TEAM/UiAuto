@@ -433,7 +433,10 @@ export default {
     },
     local_folderLs() {
       var arr = [];
+      let update_time
       for (const i in this.vuex_local_folderLs) {
+        update_time = this.vuex_local_folderLs[i].json.updateAt
+        this.vuex_local_folderLs[i].json.updateAt = moment(update_time).format('YYYY-MM-DD')
         arr.push(this.vuex_local_folderLs[i]);
       }
       return arr;
