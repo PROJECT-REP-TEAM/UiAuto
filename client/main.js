@@ -76,8 +76,8 @@ function createWindow() {
     const web_url = fs.readFileSync(web_url_file).toString();
     mainWindow.loadURL(web_url);
   } else {
-    // mainWindow.loadURL('http://rpa.legion-tech.net');
-    mainWindow.loadURL('http://localhost:9528');
+    mainWindow.loadURL('http://rpa.legion-tech.net');
+    // mainWindow.loadURL('http://localhost:9528');
   }
 
   const accelerator = 'ctrl+alt+shift+i';

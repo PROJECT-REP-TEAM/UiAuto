@@ -185,6 +185,7 @@ export default {
       } catch (error) {
         // console.error(error)
       }
+      // console.error(json)
       const initialStatus = {
         folder_name: json.folder_name,
         project_type: json.project_type || 'folder',

@@ -37,6 +37,7 @@
           />
         </el-select>-->
       <!-- </div> -->
+      <sourceSetting class="right-menu-item" style="margin-right: 15px;"/>
       <uploadPlugin class="right-menu-item" style="margin-right: 15px;"/>
       <downloadPlugin class="right-menu-item"/>
     </div>
@@ -47,6 +48,7 @@
 import pluginTabs from "./pluginTabs";
 import uploadPlugin from "./uploadPlugin";
 import downloadPlugin from "./downloadPlugin";
+import sourceSetting from "./sourceSetting";
 import Breadcrumb from "@/components/Breadcrumb";
 import { globalSearch } from "@/utils/search.js";
 export default {
@@ -54,6 +56,7 @@ export default {
   components: {
     uploadPlugin,
     downloadPlugin,
+    sourceSetting,
     pluginTabs,
     Breadcrumb
   },

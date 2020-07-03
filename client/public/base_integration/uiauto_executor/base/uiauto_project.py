@@ -142,7 +142,7 @@ class __Project__():
                 # 节点执行异常，执行重试
                 if not node_result.success:
                     if 'retry_count' in general_property.keys() and int(general_property['retry_count']) > 0:
-                        print("节点【%s】执行异常，执行重试" % current_node["label"], level=LEVEL_WARN)
+                        print("节点【%s】执行异常，执行重试" % current_node["label"], level=LEVEL_WARN, options={"node_id": current_node['id']})
                         retry_count = int(general_property['retry_count'])
                         retry_index = 0
                         while retry_index < retry_count:
@@ -156,7 +156,7 @@ class __Project__():
                                 break
                             else:
                                 print("节点【%s】第 %s 次重试失败，错误信息：" % (current_node["label"], str(retry_index + 1)),
-                                      node_result.error, level=LEVEL_ERROR, node_id=current_node['id'])
+                                      node_result.error, level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 1})
                                 retry_index = retry_index + 1
 
                 # 初始化异常处理结果
@@ -543,7 +543,9 @@ class __Project__():
                 try:
                     script = __import__(temp_file_name)
                     script.print = print
-                    execute_result = getattr(script, 'script_node_executor')(self.global_variable.get_all())
+                    script_store = self.global_variable.get_all()
+                    execute_result = getattr(script, 'script_node_executor')(script_store)
+                    self.global_variable.update(variable=script_store)
                     sys.path.remove(temp_dir)
                     os.remove(temp_file_path)
                 except Exception as e:
