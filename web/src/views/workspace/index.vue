@@ -596,7 +596,12 @@ export default {
               .then(() => {
                 this.$router.push({
                   path: "/project",
-                  query: { projectName: this.projectName, projectType: "local" }
+                  query: {
+                    currentProjectName: "",
+                    currentProjectType: "",
+                    redirectProjectName: this.projectName,
+                    redirectProjectType: "local"
+                  }
                 });
               })
               .catch(() => {});
@@ -772,7 +777,12 @@ export default {
             }
             this.$router.push({
               path: "/project",
-              query: { projectName: this.projectName, projectType: "local" }
+              query: {
+                currentProjectName: "",
+                currentProjectType: "",
+                redirectProjectName: this.projectName,
+                redirectProjectType: "local"
+              }
             });
             this.showDialog = false;
           }
@@ -784,8 +794,10 @@ export default {
         this.$router.push({
           path: "/project",
           query: {
-            projectName: val.project_name,
-            projectType: val.project_type
+            currentProjectName: "",
+            currentProjectType: "",
+            redirectProjectName: val.project_name,
+            redirectProjectType: val.project_type
           }
         });
       } else {

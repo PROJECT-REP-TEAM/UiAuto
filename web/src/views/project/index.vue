@@ -8,29 +8,16 @@
       <i data-command="zoomOut" class="command el-icon el-icon-zoom-out" title="缩小"></i>
       <i data-command="zoomIn" class="command el-icon el-icon-zoom-in" title="放大"></i>
       <i data-command="save" class="command el-icon el-icon-upload" title="保存"></i>-->
+      <el-button
+        v-if="queryData.currentProjectName"
+        type="primary"
+        size="mini"
+        style="margin: 6px 0 6px 15px;float: left;"
+        @click="backToMain"
+      >返回主流程</el-button>
       <div class="left-menu">
         项目
         <span v-if="projectName">/ {{ projectName }}</span>
-      </div>
-      <div class="middle-menu">
-        <el-button size="mini" @click="openBrowser('Chrome')">
-          <img
-            src="../../assets/images/chrome.png"
-            width="12"
-            height="12"
-            style="vertical-align: text-top;"
-          >&nbsp;
-          启动Chrome
-        </el-button>
-        <el-button size="mini" @click="openBrowser('Internet Explorer')">
-          <img
-            src="../../assets/images/ie.png"
-            width="12"
-            height="12"
-            style="vertical-align: text-top;"
-          >&nbsp;
-          启动IE
-        </el-button>
       </div>
       <div
         v-if="!hasModificationRights"
@@ -38,23 +25,23 @@
       >您没有权限修改本云端项目</div>
       <div class="right-menu">
         <div class="right-menu-item" @click="updateVersionFn">
-          <img src="../../assets/images/update.png" class="icon">
+          <img src="../../assets/images/update.png" class="icon" />
           <span class="icon-text">更新</span>
         </div>
         <div class="right-menu-item" @click="executecurrentNode">
-          <img src="../../assets/images/run.png" class="icon">
+          <img src="../../assets/images/run.png" class="icon" />
           <span class="icon-text">执行当前节点</span>
         </div>
         <div class="right-menu-item" @click="toolClick('run')">
-          <img src="../../assets/images/run.png" class="icon">
+          <img src="../../assets/images/run.png" class="icon" />
           <span class="icon-text">执行</span>
         </div>
         <div data-command="save" class="command right-menu-item">
-          <img src="../../assets/images/save.png" class="icon">
+          <img src="../../assets/images/save.png" class="icon" />
           <span class="icon-text">保存</span>
         </div>
         <div class="right-menu-item" @click="toolClick('stop')">
-          <img src="../../assets/images/stop.png" class="icon">
+          <img src="../../assets/images/stop.png" class="icon" />
           <span class="icon-text">停止</span>
         </div>
       </div>
@@ -77,6 +64,133 @@
           >
             <i slot="suffix" class="el-input__icon el-icon-aim" style="padding: 5px;" />
           </el-input>
+
+          <el-menu class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
+            <span>
+              <el-submenu index="1" style="padding: 0 10px;">
+                <template slot="title">
+                  <span>内置浏览器</span>
+                </template>
+                <el-menu-item
+                  index="1-1"
+                  style="padding: 0;min-width: 100%;"
+                  class="getItem"
+                  :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                  @click="openBrowser('Chrome')"
+                >
+                  <div
+                    class="leftItem"
+                    :style="{ background: '#3a71a8'}"
+                    :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                  >
+                    <div
+                      style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
+                    >
+                      <span style="position: absolute;left: 5px;"></span>
+                      <span style="display: block;">启动Chrome</span>
+                    </div>
+                    <svg
+                      style="float:right;"
+                      :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                      t="1593957768721"
+                      class="icon"
+                      viewBox="0 0 1024 1024"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      p-id="2123"
+                    >
+                      <path
+                        d="M938.666667 512c0 235.605333-191.061333 426.666667-426.666667 426.666667S85.333333 747.605333 85.333333 512 276.394667 85.333333 512 85.333333s426.666667 191.061333 426.666667 426.666667z"
+                        fill="#4CAF50"
+                        p-id="2124"
+                      />
+                      <path
+                        d="M512 85.333333v426.666667l170.666667 85.333333-188.650667 341.333334H512c235.797333 0 426.666667-190.869333 426.666667-426.666667S747.797333 85.333333 512 85.333333z"
+                        fill="#FFC107"
+                        p-id="2125"
+                      />
+                      <path
+                        d="M938.666667 512c0 235.605333-191.061333 426.666667-426.666667 426.666667S85.333333 747.605333 85.333333 512 276.394667 85.333333 512 85.333333s426.666667 191.061333 426.666667 426.666667z"
+                        fill="#4CAF50"
+                        p-id="2126"
+                      />
+                      <path
+                        d="M512 85.333333v426.666667l170.666667 85.333333-188.650667 341.333334H512c235.797333 0 426.666667-190.869333 426.666667-426.666667S747.797333 85.333333 512 85.333333z"
+                        fill="#FFC107"
+                        p-id="2127"
+                      />
+                      <path
+                        d="M892.586667 320H512v277.333333l-64-21.333333L152.746667 282.88h-0.426667C227.84 164.053333 360.746667 85.333333 512 85.333333c166.4 0 310.4 95.573333 380.586667 234.666667z"
+                        fill="#F44336"
+                        p-id="2128"
+                      />
+                      <path
+                        d="M152.704 282.965333l188.650667 317.056L448 576 152.704 282.965333z"
+                        fill="#DD2C00"
+                        p-id="2129"
+                      />
+                      <path
+                        d="M494.016 938.666667l190.592-342.592L597.333333 533.333333l-103.317333 405.333334z"
+                        fill="#558B2F"
+                        p-id="2130"
+                      />
+                      <path
+                        d="M893.12 320H512l-33.685333 97.706667L893.12 320z"
+                        fill="#F9A825"
+                        p-id="2131"
+                      />
+                      <path
+                        d="M704 512c0 106.005333-85.994667 192-192 192s-192-85.994667-192-192 85.994667-192 192-192 192 85.994667 192 192z"
+                        fill="#FFFFFF"
+                        p-id="2132"
+                      />
+                      <path
+                        d="M661.333333 512c0 82.496-66.837333 149.333333-149.333333 149.333333s-149.333333-66.837333-149.333333-149.333333 66.837333-149.333333 149.333333-149.333333 149.333333 66.837333 149.333333 149.333333z"
+                        fill="#2196F3"
+                        p-id="2133"
+                      />
+                    </svg>
+                  </div>
+                </el-menu-item>
+                <el-menu-item
+                  index="1-2"
+                  style="padding: 0;min-width: 100%;"
+                  class="getItem"
+                  :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                  @click="openBrowser('Internet Explorer')"
+                >
+                  <div
+                    class="leftItem"
+                    :style="{ background: '#3a71a8'}"
+                    :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                  >
+                    <div
+                      style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
+                    >
+                      <span style="position: absolute;left: 5px;"></span>
+                      <span style="display: block;">启动IE</span>
+                    </div>
+                    <svg
+                      style="float:right;"
+                      :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                      t="1593957896347"
+                      class="icon"
+                      viewBox="0 0 1024 1024"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      p-id="2880"
+                    >
+                      <path
+                        d="M151.1 891.9c-39.3-39.3-27.5-121.8 23.2-221.2 31.5 88.4 92.9 162.6 172 210.5-87.6 39.8-159.4 46.5-195.2 10.7z m738-737.9c30.8 31.1 30 88.4 3.7 159.8-45.1-68.8-110.7-123-188.1-154 82.7-35.5 150-40.2 184.4-5.8z m-504 320.5c5-89.2 79.2-160.4 169.7-160.4s164.7 71.2 169.7 160.4H385.1z m354.5 106.6h216.8c1.7-15 2.4-30.4 2.4-46.1 0-73.7-19.8-142.8-54.3-202.3 35.7-94.9 34.4-175.4-13.4-223.5-45.5-45.3-167.4-37.9-305.3 23.1-10.2-0.8-20.5-1.2-30.9-1.2-189.2 0-348 130.2-391.9 305.7 59.4-76 121.8-131.1 205.3-171.2-7.6 7.1-51.8 51.1-59.3 58.6C89 544.2 19.6 831.5 94.3 906.1c56.8 56.7 159.6 47.1 277.7-10.7 54.9 28 117.1 43.7 183 43.7 177.4 0 327.7-114.2 382.2-273.2H718.6c-30.1 55.5-88.8 93.2-156.3 93.2S436 721.4 405.9 665.9c-13.4-25-21-53.8-21-84.2v-0.7l354.7 0.1z"
+                        fill="#1296DB"
+                        p-id="2881"
+                      />
+                    </svg>
+                  </div>
+                </el-menu-item>
+              </el-submenu>
+            </span>
+          </el-menu>
 
           <div v-if="searchPluginLs.length" style="padding: 10px;height: 93%;overflow: scroll;">
             <div>
@@ -209,7 +323,7 @@
             v-else
             ref="multipleSubmenu"
             class="el-menu-vertical-demo"
-            style="height: 94%;border: none;overflow: scroll;"
+            style="height: calc(100% - 75px);border: none;overflow: scroll;"
           >
             <el-submenu
               v-for="(leftItem, leftIdx) in leftList"
@@ -414,11 +528,7 @@
       >
         <div class="ph right">
           <!-- 详细面板 -->
-          <div
-            id="detailpannel"
-            class="detailpannel"
-            :class="{ filter: !hasModificationRights }"
-          >
+          <div id="detailpannel" class="detailpannel" :class="{ filter: !hasModificationRights }">
             <div v-if="isShowDescription">
               <div
                 class="panel-title"
@@ -732,50 +842,50 @@
   </div>
 </template>
 <script>
-import UiScreenshot from './editor-el/uiScreenshot'
-const electron = require('../../utils/electron')
-var os = window.require('os')
+import UiScreenshot from "./editor-el/uiScreenshot";
+const electron = require("../../utils/electron");
+var os = window.require("os");
 // var pty = window.require("node-pty");
 // var Terminal = window.require("xterm").Terminal;
-const fs = window.require('fs')
-const path = window.require('path')
-const fse = window.require('fs-extra')
-import config from '@/config/environment/index'
-import environment from '@/config/environment'
-import _ from 'lodash'
-import $ from 'jquery'
-import moment from 'moment'
-import G6Editor from '@antv/g6-editor'
-import textEditor from './editor-el/textEditor'
-import colorPicker from './editor-el/colorPicker'
-import radioEditor from './editor-el/radioEditor'
-import stringShower from './editor-el/stringShower'
-import pathSelector from './editor-el/pathSelector'
-import pathMultiple from './editor-el/pathMultiple'
-import selectPicker from './editor-el/selectPicker'
-import sliderEditor from './editor-el/sliderEditor'
-import checkboxEditor from './editor-el/checkboxEditor'
-import passwordEditor from './editor-el/passwordEditor'
-import switchSelector from './editor-el/switchSelector'
-import dateTimePicker from './editor-el/dateTimePicker'
-import conditionEditor from './editor-el/conditionEditor'
-import inputNumberEditor from './editor-el/inputNumberEditor'
-import dateTimeRangePicker from './editor-el/dateTimeRangePicker'
-import jsonEditor from './editor-el/jsonEditor'
-import uiSelector from './editor-el/uiSelector'
-import codemirror from './editor-el/codemirror'
-import uiScreenshot from './editor-el/uiScreenshot'
-import projectSelector from './editor-el/projectSelector'
-import * as ui_selector from '../../uiselector'
-import { constants } from 'crypto'
+const fs = window.require("fs");
+const path = window.require("path");
+const fse = window.require("fs-extra");
+import config from "@/config/environment/index";
+import environment from "@/config/environment";
+import _ from "lodash";
+import $ from "jquery";
+import moment from "moment";
+import G6Editor from "@antv/g6-editor";
+import textEditor from "./editor-el/textEditor";
+import colorPicker from "./editor-el/colorPicker";
+import radioEditor from "./editor-el/radioEditor";
+import stringShower from "./editor-el/stringShower";
+import pathSelector from "./editor-el/pathSelector";
+import pathMultiple from "./editor-el/pathMultiple";
+import selectPicker from "./editor-el/selectPicker";
+import sliderEditor from "./editor-el/sliderEditor";
+import checkboxEditor from "./editor-el/checkboxEditor";
+import passwordEditor from "./editor-el/passwordEditor";
+import switchSelector from "./editor-el/switchSelector";
+import dateTimePicker from "./editor-el/dateTimePicker";
+import conditionEditor from "./editor-el/conditionEditor";
+import inputNumberEditor from "./editor-el/inputNumberEditor";
+import dateTimeRangePicker from "./editor-el/dateTimeRangePicker";
+import jsonEditor from "./editor-el/jsonEditor";
+import uiSelector from "./editor-el/uiSelector";
+import codemirror from "./editor-el/codemirror";
+import uiScreenshot from "./editor-el/uiScreenshot";
+import projectSelector from "./editor-el/projectSelector";
+import * as ui_selector from "../../uiselector";
+import { constants } from "crypto";
 const { stop, views } = window.require(
-  path.normalize(path.resolve() + '/public/runner/child_process_cache')
-)
+  path.normalize(path.resolve() + "/public/runner/child_process_cache")
+);
 
-import { uploadTask, editTask, updateLog } from '@/api/task'
-import { getProjectPermission } from '@/api/role'
-import { pluginViews } from '@/api/plugin'
-const { pluginDownload, executeDownload } = require('@/utils/electron.js')
+import { uploadTask, editTask, updateLog } from "@/api/task";
+import { getProjectPermission } from "@/api/role";
+import { pluginViews } from "@/api/plugin";
+const { pluginDownload, executeDownload } = require("@/utils/electron.js");
 
 export default {
   components: {
@@ -801,164 +911,168 @@ export default {
     projectSelector
   },
   data() {
-    const leftList = []
+    const leftList = [];
     this.getPluginLs().then(res => {
-      this.leftList = res
-    })
+      this.leftList = res;
+    });
     return {
       dialogVisible: false,
       dialogFormVisible: false,
       size: this.$store.getters.size,
-      input: '',
+      input: "",
       logMessage: [],
       output: {},
       graph: null,
       loading: false,
-      nodeData: '',
-      nodeLabel: '',
-      operationName: '',
-      categoryName: '',
-      attributionName: '',
-      language: '',
-      version: '',
+      nodeData: "",
+      nodeLabel: "",
+      operationName: "",
+      categoryName: "",
+      attributionName: "",
+      language: "",
+      version: "",
       isShowDescription: true,
-      description: '',
-      projectName: '',
-      projectType: '',
+      description: "",
+      projectName: "",
+      projectType: "",
       leftList: leftList,
       nodeLabelShow: false,
       nodeLineLabelShow: false,
-      executeJobId: '',
-      activeNames: _.map(leftList, 'id'),
+      executeJobId: "",
+      activeNames: _.map(leftList, "id"),
       hasModificationRights: true,
       general_property: [
-        { id: 'retry_count', value: '1', name: '重试次数' },
-        { id: 'retry_interval', value: '50', name: '重试时间间隔(ms)' },
-        { id: 'execution_timeout', value: '50000', name: '执行超时时间(ms)' },
+        { id: "retry_count", value: "1", name: "重试次数" },
+        { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
+        { id: "execution_timeout", value: "50000", name: "执行超时时间(ms)" },
         {
-          id: 'delayed_execution_time',
-          value: '50',
-          name: '延迟执行时间(ms)'
+          id: "delayed_execution_time",
+          value: "50",
+          name: "延迟执行时间(ms)"
         },
         {
-          id: 'waiting_time_after_execution',
-          value: '50',
-          name: '执行后等待时间'
+          id: "waiting_time_after_execution",
+          value: "50",
+          name: "执行后等待时间"
         }
       ],
       searchPluginLs: [],
-      pluginSearchInput: '',
+      pluginSearchInput: "",
       currentNode: {},
       webPlugin: [],
-      localPlugin: []
-    }
+      localPlugin: [],
+      localProjectsLs: [],
+      queryData: {}
+    };
   },
   computed: {
     plugin_info() {
-      return this.categoryName + '--' + this.operationName
+      return this.categoryName + "--" + this.operationName;
     },
     store_input() {
-      return this.input
+      return this.input;
     },
     store_output() {
-      return this.output
+      return this.output;
     },
     store_general_property() {
-      return this.general_property
+      return this.general_property;
     },
     active_tag: {
       get() {
-        return _.map(this.input, 'name').concat(['组件返回值'])
+        return _.map(this.input, "name").concat(["组件返回值"]);
       },
       set() {
-        return _.map(this.input, 'name').concat(['组件返回值'])
+        return _.map(this.input, "name").concat(["组件返回值"]);
       }
     },
     download_plugin() {
-      return this.$store.state.plugin.pluginDownload
+      return this.$store.state.plugin.pluginDownload;
     }
   },
   mounted() {
     // 重启执行器
     delete window.require.cache[
       path.normalize(
-        path.resolve() + '/public/base_integration/uiauto_executor/executor.js'
+        path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
       )
-    ]
-    window['executor'] = window.require(
+    ];
+    window["executor"] = window.require(
       path.normalize(
-        path.resolve() + '/public/base_integration/uiauto_executor/executor.js'
+        path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
       )
-    )
-    if (window['executor'].hasOwnProperty('restart')) {
-      window['executor'].restart()
+    );
+    if (window["executor"].hasOwnProperty("restart")) {
+      window["executor"].restart();
     }
     // execute = executor.execute;
     // 重启选择器
     delete window.require.cache[
       path.normalize(
-        path.resolve() + '/public/base_integration/uiauto_uiselector/index.js'
+        path.resolve() + "/public/base_integration/uiauto_uiselector/index.js"
       )
-    ]
-    window['uiselector'] = window.require(
+    ];
+    window["uiselector"] = window.require(
       path.normalize(
-        path.resolve() + '/public/base_integration/uiauto_uiselector/index.js'
+        path.resolve() + "/public/base_integration/uiauto_uiselector/index.js"
       )
-    )
-    window['uiselector'].restart_process()
+    );
+    window["uiselector"].restart_process();
 
-    $('.ph').height($('.main-container').height() - 62)
-    $('.main-canvas').height($('.main-container').height() - 255)
-    this.projectName = this.$route.query.projectName
-    this.projectType = this.$route.query.projectType
+    $(".ph").height($(".main-container").height() - 62);
+    $(".main-canvas").height($(".main-container").height() - 255);
+    this.queryData = this.$route.query;
+    this.projectName = this.queryData.redirectProjectName;
+    this.projectType = this.queryData.redirectProjectType;
     this.description = JSON.parse(
       fs.readFileSync(
         `${config.projectsPath}/${this.projectName}/${this.projectName}.json`,
-        'utf-8'
+        "utf-8"
       )
-    ).description
-    if (this.projectType === 'cloud') {
+    ).description;
+    if (this.projectType === "cloud") {
       // 访问接口是否有权限修改项目
       getProjectPermission({
-        roleName: JSON.parse(localStorage.getItem('user')).role
+        roleName: JSON.parse(localStorage.getItem("user")).role
       })
         .then(getProjectPermissionRes => {
           if (getProjectPermissionRes && getProjectPermissionRes.data.length) {
             if (!_.includes(getProjectPermissionRes.data, this.projectName)) {
-              this.hasModificationRights = false
+              this.hasModificationRights = false;
             }
           } else {
-            this.hasModificationRights = false
+            this.hasModificationRights = false;
           }
         })
         .catch(() => {
-          this.hasModificationRights = false
-        })
+          this.hasModificationRights = false;
+        });
     }
-    this.initG6Editor()
-    this.initTerminal()
+    this.initG6Editor();
+    this.initTerminal();
+    this.getProjectList();
   },
   methods: {
     // 左侧插件集
     async getPluginLs() {
-      let pluginLs = []
-      this.webPlugin = (await pluginViews({})).data
+      let pluginLs = [];
+      this.webPlugin = (await pluginViews({})).data;
       // 线上插件集
       const onlinePluginLs = _.map(this.webPlugin, item => {
         return {
           plugin_id: item.plugin_id,
           version: item.version,
           plugin_package_json: JSON.parse(item.plugin_package_json),
-          type: 'online'
-        }
-      })
+          type: "online"
+        };
+      });
       // 本地插件集
       const base_integration_path = path.join(
         path.resolve(),
-        '/public/base_integration/'
-      )
+        "/public/base_integration/"
+      );
       const base_integration_file_list = _.map(
-        _.difference(fs.readdirSync(base_integration_path), ['.DS_Store']),
+        _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
         file_name => {
           return {
             plugin_id: file_name,
@@ -966,38 +1080,38 @@ export default {
               `${base_integration_path}${file_name}/package.json`
             )
               ? fse.readJsonSync(
-                `${base_integration_path}${file_name}/package.json`
-              ).version
-              : '',
-            type: 'local'
-          }
+                  `${base_integration_path}${file_name}/package.json`
+                ).version
+              : "",
+            type: "local"
+          };
         }
-      )
+      );
       this.localPlugin = _.map(
         _.difference(fs.readdirSync(`${config.pluginsPath}/`), [
-          'list.json',
-          'npm_i.sh',
-          '.DS_Store'
+          "list.json",
+          "npm_i.sh",
+          ".DS_Store"
         ]),
         file_name => {
           const versionLs = _.difference(
             fs.readdirSync(`${config.pluginsPath}/${file_name}`),
-            ['.DS_Store']
-          ).sort(this.versionFn)
+            [".DS_Store"]
+          ).sort(this.versionFn);
           return {
             plugin_id: file_name,
             version: versionLs[versionLs.length - 1],
-            type: 'local'
-          }
+            type: "local"
+          };
         }
-      )
-      this.localPlugin = _.concat(this.localPlugin, base_integration_file_list)
+      );
+      this.localPlugin = _.concat(this.localPlugin, base_integration_file_list);
 
       pluginLs = _.concat(
         pluginLs,
-        _.differenceBy(this.localPlugin, onlinePluginLs, 'plugin_id'),
-        _.differenceBy(onlinePluginLs, this.localPlugin, 'plugin_id')
-      )
+        _.differenceBy(this.localPlugin, onlinePluginLs, "plugin_id"),
+        _.differenceBy(onlinePluginLs, this.localPlugin, "plugin_id")
+      );
       _.each(this.localPlugin, localItem => {
         _.each(onlinePluginLs, onlineItem => {
           if (localItem.plugin_id === onlineItem.plugin_id) {
@@ -1008,49 +1122,49 @@ export default {
                   this.versionFn
                 )[[localItem.version, onlineItem.version].length - 1]
               })
-            )
+            );
           }
-        })
-      })
+        });
+      });
 
-      let shapeList = null
-      let conventionHeight = null
-      if (this.$store.getters.size == 'mini') {
-        shapeList = require('@/views/project/miniNodeConfig.json')
-        conventionHeight = 29
-      } else if (this.$store.getters.size == 'small') {
-        shapeList = require('@/views/project/smallNodeConfig.json')
-        conventionHeight = 39
+      let shapeList = null;
+      let conventionHeight = null;
+      if (this.$store.getters.size == "mini") {
+        shapeList = require("@/views/project/miniNodeConfig.json");
+        conventionHeight = 29;
+      } else if (this.$store.getters.size == "small") {
+        shapeList = require("@/views/project/smallNodeConfig.json");
+        conventionHeight = 39;
       } else {
-        shapeList = require('@/views/project/mediumNodeConfig.json')
-        conventionHeight = 48
+        shapeList = require("@/views/project/mediumNodeConfig.json");
+        conventionHeight = 48;
       }
 
       // 整理list
-      const list = []
+      const list = [];
       _.each(pluginLs, item => {
         if (
           !_.includes(
             [
-              'uiauto-chrome-plugin',
-              'uiauto_logMonitor',
-              'uiauto_executor',
-              'uiauto_uiselector'
+              "uiauto-chrome-plugin",
+              "uiauto_logMonitor",
+              "uiauto_executor",
+              "uiauto_uiselector"
             ],
             item.plugin_id
           )
         ) {
-          let package_json = ''
-          let operations = ''
-          if (item.type === 'local') {
-            const package_json_path = `${config.pluginsPath}/${item.plugin_id}/${item.version}/package.json`
+          let package_json = "";
+          let operations = "";
+          if (item.type === "local") {
+            const package_json_path = `${config.pluginsPath}/${item.plugin_id}/${item.version}/package.json`;
             if (fs.existsSync(package_json_path)) {
-              package_json = fse.readJsonSync(package_json_path)
-              operations = package_json.uiauto_config.operations
+              package_json = fse.readJsonSync(package_json_path);
+              operations = package_json.uiauto_config.operations;
             }
           } else {
-            package_json = item.plugin_package_json
-            operations = package_json.uiauto_config.operations
+            package_json = item.plugin_package_json;
+            operations = package_json.uiauto_config.operations;
           }
 
           _.each(operations, operation => {
@@ -1058,25 +1172,25 @@ export default {
               id:
                 operation.attribution_id ||
                 package_json.uiauto_config.attribution_id
-            })
-            const nameLength = operation.operation_name.length + 2
+            });
+            const nameLength = operation.operation_name.length + 2;
             const target_msg = {
               operation_id: operation.operation_id,
               category_id: operation.category_id,
               plugin_id: package_json.id,
               data_label: operation.operation_name,
-              data_type: 'node',
+              data_type: "node",
               data_shape: shapeList[operation.type].data_shape,
               data_shape_type: operation.type,
               data_size:
-                operation.type == 'Convention'
+                operation.type == "Convention"
                   ? `${nameLength * 16} * ${conventionHeight}`
                   : shapeList[operation.type].data_size,
               data_color: shapeList[operation.type].data_color,
               background_color:
-                item.type == 'online'
-                  ? '#C0C4CC'
-                  : operation.background_color || '#3a71a8',
+                item.type == "online"
+                  ? "#C0C4CC"
+                  : operation.background_color || "#3a71a8",
               input: JSON.stringify(operation.input),
               output: JSON.stringify(operation.output),
               operation_name: operation.operation_name,
@@ -1087,9 +1201,9 @@ export default {
                 operation.attribution_name ||
                 package_json.uiauto_config.attribution_name,
               type: item.type
-            }
+            };
             if (target) {
-              target.msg.push(target_msg)
+              target.msg.push(target_msg);
             } else {
               list.push({
                 type: item.type,
@@ -1100,18 +1214,18 @@ export default {
                   operation.attribution_id ||
                   package_json.uiauto_config.attribution_id,
                 msg: [target_msg]
-              })
+              });
             }
-          })
+          });
         }
-      })
-      let returnList = []
+      });
+      let returnList = [];
       _.each(list, (listItem, idx) => {
-        returnList = []
+        returnList = [];
         _.each(listItem.msg, msgItem => {
-          const target = _.find(returnList, { child_id: msgItem.category_id })
+          const target = _.find(returnList, { child_id: msgItem.category_id });
           if (target) {
-            target.child_msg.push(msgItem)
+            target.child_msg.push(msgItem);
           } else {
             returnList.push({
               child_title: msgItem.category_name,
@@ -1119,21 +1233,46 @@ export default {
               child_msg: [msgItem],
               child_type: _.find(pluginLs, { plugin_id: msgItem.plugin_id })
                 ? _.find(pluginLs, { plugin_id: msgItem.plugin_id }).type
-                : ''
-            })
+                : ""
+            });
           }
-        })
-        list[idx].msg = returnList
-      })
-      return list
+        });
+        list[idx].msg = returnList;
+      });
+      return list;
+    },
+    // 获取本地项目集
+    getProjectList() {
+      const self = this;
+      if (config.projectsPath) {
+        let json = "";
+
+        const files = _.difference(fs.readdirSync(`${config.projectsPath}/`), [
+          ".DS_Store"
+        ]);
+        files.forEach(function(fileName, index) {
+          const file = fs.statSync(`${config.projectsPath}/${fileName}`);
+          if (file.isDirectory()) {
+            json = fse.readJsonSync(
+              `${config.projectsPath}/${fileName}/${fileName}.json`
+            );
+            if (json.project_type !== "folder") {
+              self.localProjectsLs.push({
+                project_name: json.project_name,
+                project_type: json.project_type
+              });
+            }
+          }
+        });
+      }
     },
     openBrowser(val) {
-      window['executor']
+      window["executor"]
         .execute_python(
           path.normalize(
             `${path.resolve()}\\public\\base_integration\\uiauto_executor\\base\\browser.py`
           ),
-          'open_browser',
+          "open_browser",
           {
             browser_type: val,
             webdriver_dir: path.normalize(
@@ -1142,124 +1281,124 @@ export default {
           }
         )
         .then(async result => {
-          console.log('.>>>>>>>>>>>>>>>>..........', result)
+          console.log(".>>>>>>>>>>>>>>>>..........", result);
           fs.writeFileSync(
             path.normalize(`${os.homedir()}\\.uiauto\\browser.json`),
             JSON.stringify(result)
-          )
+          );
         })
         .catch(error => {
-          console.error(error)
-        })
+          console.error(error);
+        });
     },
     handleShowIf(item) {
       // filter
-      if (!item.show_if) return true
+      if (!item.show_if) return true;
 
       // define values
-      const $input = {}
+      const $input = {};
 
       // 整理store_input_obj
       _.each(this.store_input, input_group => {
-        const group_id = input_group.id
-        $input[group_id] = {}
+        const group_id = input_group.id;
+        $input[group_id] = {};
         _.each(input_group.properties, property => {
-          $input[group_id][property.id] = property.value
-        })
-      })
+          $input[group_id][property.id] = property.value;
+        });
+      });
 
       try {
         // 检查对应关系
-        const result = !!eval(item.show_if)
-        return result
+        const result = !!eval(item.show_if);
+        return result;
       } catch (error) {
-        return false
+        return false;
       }
     },
     checkShowIfValue(input, item) {
       // filter
-      if (!item.show_if) return true
+      if (!item.show_if) return true;
 
       // define values
-      const $input = {}
+      const $input = {};
 
       _.each(input, input_group => {
-        const group_id = input_group.id
-        $input[group_id] = {}
+        const group_id = input_group.id;
+        $input[group_id] = {};
         _.each(input_group.properties, property => {
-          $input[group_id][property.id] = property.value
-        })
-      })
+          $input[group_id][property.id] = property.value;
+        });
+      });
 
       try {
         // 检查对应关系
-        const result = !!eval(item.show_if)
-        return result
+        const result = !!eval(item.show_if);
+        return result;
       } catch (error) {
-        return false
+        return false;
       }
     },
     toolClick(val) {
-      if (val === 'run') {
-        if (this.projectType === 'cloud') {
-          this.execute()
+      if (val === "run") {
+        if (this.projectType === "cloud") {
+          this.execute();
         } else {
-          this.saveGraph('run').then(saveGraphRes => {
+          this.saveGraph("run").then(saveGraphRes => {
             if (saveGraphRes) {
-              this.execute()
+              this.execute();
             }
-          })
+          });
         }
-      } else if (val === 'stop') {
+      } else if (val === "stop") {
         // stop(this.projectName);
-        window['executor'].restart()
-        this.loading = false
+        window["executor"].restart();
+        this.loading = false;
         this.$message({
-          message: '停止成功',
-          type: 'success'
-        })
+          message: "停止成功",
+          type: "success"
+        });
         const postBody = {
           id: this.executeJobId,
           value: {
-            status: 'fail',
+            status: "fail",
             message: JSON.stringify(
-              `${moment().format('YYYY-MM-DD HH:mm:ss')} [log] 手动停止`
+              `${moment().format("YYYY-MM-DD HH:mm:ss")} [log] 手动停止`
             )
           }
-        }
-        editTask(postBody)
+        };
+        editTask(postBody);
       }
     },
     execute() {
-      const self = this
+      const self = this;
       if (!this.loading) {
-        this.loading = true
-        electron.window_minimize()
+        this.loading = true;
+        electron.window_minimize();
         // if (this.projectType === "cloud") {
         uploadTask({
           uploadData: [
             {
               project_code: this.projectName,
               project_name: this.projectName,
-              status: 'running',
+              status: "running",
               deviceId: JSON.parse(
-                fs.readFileSync(`${os.homedir()}/.uiauto/uiauto.conf`, 'utf8')
+                fs.readFileSync(`${os.homedir()}/.uiauto/uiauto.conf`, "utf8")
               ).deviceId,
-              project_type: 'local'
+              project_type: "local"
             }
           ]
         })
           .then(uploadTaskRes => {
-            let browser_info = {}
+            let browser_info = {};
             const browser_info_path = path.normalize(
               `${os.homedir()}\\.uiauto\\browser.json`
-            )
+            );
             if (fs.existsSync(browser_info_path)) {
-              browser_info = JSON.parse(fs.readFileSync(browser_info_path))
+              browser_info = JSON.parse(fs.readFileSync(browser_info_path));
             }
 
-            self.executeJobId = uploadTaskRes.data[0].id
-            window['executor']
+            self.executeJobId = uploadTaskRes.data[0].id;
+            window["executor"]
               .execute(
                 this.projectName,
                 {
@@ -1268,94 +1407,94 @@ export default {
                 },
                 {
                   newCB: newLogs => {
-                    this.logMessage = _.concat(this.logMessage, newLogs)
+                    this.logMessage = _.concat(this.logMessage, newLogs);
                     setTimeout(() => {
-                      $('#logMessageId').scrollTop(
-                        $('#logMessageBox')[0].offsetHeight
-                      )
-                    }, 0)
+                      $("#logMessageId").scrollTop(
+                        $("#logMessageBox")[0].offsetHeight
+                      );
+                    }, 0);
                   },
                   updateLog: updateLog
                 }
               )
               .then(res => {
-                console.log('-=-=-=执行成功-=-=-=-=')
-                console.log(res)
-                self.loading = false
-                electron.window_maximize()
+                console.log("-=-=-=执行成功-=-=-=-=");
+                console.log(res);
+                self.loading = false;
+                electron.window_maximize();
                 const postBody = {
                   id: uploadTaskRes.data[0].id,
                   value: {
-                    status: 'success',
+                    status: "success",
                     message:
                       JSON.stringify(res).length > 2500
                         ? `${JSON.stringify(res).slice(0, 2500)}..."`
                         : JSON.stringify(res)
                   }
-                }
-                editTask(postBody)
+                };
+                editTask(postBody);
               })
               .catch(err => {
-                console.log('-=-=-=执行出错-=-=-=-=')
-                console.log(err)
-                self.loading = false
-                electron.window_maximize()
+                console.log("-=-=-=执行出错-=-=-=-=");
+                console.log(err);
+                self.loading = false;
+                electron.window_maximize();
                 this.$message({
-                  message: '执行出错',
-                  type: 'warning'
-                })
+                  message: "执行出错",
+                  type: "warning"
+                });
                 const postBody = {
                   id: uploadTaskRes.data[0].id,
                   value: {
-                    status: 'fail',
+                    status: "fail",
                     message:
-                      JSON.stringify(err) === '{}'
-                        ? ''
+                      JSON.stringify(err) === "{}"
+                        ? ""
                         : JSON.stringify(err).length > 2500
-                          ? `${JSON.stringify(err).slice(0, 2500)}..."`
-                          : JSON.stringify(err)
+                        ? `${JSON.stringify(err).slice(0, 2500)}..."`
+                        : JSON.stringify(err)
                   }
-                }
-                editTask(postBody)
-              })
+                };
+                editTask(postBody);
+              });
           })
           .catch(err => {
-            console.log(err)
-            this.loading = false
-            electron.window_maximize()
+            console.log(err);
+            this.loading = false;
+            electron.window_maximize();
             this.$message({
-              message: '执行出错',
-              type: 'warning'
-            })
+              message: "执行出错",
+              type: "warning"
+            });
             const postBody = {
               id: uploadTaskRes.data[0].id,
               value: {
-                status: 'fail',
+                status: "fail",
                 message: JSON.stringify(err)
               }
-            }
-            editTask(postBody)
-          })
+            };
+            editTask(postBody);
+          });
       } else {
         this.$message({
-          message: '正在执行，请稍候…',
-          type: 'warning'
-        })
+          message: "正在执行，请稍候…",
+          type: "warning"
+        });
       }
     },
     versionFn(str1, str2) {
-      var arr1 = str1.split('.') // 去除'.'，将剩下的数字转换为数组
-      var arr2 = str2.split('.')
-      var minLen = Math.min(arr1.length, arr2.length) // 取出两个数组中的最小程度
-      var maxLen = Math.max(arr1.length, arr2.length) // 最大长度
+      var arr1 = str1.split("."); // 去除'.'，将剩下的数字转换为数组
+      var arr2 = str2.split(".");
+      var minLen = Math.min(arr1.length, arr2.length); // 取出两个数组中的最小程度
+      var maxLen = Math.max(arr1.length, arr2.length); // 最大长度
 
       // 以最短的数组为基础进行遍历
       for (let i = 0; i < minLen; i++) {
         // 这里需要转换后才进行比较，否则会出现'10'<'7'的情况
         if (parseInt(arr1[i]) > parseInt(arr2[i])) {
-          return 1 // 返回一个大于0的数，表示前者的index比后者的index大
+          return 1; // 返回一个大于0的数，表示前者的index比后者的index大
         } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
-          return -1 // 返回一个小于0的数，表示前者的index比后者的index小
+          return -1; // 返回一个小于0的数，表示前者的index比后者的index小
         }
 
         // 因为不只进行一次计较，所以这里不对相等的两个数进行处理，否则有可能第一次比较就返回，不符合要求
@@ -1365,62 +1504,62 @@ export default {
         // 位数多的index大
         if (i + 1 == minLen) {
           if (arr1.length > arr2.length) {
-            return 1
+            return 1;
           } else {
-            return -1
+            return -1;
           }
         }
       }
     },
     // 画布保存方法
     saveGraph(type) {
-      const self = this
+      const self = this;
       const saveFn = function(resolve, reject) {
         var general_property_temporary = [
-          { id: 'retry_count', value: '1', name: '重试次数' },
-          { id: 'retry_interval', value: '50', name: '重试时间间隔(ms)' },
+          { id: "retry_count", value: "1", name: "重试次数" },
+          { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
           {
-            id: 'execution_timeout',
-            value: '50000',
-            name: '执行超时时间(ms)'
+            id: "execution_timeout",
+            value: "50000",
+            name: "执行超时时间(ms)"
           },
           {
-            id: 'delayed_execution_time',
-            value: '50',
-            name: '延迟执行时间(ms)'
+            id: "delayed_execution_time",
+            value: "50",
+            name: "延迟执行时间(ms)"
           },
           {
-            id: 'waiting_time_after_execution',
-            value: '50',
-            name: '执行后等待时间'
+            id: "waiting_time_after_execution",
+            value: "50",
+            name: "执行后等待时间"
           }
-        ]
+        ];
         // 获取当前page
-        const page = self.editor.getCurrentPage()
+        const page = self.editor.getCurrentPage();
         // 保存画布
-        const data = page.save()
+        const data = page.save();
         // 收集必填项未填值信息
-        const errorMessage = []
-        const missPlugin = []
+        const errorMessage = [];
+        const missPlugin = [];
         _.each(data.nodes, node => {
           const target = _.find(self.localPlugin, {
             plugin_id: node.plugin_id,
             version: node.version
-          })
+          });
           if (!target) {
-            missPlugin.push(node)
+            missPlugin.push(node);
           }
           if (!node.general_property) {
-            node.general_property = general_property_temporary
+            node.general_property = general_property_temporary;
           }
-          typeof node.output === 'string' &&
-            (node.output = JSON.parse(node.output))
-          typeof node.input === 'string' &&
-            (node.input = JSON.parse(node.input))
+          typeof node.output === "string" &&
+            (node.output = JSON.parse(node.output));
+          typeof node.input === "string" &&
+            (node.input = JSON.parse(node.input));
           if (node.input.length) {
             _.each(node.input, inputItem => {
               if (
-                inputItem.id === 'required_params' &&
+                inputItem.id === "required_params" &&
                 inputItem.properties.length
               ) {
                 _.each(inputItem.properties, propertiesItem => {
@@ -1433,36 +1572,36 @@ export default {
                       label: node.label,
                       properties_name: propertiesItem.name,
                       value: propertiesItem.value
-                    })
+                    });
                   }
-                })
+                });
               }
-            })
+            });
           }
-        })
-        let cron = ''
-        let retry_count = ''
-        let retry_interval = ''
-        let time_out = ''
-        let description = ''
-        let createAt = ''
-        let automatic_recording = ''
+        });
+        let cron = "";
+        let retry_count = "";
+        let retry_interval = "";
+        let time_out = "";
+        let description = "";
+        let createAt = "";
+        let automatic_recording = "";
         try {
           var json = fse.readJsonSync(
             `${config.projectsPath}/${self.projectName}/${self.projectName}.json`
-          )
-          cron = json.cron
-          retry_count = json.retry_count
-          retry_interval = json.retry_interval
-          time_out = json.time_out
-          description = json.description
-          createAt = json.createAt
-          automatic_recording = json.automatic_recording
+          );
+          cron = json.cron;
+          retry_count = json.retry_count;
+          retry_interval = json.retry_interval;
+          time_out = json.time_out;
+          description = json.description;
+          createAt = json.createAt;
+          automatic_recording = json.automatic_recording;
         } catch (error) {}
         var writeJson = _.extend(
           { project_name: self.projectName },
           { createAt: createAt },
-          { updateAt: moment().format('YYYY-MM-DD HH:mm:ss') },
+          { updateAt: moment().format("YYYY-MM-DD HH:mm:ss") },
           { project_type: self.projectType },
           { cron: cron },
           { automatic_recording: automatic_recording },
@@ -1471,221 +1610,232 @@ export default {
           { time_out: time_out },
           { description: self.description || description },
           data
-        )
+        );
 
         if (errorMessage.length) {
           const confirmText = _.map(_.chunk(errorMessage, 5)[0], msg => {
-            return `节点：${msg.label}  属性：${msg.properties_name}值为空`
-          })
+            return `节点：${msg.label}  属性：${msg.properties_name}值为空`;
+          });
           _.chunk(errorMessage, 5).length > 1 &&
-            confirmText.push(`...等${errorMessage.length - 5}个`)
+            confirmText.push(`...等${errorMessage.length - 5}个`);
 
-          const newDatas = []
-          const h = self.$createElement
+          const newDatas = [];
+          const h = self.$createElement;
           for (const i in confirmText) {
-            newDatas.push(h('p', null, confirmText[i]))
+            newDatas.push(h("p", null, confirmText[i]));
           }
           self
-            .$confirm('提示', {
-              title: '提示',
-              message: h('div', null, newDatas),
+            .$confirm("提示", {
+              title: "提示",
+              message: h("div", null, newDatas),
               showCancelButton: true,
-              confirmButtonText: '继续',
-              cancelButtonText: '取消',
-              type: 'warning'
+              confirmButtonText: "继续",
+              cancelButtonText: "取消",
+              type: "warning"
             })
             .then(() => {
               fs.writeFileSync(
                 `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
-                JSON.stringify(writeJson, null, '\t'),
-                'utf8'
-              )
+                JSON.stringify(writeJson, null, "\t"),
+                "utf8"
+              );
 
-              if (type === 'save') {
+              if (type === "save") {
                 self.$message({
-                  message: '保存成功',
-                  type: 'success'
-                })
+                  message: "保存成功",
+                  type: "success"
+                });
               }
 
-              resolve(true)
+              resolve(true);
             })
             .catch(() => {
-              reject(false)
-            })
-        } else {
-          fs.writeFileSync(
-            `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
-            JSON.stringify(writeJson, null, '\t'),
-            'utf8'
-          )
-
-          if (type === 'save') {
-            self.$message({
-              message: '保存成功',
-              type: 'success'
-            })
-          }
-          resolve(true)
-        }
-
-        if (missPlugin.length) {
+              reject(false);
+            });
+        } else if (missPlugin.length) {
           return self
-            .$confirm('提示', {
-              title: '提示',
-              message: '该项目存在未下载的插件，是否自动下载对应插件？',
+            .$confirm("提示", {
+              title: "提示",
+              message: "该项目存在未下载的插件，是否自动下载对应插件？",
               showCancelButton: true,
-              confirmButtonText: '继续',
-              cancelButtonText: '取消',
-              type: 'warning'
+              confirmButtonText: "继续",
+              cancelButtonText: "取消",
+              type: "warning"
             })
             .then(() => {
-              const errorPlugin = []
+              const errorPlugin = [];
               _.each(missPlugin, item => {
                 const target = _.find(self.webPlugin, {
                   plugin_id: item.plugin_id,
                   version: item.version
-                })
+                });
                 if (target) {
-                  self.downPlugin([target])
+                  self.downPlugin([target]);
                 } else {
-                  errorPlugin.push(item)
+                  errorPlugin.push(item);
                 }
-              })
-              self.$notify({
-                title: '警告',
-                message: `${_.map(
-                  errorPlugin,
-                  'plugin_id'
-                )}插件本地且云端不存在`,
-                type: 'warning'
-              })
-              resolve(true)
+              });
+              if (errorPlugin.length) {
+                self.$notify({
+                  title: "警告",
+                  message: `${_.uniq(
+                    _.map(errorPlugin, "plugin_id")
+                  )}插件本地且云端不存在`,
+                  type: "warning"
+                });
+              }
+              fs.writeFileSync(
+                `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
+                JSON.stringify(writeJson, null, "\t"),
+                "utf8"
+              );
+
+              if (type === "save") {
+                self.$message({
+                  message: "保存成功",
+                  type: "success"
+                });
+              }
+              resolve(true);
             })
             .catch(err => {
-              console.log('err', err)
-              reject(false)
-            })
+              console.log("err", err);
+              reject(false);
+            });
+        } else {
+          fs.writeFileSync(
+            `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
+            JSON.stringify(writeJson, null, "\t"),
+            "utf8"
+          );
+
+          if (type === "save") {
+            self.$message({
+              message: "保存成功",
+              type: "success"
+            });
+          }
+          resolve(true);
         }
-      }
+      };
 
       return new Promise((resolve, reject) => {
-        if (this.projectType === 'cloud') {
+        if (this.projectType === "cloud") {
           if (!this.hasModificationRights) {
             this.$message({
-              message: '您没有权限修改本云端项目',
-              type: 'error'
-            })
-            reject(false)
+              message: "您没有权限修改本云端项目",
+              type: "error"
+            });
+            reject(false);
           } else {
-            saveFn(resolve, reject)
+            saveFn(resolve, reject);
           }
         } else {
-          saveFn(resolve, reject)
+          saveFn(resolve, reject);
         }
-      })
+      });
     },
     // 修改Node的label
     changeValue(obj) {
-      const self = this
-      let conventionHeight = null
-      if (this.$store.getters.size == 'mini') {
-        conventionHeight = 29
-      } else if (this.$store.getters.size == 'small') {
-        conventionHeight = 39
+      const self = this;
+      let conventionHeight = null;
+      if (this.$store.getters.size == "mini") {
+        conventionHeight = 29;
+      } else if (this.$store.getters.size == "small") {
+        conventionHeight = 39;
       } else {
-        conventionHeight = 48
+        conventionHeight = 48;
       }
-      if (obj == 'line') {
-        const editor = this.editor
+      if (obj == "line") {
+        const editor = this.editor;
         editor.executeCommand(() => {
-          const page = editor.getCurrentPage()
-          const selectedItems = page.getSelected()
+          const page = editor.getCurrentPage();
+          const selectedItems = page.getSelected();
           selectedItems.forEach(item => {
             page.update(item.id, {
               label: self.nodeLabel,
               size: `${(self.nodeLabel.length + 2) * 16} * ${conventionHeight}`
-            })
-          })
-        })
+            });
+          });
+        });
       } else {
-        if (obj == 'output') {
-          const editor = this.editor
+        if (obj == "output") {
+          const editor = this.editor;
           editor.executeCommand(() => {
-            const page = editor.getCurrentPage()
-            const selectedItems = page.getSelected()
+            const page = editor.getCurrentPage();
+            const selectedItems = page.getSelected();
             selectedItems.forEach(item => {
               page.update(item.id, {
                 output: self.output
-              })
-            })
-          })
+              });
+            });
+          });
         } else if (
           [
-            'retry_count',
-            'retry_interval',
-            'execution_timeout',
-            'delayed_execution_time',
-            'waiting_time_after_execution'
+            "retry_count",
+            "retry_interval",
+            "execution_timeout",
+            "delayed_execution_time",
+            "waiting_time_after_execution"
           ].includes(obj)
         ) {
-          const editor = this.editor
+          const editor = this.editor;
           editor.executeCommand(() => {
-            const page = editor.getCurrentPage()
-            const selectedItems = page.getSelected()
+            const page = editor.getCurrentPage();
+            const selectedItems = page.getSelected();
             selectedItems.forEach(item => {
               page.update(item.id, {
                 general_property: self.general_property
-              })
-            })
-          })
+              });
+            });
+          });
         } else {
-          var targetInputGroup = _.find(self.store_input, { id: obj.input_id })
+          var targetInputGroup = _.find(self.store_input, { id: obj.input_id });
           var targetInputProperty = _.find(targetInputGroup.properties, {
             id: obj.property_id
-          })
-          targetInputProperty.value = obj.value
-          const editor = this.editor
+          });
+          targetInputProperty.value = obj.value;
+          const editor = this.editor;
           editor.executeCommand(() => {
-            const page = editor.getCurrentPage()
-            const selectedItems = page.getSelected()
+            const page = editor.getCurrentPage();
+            const selectedItems = page.getSelected();
             selectedItems.forEach(item => {
               page.update(item.id, {
                 input: self.input
-              })
-            })
-          })
+              });
+            });
+          });
         }
       }
     },
     // 初始化
     initG6Editor() {
       // this
-      const self = this
+      const self = this;
       // G6Editor
-      const editor = new G6Editor()
+      const editor = new G6Editor();
       // editor挂载到Vue
-      this.editor = editor
+      this.editor = editor;
       // Flow
-      const Flow = G6Editor.Flow
+      const Flow = G6Editor.Flow;
       // Command
-      const Command = G6Editor.Command
+      const Command = G6Editor.Command;
 
       // 定义Save命令
-      Command.registerCommand('save', {
+      Command.registerCommand("save", {
         // 命令是否进入队列，默认是 true
         queue: false,
         // 命令是否可用
         enable(eidtor) {
-          return true
+          return true;
         },
         // 正向命令
         execute(eidtor) {
-          self.saveGraph('save')
+          self.saveGraph("save");
         },
         // 快捷键：Ctrl+shirt+s
-        shortcutCodes: [['ctrlKey', 'shiftKey', 's']]
-      })
+        shortcutCodes: [["ctrlKey", "shiftKey", "s"]]
+      });
 
       // 主画布
       // Mind 思维导图
@@ -1693,31 +1843,31 @@ export default {
       // Flow 流程图
       const page = new G6Editor.Flow({
         graph: {
-          container: 'page'
+          container: "page"
         }
-      })
+      });
 
       // 设置边样式，内置3种样式
       // flow-polylinels
       // flow-polyline-round
       // flow-smooth
       page.getGraph().edge({
-        shape: 'flow-polyline'
-      })
+        shape: "flow-polyline"
+      });
 
       // 自定义节点
-      Flow.registerNode('customNode', {
+      Flow.registerNode("customNode", {
         draw(item) {
-          const group = item.getGraphicGroup()
-          const model = item.getModel()
-          group.addShape('text', {
+          const group = item.getGraphicGroup();
+          const model = item.getModel();
+          group.addShape("text", {
             attrs: {
               x: 0,
               y: 0,
-              fill: '#333',
+              fill: "#333",
               text: model.label
             }
-          })
+          });
           // group.addShape("text", {
           //   attrs: {
           //     x: 0,
@@ -1728,32 +1878,32 @@ export default {
           //   }
           // });
 
-          return group.addShape('rect', {
+          return group.addShape("rect", {
             attrs: {
               x: 0,
               y: 0,
               width: 44,
               height: 44,
-              stroke: 'red'
+              stroke: "red"
             }
-          })
+          });
         }
-      })
+      });
 
       // 元素面板栏
       const itempannel = new G6Editor.Itempannel({
-        container: 'itempannel'
-      })
+        container: "itempannel"
+      });
 
       // 工具栏
       const toolbar = new G6Editor.Toolbar({
-        container: 'toolbar'
-      })
+        container: "toolbar"
+      });
 
       // 详细面板
       const detailpannel = new G6Editor.Detailpannel({
-        container: 'detailpannel'
-      })
+        container: "detailpannel"
+      });
 
       // 缩略图
       // const minimap = new G6Editor.Minimap({
@@ -1762,144 +1912,175 @@ export default {
       //   width: document.getElementById("minimapId").offsetWidth
       // });
       // 组件挂载到Editor
-      editor.add(page)
-      editor.add(itempannel)
-      editor.add(toolbar)
-      editor.add(detailpannel)
+      editor.add(page);
+      editor.add(itempannel);
+      editor.add(toolbar);
+      editor.add(detailpannel);
       // editor.add(minimap);
 
       // 获取当前page
-      const currentPage = editor.getCurrentPage()
+      const currentPage = editor.getCurrentPage();
       // 监听鼠标按下事件
-      currentPage.on('mousedown', ev => {
-        self.nodeLabelShow = false
-        self.nodeLineLabelShow = false
-        self.operationName = ''
-        self.categoryName = ''
-        self.attributionName = ''
-        self.language = ''
-        self.version = ''
-      })
+      currentPage.on("mousedown", ev => {
+        self.nodeLabelShow = false;
+        self.nodeLineLabelShow = false;
+        self.operationName = "";
+        self.categoryName = "";
+        self.attributionName = "";
+        self.language = "";
+        self.version = "";
+      });
 
       // 监听节点双击
-      currentPage.on('node:dblclick', ev => {
+      currentPage.on("node:dblclick", ev => {
         if (ev.item.isNode) {
-          if (ev.item.model.shapeType === 'Subprocess') {
-            this.$confirm('是否编辑子流程?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            })
-              .then(() => {
-                var subprocess_project_name = ev.item.model.input[0].properties[0].value
-                this.$router.push({
-                  path: '/project',
-                  query: { projectName: subprocess_project_name, projectType: 'local' }
+          if (!this.queryData.currentProjectName && !this.queryData.currentProjectType) {
+            let subprocess_project_name =
+              ev.item.model.input[0].properties[0].value;
+            if (ev.item.model.shapeType === "Subprocess") {
+              this.$confirm(
+                `是否编辑子流程(${subprocess_project_name})?`,
+                "提示",
+                {
+                  confirmButtonText: "确定",
+                  cancelButtonText: "取消",
+                  type: "warning"
+                }
+              )
+                .then(() => {
+                  let target = _.find(this.localProjectsLs, {
+                    project_name: subprocess_project_name
+                  });
+                  if (target) {
+                    this.saveGraph("save").then(res => {
+                      if (res) {
+                        this.$router.push({
+                          path: "/project",
+                          query: {
+                            currentProjectName: this.projectName,
+                            currentProjectType: this.projectType,
+                            redirectProjectName: target.project_name,
+                            redirectProjectType: target.project_type
+                          }
+                        });
+                      }
+                    });
+                  } else {
+                    this.$message({
+                      message: `本地未存在${subprocess_project_name}项目`,
+                      type: "warning"
+                    });
+                  }
                 })
-              })
-              .catch(() => {})
+                .catch(() => {});
+            }
+          } else {
+            this.$message({
+              message: `您已在子流程中，无法继续跳转其它子流程`,
+              type: "warning"
+            });
           }
         }
-      })
+      });
 
-      currentPage.on('dblclick', ev => {
-        console.log('ev', ev)
-        this.dialogVisible = true
-      })
+      // currentPage.on("dblclick", ev => {
+      //   console.log("ev", ev);
+      //   this.dialogVisible = true;
+      // });
       // 监听连线事件
-      currentPage.on('dragedge:beforeshowanchor', ev => {
-        const source = ev.source
-        const sourceId = ev.source.id
-        const target = ev.target
-        const targetId = target.model.id
+      currentPage.on("dragedge:beforeshowanchor", ev => {
+        const source = ev.source;
+        const sourceId = ev.source.id;
+        const target = ev.target;
+        const targetId = target.model.id;
         // 每个结点不能连自身
         if (sourceId == targetId) {
-          ev.cancel = true
+          ev.cancel = true;
         }
-      })
+      });
       // 监听选择变化 (选中)
-      currentPage.on('afteritemselected', ev => {
+      currentPage.on("afteritemselected", ev => {
         // 选择对象为Node节点
         if (ev.item.isNode) {
           // 获取属性
-          const nm = ev.item.getModel()
-          self.currentNode = nm
+          const nm = ev.item.getModel();
+          self.currentNode = nm;
           var general_property_temporary = [
-            { id: 'retry_count', value: '1', name: '重试次数' },
-            { id: 'retry_interval', value: '50', name: '重试时间间隔(ms)' },
+            { id: "retry_count", value: "1", name: "重试次数" },
+            { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
             {
-              id: 'execution_timeout',
-              value: '50000',
-              name: '执行超时时间(ms)'
+              id: "execution_timeout",
+              value: "50000",
+              name: "执行超时时间(ms)"
             },
             {
-              id: 'delayed_execution_time',
-              value: '50',
-              name: '延迟执行时间(ms)'
+              id: "delayed_execution_time",
+              value: "50",
+              name: "延迟执行时间(ms)"
             },
             {
-              id: 'waiting_time_after_execution',
-              value: '50',
-              name: '执行后等待时间'
+              id: "waiting_time_after_execution",
+              value: "50",
+              name: "执行后等待时间"
             }
-          ]
-          typeof nm.input === 'string' && (nm.input = JSON.parse(nm.input))
-          typeof nm.output === 'string' && (nm.output = JSON.parse(nm.output))
-          self.input = nm.input
-          self.output = nm.output
+          ];
+          typeof nm.input === "string" && (nm.input = JSON.parse(nm.input));
+          typeof nm.output === "string" && (nm.output = JSON.parse(nm.output));
+          self.input = nm.input;
+          self.output = nm.output;
           self.general_property =
-            nm.general_property || general_property_temporary
-          self.nodeLabelShow = true
-          self.nodeLineLabelShow = true
-          self.nodeLabel = nm.label
-          self.operationName = nm.operationName
-          self.categoryName = nm.categoryName
-          self.attributionName = nm.attributionName
-          self.language = nm.language
-          self.version = nm.version
-          self.isShowDescription = false
+            nm.general_property || general_property_temporary;
+          self.nodeLabelShow = true;
+          self.nodeLineLabelShow = true;
+          self.nodeLabel = nm.label;
+          self.operationName = nm.operationName;
+          self.categoryName = nm.categoryName;
+          self.attributionName = nm.attributionName;
+          self.language = nm.language;
+          self.version = nm.version;
+          self.isShowDescription = false;
         }
 
         // 选择对象为Edge节点
         if (ev.item.isEdge) {
           // 获取属性
-          const nm = ev.item.getModel()
-          self.nodeLineLabelShow = true
-          self.nodeLabelShow = false
-          self.nodeLabel = nm.label
-          self.operationName = ''
-          self.categoryName = ''
-          self.attributionName = ''
-          self.language = ''
-          self.version = ''
-          self.isShowDescription = false
+          const nm = ev.item.getModel();
+          self.nodeLineLabelShow = true;
+          self.nodeLabelShow = false;
+          self.nodeLabel = nm.label;
+          self.operationName = "";
+          self.categoryName = "";
+          self.attributionName = "";
+          self.language = "";
+          self.version = "";
+          self.isShowDescription = false;
         }
-      })
+      });
 
       // 监听选择变化 (取消选中)
-      currentPage.on('afteritemunselected', e => {
-        self.currentNode = {}
-        self.operationName = ''
-        self.categoryName = ''
-        self.attributionName = ''
-        self.language = ''
-        self.version = ''
-        self.isShowDescription = true
-      })
+      currentPage.on("afteritemunselected", e => {
+        self.currentNode = {};
+        self.operationName = "";
+        self.categoryName = "";
+        self.attributionName = "";
+        self.language = "";
+        self.version = "";
+        self.isShowDescription = true;
+      });
 
       try {
         var readFile = JSON.parse(
           fs.readFileSync(
             `${config.projectsPath}/${this.projectName}/${this.projectName}.json`,
-            'utf-8'
+            "utf-8"
           )
-        )
+        );
         const data = {
           nodes: readFile.nodes,
           edges: readFile.edges
-        }
-        const curPage = self.editor.getCurrentPage()
-        curPage.read(data)
+        };
+        const curPage = self.editor.getCurrentPage();
+        curPage.read(data);
       } catch (error) {}
     },
     initTerminal() {
@@ -1907,112 +2088,112 @@ export default {
         window.require(
           path.normalize(
             path.resolve() +
-              '/public/base_integration/uiauto_logMonitor/logMonitor.js'
+              "/public/base_integration/uiauto_logMonitor/logMonitor.js"
           )
         ) ||
         window.require(
-          path.normalize(path.resolve() + '/global/logMonitor.js')
-        )
+          path.normalize(path.resolve() + "/global/logMonitor.js")
+        );
       init(
         this.projectName,
         historyLogs => {
-          this.logMessage = _.concat(this.logMessage, historyLogs)
-          this.logMessage.push('=======   历史日志   =======')
+          this.logMessage = _.concat(this.logMessage, historyLogs);
+          this.logMessage.push("=======   历史日志   =======");
         },
         newLogs => {
-          this.logMessage = _.concat(this.logMessage, newLogs)
+          this.logMessage = _.concat(this.logMessage, newLogs);
           setTimeout(() => {
-            $('#logMessageId').scrollTop($('#logMessageBox')[0].offsetHeight)
-          }, 0)
+            $("#logMessageId").scrollTop($("#logMessageBox")[0].offsetHeight);
+          }, 0);
         }
-      )
+      );
     },
     // 打开代码编辑器界面
     codeClick() {
-      this.$refs.code[0].openCodeModal()
+      this.$refs.code[0].openCodeModal();
     },
     // 插件搜索
     pluginSearch(value) {
-      this.searchPluginLs = []
+      this.searchPluginLs = [];
       if (value) {
-        const searchName = value.replace(/\s+/g, '')
+        const searchName = value.replace(/\s+/g, "");
         if (searchName) {
           _.each(this.leftList, item => {
             if (item.title && item.title.indexOf(searchName) > -1) {
               this.searchPluginLs = _.concat(
                 this.searchPluginLs,
-                _.flattenDeep(_.map(item.msg, 'child_msg'))
-              )
+                _.flattenDeep(_.map(item.msg, "child_msg"))
+              );
             }
             _.each(item.msg, msg_item => {
               if (msg_item.child_id === searchName) {
                 this.searchPluginLs = _.concat(
                   this.searchPluginLs,
                   msg_item.child_msg
-                )
+                );
               }
-            })
-          })
+            });
+          });
           _.each(
             _.flattenDeep(
-              _.map(_.flattenDeep(_.map(this.leftList, 'msg')), 'child_msg')
+              _.map(_.flattenDeep(_.map(this.leftList, "msg")), "child_msg")
             ),
             (item, idx) => {
               if (item.data_label.indexOf(searchName) > -1) {
-                this.searchPluginLs.push(item)
+                this.searchPluginLs.push(item);
               }
             }
-          )
+          );
         }
       }
       this.searchPluginLs = _.compact(
         _.unionWith(this.searchPluginLs, _.isEqual)
-      )
+      );
     },
     // 执行当前节点
     async executecurrentNode() {
-      if (JSON.stringify(this.currentNode) == '{}') {
-        this.$message.error('请选择需要执行的节点')
+      if (JSON.stringify(this.currentNode) == "{}") {
+        this.$message.error("请选择需要执行的节点");
       } else {
         const projectJson = await fse.readJsonSync(
           `${config.projectsPath}/${this.projectName}/${this.projectName}.json`
-        )
+        );
         // 原先进入时的json
-        const projectObj = {}
+        const projectObj = {};
         if (projectJson.nodes) {
-          projectObj.nodes = projectJson.nodes
+          projectObj.nodes = projectJson.nodes;
         }
         if (projectJson.edges) {
-          projectObj.edges = projectJson.edges
+          projectObj.edges = projectJson.edges;
         }
         // 当前json
-        const projectOtherObj = await this.editor.getCurrentPage().save()
+        const projectOtherObj = await this.editor.getCurrentPage().save();
         if (!_.isEqual(projectObj, projectOtherObj)) {
           this.$confirm(
-            '检测到未保存的内容，请先保存修改后再执行',
-            '确认信息',
+            "检测到未保存的内容，请先保存修改后再执行",
+            "确认信息",
             {
               showClose: false,
               closeOnClickModal: false,
-              confirmButtonText: '保存',
-              cancelButtonText: '取消'
+              confirmButtonText: "保存",
+              cancelButtonText: "取消"
             }
           )
             .then(() => {
-              this.saveGraph('save').then(res => {
+              this.saveGraph("save").then(res => {
                 if (res) {
-                  let browser_info = {}
+                  let browser_info = {};
                   const browser_info_path = path.normalize(
                     `${os.homedir()}\\.uiauto\\browser.json`
-                  )
+                  );
                   if (fs.existsSync(browser_info_path)) {
                     browser_info = JSON.parse(
                       fs.readFileSync(browser_info_path)
-                    )
+                    );
                   }
 
-                  electron.window_minimize()
-                  window['executor']
+                  electron.window_minimize();
+                  window["executor"]
                     .execute_node(
                       this.projectName,
                       {
@@ -2020,60 +2201,60 @@ export default {
                         node_id: this.currentNode.id
                       },
                       newLogs => {
-                        this.logMessage = _.concat(this.logMessage, newLogs)
+                        this.logMessage = _.concat(this.logMessage, newLogs);
                         setTimeout(() => {
-                          $('#logMessageId').scrollTop(
-                            $('#logMessageBox')[0].offsetHeight
-                          )
-                        }, 0)
+                          $("#logMessageId").scrollTop(
+                            $("#logMessageBox")[0].offsetHeight
+                          );
+                        }, 0);
                       }
                     )
                     .then(result => {
-                      electron.window_maximize()
-                      console.log('执行当前节点成功', result)
-                      this.$message.success('执行当前节点成功')
+                      electron.window_maximize();
+                      console.log("执行当前节点成功", result);
+                      this.$message.success("执行当前节点成功");
                     })
                     .catch(err => {
-                      console.log('执行当前节点出错', err)
-                      electron.window_maximize()
-                      this.$message.error('执行当前节点出错')
-                    })
+                      console.log("执行当前节点出错", err);
+                      electron.window_maximize();
+                      this.$message.error("执行当前节点出错");
+                    });
                 }
-              })
+              });
             })
-            .catch(() => {})
+            .catch(() => {});
         } else {
-          console.log('projectName>>>>>>>>', this.projectName)
-          electron.window_minimize()
-          window['executor']
+          console.log("projectName>>>>>>>>", this.projectName);
+          electron.window_minimize();
+          window["executor"]
             .execute_node(
               this.projectName,
               {
                 uiauto_browser: _.pick(this.$store.state.project.browser, [
-                  'executor_url',
-                  'session_id'
+                  "executor_url",
+                  "session_id"
                 ]),
                 node_id: this.currentNode.id
               },
               newLogs => {
-                this.logMessage = _.concat(this.logMessage, newLogs)
+                this.logMessage = _.concat(this.logMessage, newLogs);
                 setTimeout(() => {
-                  $('#logMessageId').scrollTop(
-                    $('#logMessageBox')[0].offsetHeight
-                  )
-                }, 0)
+                  $("#logMessageId").scrollTop(
+                    $("#logMessageBox")[0].offsetHeight
+                  );
+                }, 0);
               }
             )
             .then(result => {
-              electron.window_maximize()
-              console.log('执行当前节点成功', result)
-              this.$message.success('执行当前节点成功')
+              electron.window_maximize();
+              console.log("执行当前节点成功", result);
+              this.$message.success("执行当前节点成功");
             })
             .catch(err => {
-              electron.window_maximize()
-              console.log('执行当前节点出错', err)
-              this.$message.error('执行当前节点出错')
-            })
+              electron.window_maximize();
+              console.log("执行当前节点出错", err);
+              this.$message.error("执行当前节点出错");
+            });
         }
       }
     },
@@ -2081,10 +2262,10 @@ export default {
     async updateVersionFn() {
       const base_integration_path = path.join(
         path.resolve(),
-        '/public/base_integration/'
-      )
+        "/public/base_integration/"
+      );
       const base_integration_file_list = _.map(
-        _.difference(fs.readdirSync(base_integration_path), ['.DS_Store']),
+        _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
         file_name => {
           return {
             plugin_id: file_name,
@@ -2092,71 +2273,75 @@ export default {
               `${base_integration_path}${file_name}/package.json`
             )
               ? fse.readJsonSync(
-                `${base_integration_path}${file_name}/package.json`
-              ).version
-              : ''
-          }
+                  `${base_integration_path}${file_name}/package.json`
+                ).version
+              : ""
+          };
         }
-      )
+      );
 
-      const plugins_path = config.pluginsPath + '/'
+      const plugins_path = config.pluginsPath + "/";
       let file_name_list = _.map(
         _.difference(fs.readdirSync(plugins_path), [
-          'list.json',
-          'npm_i.sh',
-          '.DS_Store'
+          "list.json",
+          "npm_i.sh",
+          ".DS_Store"
         ]),
         file_name => {
           const versionLs = _.difference(
             fs.readdirSync(`${plugins_path}${file_name}`),
-            ['.DS_Store']
-          ).sort(this.versionFn)
+            [".DS_Store"]
+          ).sort(this.versionFn);
           return {
             plugin_id: file_name,
             version: versionLs[versionLs.length - 1]
-          }
+          };
         }
-      )
-      file_name_list = _.concat(file_name_list, base_integration_file_list)
+      );
+      file_name_list = _.concat(file_name_list, base_integration_file_list);
       // 当前json
-      const projectJson = _.cloneDeep(await this.editor.getCurrentPage().save())
+      const projectJson = _.cloneDeep(
+        await this.editor.getCurrentPage().save()
+      );
 
-      this.$confirm('此操作将使用本地插件库最新插件版本号, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.$confirm("此操作将使用本地插件库最新插件版本号, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       })
         .then(() => {
           _.each(projectJson.nodes, item => {
-            const target = _.find(file_name_list, { plugin_id: item.plugin_id })
+            const target = _.find(file_name_list, {
+              plugin_id: item.plugin_id
+            });
             if (target) {
-              item.version = target.version
+              item.version = target.version;
             }
-          })
-          const curPage = this.editor.getCurrentPage()
-          curPage.read(projectJson)
-          this.saveGraph('save')
+          });
+          const curPage = this.editor.getCurrentPage();
+          curPage.read(projectJson);
+          this.saveGraph("save");
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     // 版本号排序
     versionFn(str1, str2) {
-      var arr1 = str1.split('.')
-      var arr2 = str2.split('.')
-      var minLen = Math.min(arr1.length, arr2.length)
-      var maxLen = Math.max(arr1.length, arr2.length)
+      var arr1 = str1.split(".");
+      var arr2 = str2.split(".");
+      var minLen = Math.min(arr1.length, arr2.length);
+      var maxLen = Math.max(arr1.length, arr2.length);
 
       for (let i = 0; i < minLen; i++) {
         if (parseInt(arr1[i]) > parseInt(arr2[i])) {
-          return 1
+          return 1;
         } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
-          return -1
+          return -1;
         }
         if (i + 1 == minLen) {
           if (arr1.length > arr2.length) {
-            return 1
+            return 1;
           } else {
-            return -1
+            return -1;
           }
         }
       }
@@ -2164,131 +2349,153 @@ export default {
     findPlugin() {
       try {
         const attributionName_index =
-          _.findIndex(this.leftList, { title: this.attributionName }) + 1
+          _.findIndex(this.leftList, { title: this.attributionName }) + 1;
         const categoryName_index =
           _.findIndex(
             _.find(this.leftList, { title: this.attributionName }).msg,
             { child_title: this.categoryName }
-          ) + 1
+          ) + 1;
         this.$refs.multipleSubmenu.open(
           `${attributionName_index}-${categoryName_index}`
-        )
+        );
       } catch (error) {
-        this.pluginSearchInput = this.operationName
-        this.pluginSearch(this.operationName)
+        this.pluginSearchInput = this.operationName;
+        this.pluginSearch(this.operationName);
       }
     },
     viewProjectDescription() {
-      this.dialogFormVisible = true
+      this.dialogFormVisible = true;
     },
     // 右键下载插件
     downPlugin(plugin) {
-      const target = _.find(this.webPlugin, { plugin_id: plugin[0].plugin_id })
+      const target = _.find(this.webPlugin, { plugin_id: plugin[0].plugin_id });
       if (target) {
-        if (target.language === 'python') {
+        if (target.language === "python") {
           if (this.$store.state.plugin.has_python_downloading) {
             this.$message({
-              message: '当前已有python插件在下载，请稍候再下载！',
-              type: 'error'
-            })
-            return false
+              message: "当前已有python插件在下载，请稍候再下载！",
+              type: "error"
+            });
+            return false;
           } else {
-            if (target.plugin_id === 'uiauto_uiselector') {
-              window.uiselector.exit_uiselector()
+            if (target.plugin_id === "uiauto_uiselector") {
+              window.uiselector.exit_uiselector();
             }
-            this.$store.commit('plugin/MARK_PYTHON_DOWNLOADING', true)
+            this.$store.commit("plugin/MARK_PYTHON_DOWNLOADING", true);
           }
         }
       }
       executeDownload(target)
         .then(result => {
           this.getPluginLs().then(res => {
-            this.leftList = res
-          })
+            this.leftList = res;
+          });
         })
-        .catch(err => {})
+        .catch(err => {});
     },
     // 右键更新插件
     updatePlugin(plugin) {
-      console.log(plugin)
+      console.log(plugin);
+    },
+    handleOpen(key, keyPath) {
+      this.$refs.multipleSubmenu.$el.style.height = "calc(100% - 135px)";
+    },
+    handleClose(key, keyPath) {
+      this.$refs.multipleSubmenu.$el.style.height = "calc(100% - 75px)";
+    },
+    // 返回主流程
+    backToMain() {
+      this.saveGraph("save").then(res => {
+        if (res) {
+          this.$router.push({
+            path: "/project",
+            query: {
+              currentProjectName: "",
+              currentProjectType: "",
+              redirectProjectName: this.queryData.currentProjectName,
+              redirectProjectType: this.queryData.currentProjectType
+            }
+          });
+        }
+      });
     }
   },
   async beforeRouteLeave(to, from, next) {
-    if (this.projectType === 'cloud' && !this.hasModificationRights) {
+    if (this.projectType === "cloud" && !this.hasModificationRights) {
       // window.ptyProcess.kill();
-      next()
+      next();
     } else {
       const projectJson = fse.readJsonSync(
         `${config.projectsPath}/${this.projectName}/${this.projectName}.json`
-      )
+      );
       // 原先进入时的json
-      const projectObj = {}
+      const projectObj = {};
       if (projectJson.nodes) {
-        projectObj.nodes = projectJson.nodes
+        projectObj.nodes = projectJson.nodes;
       }
       if (projectJson.edges) {
-        projectObj.edges = projectJson.edges
+        projectObj.edges = projectJson.edges;
       }
       // 当前json
-      const projectOtherObj = await this.editor.getCurrentPage().save()
+      const projectOtherObj = await this.editor.getCurrentPage().save();
 
       const general_property_temporary = [
-        { id: 'retry_count', value: '1', name: '重试次数' },
-        { id: 'retry_interval', value: '50', name: '重试时间间隔(ms)' },
+        { id: "retry_count", value: "1", name: "重试次数" },
+        { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
         {
-          id: 'execution_timeout',
-          value: '50000',
-          name: '执行超时时间(ms)'
+          id: "execution_timeout",
+          value: "50000",
+          name: "执行超时时间(ms)"
         },
         {
-          id: 'delayed_execution_time',
-          value: '50',
-          name: '延迟执行时间(ms)'
+          id: "delayed_execution_time",
+          value: "50",
+          name: "延迟执行时间(ms)"
         },
         {
-          id: 'waiting_time_after_execution',
-          value: '50',
-          name: '执行后等待时间'
+          id: "waiting_time_after_execution",
+          value: "50",
+          name: "执行后等待时间"
         }
-      ]
+      ];
       await _.each(projectOtherObj.nodes, node => {
         if (!node.general_property) {
-          node.general_property = general_property_temporary
+          node.general_property = general_property_temporary;
         }
-      })
+      });
       if (
         !_.isEqual(projectObj, projectOtherObj) ||
         this.description != projectJson.description
       ) {
         this.$confirm(
-          '检测到未保存的内容，是否在离开页面前保存修改？',
-          '确认信息',
+          "检测到未保存的内容，是否在离开页面前保存修改？",
+          "确认信息",
           {
             showClose: false,
             closeOnClickModal: false,
-            confirmButtonText: '保存离开',
-            cancelButtonText: '直接离开'
+            confirmButtonText: "保存离开",
+            cancelButtonText: "直接离开"
           }
         )
           .then(() => {
-            this.saveGraph('save').then(res => {
+            this.saveGraph("save").then(res => {
               if (res) {
                 // window.ptyProcess.kill();
-                next()
+                next();
               }
-            })
+            });
           })
           .catch(() => {
             // window.ptyProcess.kill();
-            next()
-          })
+            next();
+          });
       } else {
         // window.ptyProcess.kill();
-        next()
+        next();
       }
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
