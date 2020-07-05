@@ -7,7 +7,8 @@
  */
 const {
     exec,
-    spawn
+    spawn,
+    execSync
 } = window.require('child_process');
 const fse = window.require("fs-extra");
 const fs = window.require("fs");
@@ -39,7 +40,7 @@ export function nodeInit(filePath) {
               console.log("切换npm源：" + npm.config.get('registry'));
             }
 
-            npm.commands.install(filePath, [], (error, dependencies) => {
+            npm.commands.install(filePath, ["--cache", path.join(filePath, "packages")], (error, dependencies) => {
                 console.log('npm install');
                 console.log(error, dependencies);
                 if (error) {
@@ -103,34 +104,62 @@ export function pythonInit(filePath, plugin_version) {
 
                 const pythonPath = path.join(path.resolve(), '/env/python/win32/python.exe');
 
-                const uiauto_config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-                const pipSource = _.find(uiauto_config.pipSource, {is_default: true});
-                let pip_url = "";
-                let pip_host = "";
-                if (!!pipSource) {
-                  console.log(pipSource)
-                  const urlObj = URL.parse(pipSource.url, true);
-                  pip_url = " -i " + pipSource.url;
-                  pip_host = " --trusted-host=" + urlObj.hostname;
-                }
+                // const uiauto_config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+                // const pipSource = _.find(uiauto_config.pipSource, {is_default: true});
+                // let pip_url = "";
+                // let pip_host = "";
+                // if (!!pipSource) {
+                //   console.log(pipSource)
+                //   const urlObj = URL.parse(pipSource.url, true);
+                //   pip_url = " -i " + pipSource.url;
+                //   pip_host = " --trusted-host=" + urlObj.hostname;
+                // }
 
+                const packages_dir = path.join(filePath, "packages");
+                if (fs.existsSync(packages_dir)) {
+                    let packages_files = fs.readdirSync(packages_dir);
+                    console.log(packages_files);
+                    if (!!packages_files && packages_files.length > 0) {
+                        packages_files = _.filter(packages_files, (item) => {
+                            return !fs.lstatSync(path.join(packages_dir, item)).isDirectory() && path.extname(item) === ".whl";
+                        });
 
-                exec(pythonPath + ' -m pip install -r requirements.txt --user --no-warn-script-location' + pip_url + pip_host, {
-                    cwd: filePath
-                }, (err, stdout, stderr) => {
-                    if (err != null) {
-                        reject(err);
-                    } else {
-                        if (stderr && stderr.indexOf("You should consider upgrading via the 'python -m pip install --upgrade pip' command") === -1) {
-                            reject(stderr);
-                            return false;
-                        }
-                        reslove("Success");
+                        _.forEach(packages_files, (file) => {
+                            const whl = path.join(packages_dir, file);
+                            try {
+                                const log = execSync(pythonPath + " -m pip install " + whl + " --user --no-warn-script-location", {
+                                    cwd: filePath
+                                });
+                                console.log("python依赖库 " + file + " 安装完成：", log.toString());
+                            } catch (e) {
+                                console.log("python依赖库 " + file + " 安装出错：", e);
+                            }
+                        })
                     }
 
                     lineContents[85] = 'USER_SITE = None';
                     fs.writeFileSync(sitePyPath, lineContents.join('\n'));
-                })
+                }
+
+                reslove("Success");
+
+
+                // exec(pythonPath + ' -m pip install -r requirements.txt --user --no-warn-script-location' + pip_url + pip_host, {
+                //     cwd: filePath
+                // }, (err, stdout, stderr) => {
+                //     if (err != null) {
+                //         reject(err);
+                //     } else {
+                //         if (stderr && stderr.indexOf("You should consider upgrading via the 'python -m pip install --upgrade pip' command") === -1) {
+                //             reject(stderr);
+                //             return false;
+                //         }
+                //         reslove("Success");
+                //     }
+
+                //     lineContents[85] = 'USER_SITE = None';
+                //     fs.writeFileSync(sitePyPath, lineContents.join('\n'));
+                // })
             } else {
                 reject("系统找不到python版本");
             }
