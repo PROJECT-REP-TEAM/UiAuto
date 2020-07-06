@@ -309,22 +309,14 @@
           :close-on-click-modal="false"
           :close-on-press-escape="false"
         >
-          <div style="height: 32px;margin-bottom: 12px;">
-            <span class="title-name">项目名称：</span>
-            <input
-              v-model="projectName"
-              maxlength="100"
-              style="vertical-align: middle;resize: none;word-wrap:normal;overflow:hidden;width: 70%;height: 32px;line-height: 24px;border-radius: 5px;border: 1px solid #ccc;"
-            />
-          </div>
-          <div>
-            <span class="title-name">项目描述：</span>
-            <textarea
-              v-model="description"
-              clearable
-              style="vertical-align: top;resize: none;overflow:hidden;width: 70%;height: 150px;line-height: 24px;border-radius: 5px;border: 1px solid #ccc;"
-            />
-          </div>
+          <el-form label-position="left" label-width="80px">
+            <el-form-item label="项目名称">
+              <el-input v-model="projectName" max="100" placeholder="请输入项目名称" />
+            </el-form-item>
+            <el-form-item label="备注">
+              <el-input v-model="description" type="textarea" :rows="8" placeholder="请输入备注" />
+            </el-form-item>
+          </el-form>
           <div style="margin-top: 30px;">
             <el-button
               type="primary"
