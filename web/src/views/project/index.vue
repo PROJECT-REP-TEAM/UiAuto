@@ -481,11 +481,7 @@
                           </svg>
                         </div>
                       </el-tooltip>
-                      <div
-                        v-if="item.type==='online'"
-                        slot="link1"
-                        @click="downPlugin(item)"
-                      >下载</div>
+                      <div v-if="item.type==='online'" slot="link1" @click="downPlugin(item)">下载</div>
                       <!-- <div v-else slot="link2" @click="updatePlugin(msg.child_msg)">更新</div> -->
                     </router-link-group>
                   </el-menu-item>
@@ -1677,11 +1673,19 @@ export default {
                 }
               });
               if (errorPlugin.length) {
+                console.log("errorPlugin", errorPlugin);
+                let message_target = _.map(errorPlugin, item => {
+                  return `${item.plugin_id} - ${item.version}`;
+                });
                 self.$notify({
                   title: "警告",
-                  message: `${_.uniq(
-                    _.map(errorPlugin, "plugin_id")
-                  )}插件本地且云端不存在`,
+                  message: `检测到<br />${
+                    message_target.length > 5
+                      ? `${_.chunk(message_target, 5)[0].join(
+                          "<br />"
+                        )} 等${message_target.length - 5}个...`
+                      : message_target.join("<br />")
+                  } <br />以上插件版本云端不存在`,
                   type: "warning"
                 });
               }
