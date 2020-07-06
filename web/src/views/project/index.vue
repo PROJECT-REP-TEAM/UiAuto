@@ -348,36 +348,37 @@
                     slot="title"
                     style="background: #e65d6e;width: 5px;height: 5px;border-radius: 50%;display: inline-block;vertical-align: text-top;"
                   />
-                  <router-link-group>
-                    <el-menu-item
-                      v-for="(item,idx) in msg.child_msg"
-                      :key="idx"
-                      :index="''+(leftIdx + 1)+'-'+''+(msgIdx+1)+'-'+''+(idx+1)"
-                      :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
-                      style="padding: 0;min-width: 100%;"
-                      class="getItem"
-                      :data-type="item.data_type"
-                      :data-shape="item.data_shape"
-                      :data-shape-type="item.data_shape_type"
-                      :data-size="item.data_size"
-                      :data-label="item.data_label"
-                      :data-color="item.data_color"
-                      :data-operation_id="item.operation_id"
-                      :data-plugin_id="item.plugin_id"
-                      :data-input="item.input"
-                      :data-output="item.output"
-                      :data-version="item.version"
-                      :data-operation-name="item.operation_name"
-                      :data-category-name="item.category_name"
-                      :data-language="item.language"
-                      :data-attribution-name="item.attribution_name"
-                    >
+
+                  <el-menu-item
+                    v-for="(item,idx) in msg.child_msg"
+                    :key="idx"
+                    :index="''+(leftIdx + 1)+'-'+''+(msgIdx+1)+'-'+''+(idx+1)"
+                    :class="{ mini: size == 'mini', medium: size == 'medium', default: size == 'default', small: size == 'small' }"
+                    style="padding: 0;min-width: 100%;"
+                    class="getItem"
+                    :data-type="item.data_type"
+                    :data-shape="item.data_shape"
+                    :data-shape-type="item.data_shape_type"
+                    :data-size="item.data_size"
+                    :data-label="item.data_label"
+                    :data-color="item.data_color"
+                    :data-operation_id="item.operation_id"
+                    :data-plugin_id="item.plugin_id"
+                    :data-input="item.input"
+                    :data-output="item.output"
+                    :data-version="item.version"
+                    :data-operation-name="item.operation_name"
+                    :data-category-name="item.category_name"
+                    :data-language="item.language"
+                    :data-attribution-name="item.attribution_name"
+                  >
+                    <router-link-group>
                       <el-tooltip
                         class="item"
                         effect="dark"
                         content="插件未安装，请右键下载"
                         placement="top"
-                        :disabled="msg.child_type!=='online'"
+                        :disabled="item.type!=='online'"
                       >
                         <div
                           class="leftItem"
@@ -480,14 +481,14 @@
                           </svg>
                         </div>
                       </el-tooltip>
-                    </el-menu-item>
-                    <div
-                      v-if="msg.child_type==='online'"
-                      slot="link1"
-                      @click="downPlugin(msg.child_msg)"
-                    >下载</div>
-                    <!-- <div v-else slot="link2" @click="updatePlugin(msg.child_msg)">更新</div> -->
-                  </router-link-group>
+                      <div
+                        v-if="item.type==='online'"
+                        slot="link1"
+                        @click="downPlugin(item)"
+                      >下载</div>
+                      <!-- <div v-else slot="link2" @click="updatePlugin(msg.child_msg)">更新</div> -->
+                    </router-link-group>
+                  </el-menu-item>
                 </el-submenu>
               </span>
             </el-submenu>
@@ -1670,7 +1671,7 @@ export default {
                   version: item.version
                 });
                 if (target) {
-                  self.downPlugin([target]);
+                  self.downPlugin(target);
                 } else {
                   errorPlugin.push(item);
                 }
@@ -1934,7 +1935,10 @@ export default {
       // 监听节点双击
       currentPage.on("node:dblclick", ev => {
         if (ev.item.isNode) {
-          if (!this.queryData.currentProjectName && !this.queryData.currentProjectType) {
+          if (
+            !this.queryData.currentProjectName &&
+            !this.queryData.currentProjectType
+          ) {
             let subprocess_project_name =
               ev.item.model.input[0].properties[0].value;
             if (ev.item.model.shapeType === "Subprocess") {
@@ -2368,7 +2372,7 @@ export default {
     },
     // 右键下载插件
     downPlugin(plugin) {
-      const target = _.find(this.webPlugin, { plugin_id: plugin[0].plugin_id });
+      const target = _.find(this.webPlugin, { plugin_id: plugin.plugin_id });
       if (target) {
         if (target.language === "python") {
           if (this.$store.state.plugin.has_python_downloading) {

@@ -509,39 +509,59 @@ export default {
                 if (!fs.existsSync(package_json_path)) {
                   package_json_path = `${base_integration_path}${target.plugin_id}/package.json`;
                 }
-                if (target.plugin_id === "uiauto_logMonitor") {
-                  target.is_uiauto_base_integration = true;
-                }
+                if (fs.existsSync(package_json_path)) {
+                  if (target.plugin_id === "uiauto_logMonitor") {
+                    target.is_uiauto_base_integration = true;
+                  }
 
-                let package_json = fse.readJsonSync(package_json_path);
-                thePlugin.is_uiauto_base_integration = !!package_json.is_uiauto_base_integration;
-                thePlugin.latestVersion = thePlugin.version;
-                const thePluginStatus = {
-                  plugin_id: thePlugin.plugin_id,
-                  needUpdate: checkPluginsVersion(
-                    thePlugin.version,
-                    package_json.version
-                  )
-                    ? true
-                    : false,
-                  buttonText: this.download_plugin[thePlugin.plugin_id]
-                    ? this.download_plugin[thePlugin.plugin_id][
-                        "downloadStatus"
-                      ] === "exception"
-                      ? "重新下载"
-                      : this.download_plugin[thePlugin.plugin_id][
-                          "isWaitDownload"
-                        ] === true
-                      ? "等待下载"
-                      : "正在下载"
-                    : checkPluginsVersion(
-                        thePlugin.version,
-                        package_json.version
-                      )
-                    ? "更新"
-                    : "已安装最新版本"
-                };
-                this.$store.commit("plugin/PLUGIN_STATUS", thePluginStatus);
+                  let package_json = fse.readJsonSync(package_json_path);
+                  thePlugin.is_uiauto_base_integration = !!package_json.is_uiauto_base_integration;
+                  thePlugin.latestVersion = thePlugin.version;
+                  const thePluginStatus = {
+                    plugin_id: thePlugin.plugin_id,
+                    needUpdate: checkPluginsVersion(
+                      thePlugin.version,
+                      package_json.version
+                    )
+                      ? true
+                      : false,
+                    buttonText: this.download_plugin[thePlugin.plugin_id]
+                      ? this.download_plugin[thePlugin.plugin_id][
+                          "downloadStatus"
+                        ] === "exception"
+                        ? "重新下载"
+                        : this.download_plugin[thePlugin.plugin_id][
+                            "isWaitDownload"
+                          ] === true
+                        ? "等待下载"
+                        : "正在下载"
+                      : checkPluginsVersion(
+                          thePlugin.version,
+                          package_json.version
+                        )
+                      ? "更新"
+                      : "已安装最新版本"
+                  };
+                  this.$store.commit("plugin/PLUGIN_STATUS", thePluginStatus);
+                } else {
+                  thePlugin.latestVersion = thePlugin.version;
+                  const thePluginStatus = {
+                    plugin_id: thePlugin.plugin_id,
+                    needUpdate: true,
+                    buttonText: this.download_plugin[thePlugin.plugin_id]
+                      ? this.download_plugin[thePlugin.plugin_id][
+                          "downloadStatus"
+                        ] === "exception"
+                        ? "重新下载"
+                        : this.download_plugin[thePlugin.plugin_id][
+                            "isWaitDownload"
+                          ] === true
+                        ? "等待下载"
+                        : "正在下载"
+                      : "下载"
+                  };
+                  this.$store.commit("plugin/PLUGIN_STATUS", thePluginStatus);
+                }
               } else {
                 thePlugin.latestVersion = thePlugin.version;
                 const thePluginStatus = {
