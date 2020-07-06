@@ -32,15 +32,19 @@ export function nodeInit(filePath) {
             const uiauto_config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
             const npmSource = _.find(uiauto_config.npmSource, {is_default: true});
 
-            if (!!npmSource) {
-              console.log(npmSource);
+            // if (!!npmSource) {
+            //   console.log(npmSource);
 
-              // 切换npm源
-              npm.config.set('registry', npmSource.url);
-              console.log("切换npm源：" + npm.config.get('registry'));
-            }
+            //   // 切换npm源
+            //   npm.config.set('registry', npmSource.url);
+            //   console.log("切换npm源：" + npm.config.get('registry'));
+            // }
 
-            npm.commands.install(filePath, ["--cache", path.join(filePath, "packages")], (error, dependencies) => {
+            // 设置缓存文件夹
+            npm.config.set('cache', path.join(filePath, "packages"))
+            console.log("当前缓存文件夹：", npm.config.get("cache"))
+
+            npm.commands.install(filePath, [],  (error, dependencies) => {
                 console.log('npm install');
                 console.log(error, dependencies);
                 if (error) {
