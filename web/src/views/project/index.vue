@@ -1685,11 +1685,15 @@ export default {
               });
               if (errorPlugin.length) {
                 console.log("errorPlugin", errorPlugin);
-                let message_target = _.map(errorPlugin, item => {
-                  return `${item.plugin_id} - ${item.version}`;
-                });
+                let message_target = _.map(
+                  _.uniqWith(errorPlugin, _.isEqual),
+                  item => {
+                    return `${item.plugin_id} - ${item.version}`;
+                  }
+                );
                 self.$notify({
                   title: "警告",
+                  dangerouslyUseHTMLString: true,
                   message: `检测到<br />${
                     message_target.length > 5
                       ? `${_.chunk(message_target, 5)[0].join(
