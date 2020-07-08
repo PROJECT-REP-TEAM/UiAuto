@@ -1684,12 +1684,11 @@ export default {
                 }
               });
               if (errorPlugin.length) {
-                console.log("errorPlugin", errorPlugin);
-                let message_target = _.map(
-                  _.uniqWith(errorPlugin, _.isEqual),
-                  item => {
+                let message_target = _.uniqWith(
+                  _.map(errorPlugin, item => {
                     return `${item.plugin_id} - ${item.version}`;
-                  }
+                  }),
+                  _.isEqual
                 );
                 self.$notify({
                   title: "警告",
@@ -1719,8 +1718,19 @@ export default {
               resolve(true);
             })
             .catch(err => {
-              console.log("err", err);
-              reject(false);
+              fs.writeFileSync(
+                `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
+                JSON.stringify(writeJson, null, "\t"),
+                "utf8"
+              );
+
+              if (type === "save") {
+                self.$message({
+                  message: "保存成功",
+                  type: "success"
+                });
+              }
+              resolve(true);
             });
         } else {
           fs.writeFileSync(
