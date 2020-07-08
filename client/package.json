@@ -1,6 +1,6 @@
 {
   "name": "ui-auto",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "dist": "electron-builder",
     "rebuild": "electron-rebuild -f -w node-pty"
   },
-  "repository": "http://liangwz@git.legion-tech.net/liangwz/UiAuto.git",
+  "repository": "https://gitee.com/legion-spider-man/UiAuto.git",
   "keywords": [
     "UiAuto",
     "Electron",

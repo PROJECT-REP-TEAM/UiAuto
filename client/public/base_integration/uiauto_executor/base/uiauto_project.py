@@ -633,7 +633,7 @@ class __Project__():
     def execute_nodejs(self, options):
         if sio.connected == False:
             # 连接socket.io
-            sio.connect('http://localhost:63390')
+            sio.connect('http://127.0.0.1:63390')
 
         self.execute_result = None
 
