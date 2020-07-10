@@ -135,23 +135,23 @@ export const constantRoutes = [{
       }
     }]
   },
-  {
-    id: 'dependencyId',
-    path: '/dependency',
-    component: Layout,
-    redirect: '/dependency/index',
-    children: [{
-      path: 'index',
-      component: () => import('@/views/dependency/index'),
-      name: 'Dependency',
-      meta: {
-        title: 'dependency',
-        title_zh: '环境依赖',
-        icon: 'dashboard',
-        noCache: true
-      }
-    }]
-  },
+  // {
+  //   id: 'dependencyId',
+  //   path: '/dependency',
+  //   component: Layout,
+  //   redirect: '/dependency/index',
+  //   children: [{
+  //     path: 'index',
+  //     component: () => import('@/views/dependency/index'),
+  //     name: 'Dependency',
+  //     meta: {
+  //       title: 'dependency',
+  //       title_zh: '环境依赖',
+  //       icon: 'dashboard',
+  //       noCache: true
+  //     }
+  //   }]
+  // },
   {
     id: 'settingId',
     path: '/setting',

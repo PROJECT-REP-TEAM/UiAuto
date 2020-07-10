@@ -30,7 +30,7 @@ export function nodeInit(filePath) {
             }
 
             const uiauto_config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-            const npmSource = _.find(uiauto_config.npmSource, {is_default: true});
+            const npmSource = _.find(uiauto_config.npmSource, { is_default: true });
 
             // if (!!npmSource) {
             //   console.log(npmSource);
@@ -44,7 +44,7 @@ export function nodeInit(filePath) {
             npm.config.set('cache', path.join(filePath, "packages"))
             console.log("当前缓存文件夹：", npm.config.get("cache"))
 
-            npm.commands.install(filePath, [],  (error, dependencies) => {
+            npm.commands.install(filePath, [], (error, dependencies) => {
                 console.log('npm install');
                 console.log(error, dependencies);
                 if (error) {
@@ -89,6 +89,37 @@ export function nodeInit(filePath) {
         });
 
     })
+}
+
+// node  packages.json生成缓存文件
+export function nodeGenerateCache(path) {
+    return new Promise((reslove, reject) => {
+        exec(`npm install --cache packages`, {
+            cwd: path,
+            windowsHide: true
+        }, (error, stdout, stderr) => {
+            fs.unlinkSync(`${path}/package-lock.json`);
+            deleteFolder(`${path}/node_modules`);
+            reslove("success");
+        });
+    })
+}
+
+// 清空文件夹
+var deleteFolder = function (path) {
+    var files = [];
+    if (fs.existsSync(path)) {
+        files = fs.readdirSync(path);
+        files.forEach(function (file, index) {
+            var curPath = `${path}/${file}`;
+            if (fs.statSync(curPath).isDirectory()) { // recurse
+                deleteFolder(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
 }
 
 export function pythonInit(filePath, plugin_version) {
@@ -171,5 +202,17 @@ export function pythonInit(filePath, plugin_version) {
         } else {
             reject("系统找不到依赖文件");
         }
+    })
+}
+
+// python  packages.json生成缓存文件
+export function pythonGenerateCache(path) {
+    return new Promise((reslove, reject) => {
+        exec(`pip wheel --wheel-dir packages -f packages -r requirements.txt`, {
+            cwd: path,
+            windowsHide: true
+        }, (error, stdout, stderr) => {
+            reslove("success");
+        });
     })
 }

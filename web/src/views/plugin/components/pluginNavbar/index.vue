@@ -38,7 +38,7 @@
         </el-select>-->
       <!-- </div> -->
       <!-- <sourceSetting class="right-menu-item" style="margin-right: 15px;"/> -->
-      <uploadPlugin class="right-menu-item" style="margin-right: 15px;"/>
+      <uploadPlugin class="right-menu-item" style="margin-right: 10px;"/>
       <downloadPlugin class="right-menu-item"/>
     </div>
   </div>

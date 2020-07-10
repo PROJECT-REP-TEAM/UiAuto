@@ -7,6 +7,7 @@
  -->
 <template>
   <div>
+    <el-button class="button" type="primary" @click="handleCompressionPlugin">压缩插件</el-button>
     <el-button class="button" type="primary" @click="dialogSelectVisible = true">导入插件</el-button>
     <el-dialog title="导入插件" :visible.sync="dialogSelectVisible" width="30%" center @close="close">
       <el-dialog
@@ -44,7 +45,7 @@
         </template>
       </el-input>
       <center>
-        <el-checkbox class="checkbox" v-model="checked">是否为上传为私有插件</el-checkbox>
+        <el-checkbox class="checkbox" v-model="checked">是否上传为私有插件</el-checkbox>
       </center>
       <div slot="footer" class="dialog-footer">
         <el-button
@@ -59,6 +60,7 @@
         >导 入</el-button>
       </div>
     </el-dialog>
+    <compressionPlugin ref="compressionPlugin" />
   </div>
 </template>
 
@@ -76,8 +78,10 @@ var { nodeInit, pythonInit } = require("@/utils/init.js");
 import { uploadPlugin } from "@/api/plugin";
 import config from "@/config/environment/index";
 import environment from "@/config/environment";
+import compressionPlugin from "./compressionPlugin";
 
 export default {
+  components: { compressionPlugin },
   data() {
     return {
       // productionUploadUrl: "http://localhost:4399/api/v1/plugins/upload",
@@ -95,6 +99,9 @@ export default {
   watch: {},
   created() {},
   methods: {
+    handleCompressionPlugin() {
+      this.$refs["compressionPlugin"] && this.$refs["compressionPlugin"].show();
+    },
     close() {
       this.filePath = "";
       this.checked = false;
