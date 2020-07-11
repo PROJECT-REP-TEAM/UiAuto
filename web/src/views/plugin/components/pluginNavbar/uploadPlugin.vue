@@ -66,6 +66,7 @@
 
 <script>
 import _ from "lodash";
+const async = require("async");
 var ipc = window.require("electron").ipcRenderer;
 var app = window.require("electron").remote.app;
 var fse = window.require("fs-extra");
@@ -161,16 +162,11 @@ export default {
       // ipc.send("open-error-dialog", "上传失败");
     },
     installPlugin() {
-      var pluginTempPath = path.normalize(
-        config.pluginsPath + "/.." + "/plugins_temp/"
+      let self = this;
+      let pluginTempPath = path.normalize(
+        `${config.pluginsPath}/../plugins_temp/`
       );
-      var pluginsPath = config.pluginsPath + "/";
-      // var pluginTempPath = path.normalize(
-      //   path.resolve() + "/.." + "/web/public/plugins_temp/"
-      // );
-      // var pluginsPath = path.normalize(
-      //   path.resolve() + "/.." + "/web/public/plugins/"
-      // );
+      let pluginsPath = `${config.pluginsPath}/`;
       if (!fs.existsSync(pluginTempPath)) {
         fs.mkdirSync(pluginTempPath);
       }
@@ -187,90 +183,138 @@ export default {
         }
       })
         .then(files => {
-          var folderName = files[0].path.split("/")[0];
-          var folderPath = pluginTempPath + folderName;
-          var packagePath = path.normalize(folderPath + "/" + "package.json");
-          if (
-            !fs.existsSync(folderPath) ||
-            !fs.existsSync(packagePath) ||
-            fse.readJsonSync(packagePath).id !== folderName ||
-            !fse.readJsonSync(packagePath).version ||
-            !fse.readJsonSync(packagePath).author ||
-            !fse.readJsonSync(packagePath).language
-          ) {
-            // fse.emptyDirSync(folderPath);
-            // fs.rmdirSync(folderPath);
-            // ipc.send(
-            //   "open-error-dialog",
-            //   "包内文件不合法，请检查包内容后再试！"
-            // );
+          let plugin_name = _.takeRight(
+            this.filePath.split(".")[0].split("/")
+          )[0];
+          let targetFile = _.find(files, {
+            type: "directory",
+            path: `${plugin_name}/`
+          });
+          if (!files || !files.length) {
             this.importError(
-              "包内文件不合法，请检查包内容后再试！",
-              folderPath
+              "解压未发现存在文件",
+              `${pluginTempPath}/${plugin_name}`
+            );
+          } else if (!targetFile) {
+            this.importError(
+              "文件格式有误",
+              `${pluginTempPath}/${plugin_name}`
+            );
+          } else if (
+            _.includes(
+              [
+                "uiauto_executor",
+                "uiauto_logMonitor",
+                "uiauto_uiselector",
+                "uiauto-chrome-plugin"
+              ],
+              plugin_name
+            )
+          ) {
+            this.importError(
+              `${plugin_name}插件不支持导入`,
+              `${pluginTempPath}/${plugin_name}`
             );
           } else {
-            try {
-              var package_json = fse.readJsonSync(packagePath);
-              package_json.source = "local";
-              fse.writeJsonSync(packagePath, package_json);
-              if (fs.existsSync(pluginsPath + folderName)) {
-                fse.emptyDirSync(pluginsPath + folderName);
-                fs.rmdirSync(pluginsPath + folderName);
-              }
-              fse.moveSync(folderPath, pluginsPath + folderName, {
-                overwrite: true
-              });
-              if (
-                fs.existsSync(
-                  path.normalize(pluginsPath + folderName + "/node_modules")
-                )
-              ) {
-                this.importSuccess();
-              } else {
-                if (package_json.language === "nodejs") {
-                  nodeInit(pluginsPath + folderName)
-                    .then(returnVaule => {
-                      this.importSuccess();
-                    })
-                    .catch(err => {
-                      this.importError(err, pluginsPath + folderName);
-                    });
-                } else if (package_json.language === "python") {
-                  pythonInit(pluginsPath + folderName)
-                    .then(returnVaule => {
-                      this.importSuccess();
-                    })
-                    .catch(err => {
-                      this.importError(err, pluginsPath + folderName);
-                    });
-                } else {
-                  var err = "文件格式有误，language需为一种有效语言";
-                  this.importError(err, pluginsPath + folderName);
+            let plugin_path = `${pluginTempPath}${plugin_name}`;
+            // 读取路径内文件夹名(版本号)
+            let dirLs = _.compact(
+              _.map(
+                _.difference(fs.readdirSync(plugin_path), [".DS_Store"]),
+                item => {
+                  if (fs.statSync(`${plugin_path}/${item}`).isDirectory()) {
+                    return `${plugin_path}/${item}`;
+                  }
                 }
+              )
+            );
+            async.mapSeries(
+              dirLs,
+              (item, cb) => {
+                if (fs.existsSync(`${item}/package.json`)) {
+                  let package_json = fse.readJsonSync(`${item}/package.json`);
+                  if (package_json.language === "nodejs") {
+                    nodeInit(item)
+                      .then(res => {
+                        if (
+                          !fs.existsSync(
+                            `${pluginsPath}/${plugin_name}/${package_json.version}`
+                          )
+                        ) {
+                          fse.ensureDirSync(
+                            `${pluginsPath}/${plugin_name}/${package_json.version}`
+                          );
+                        }
+                        fse.copySync(
+                          `${item}`,
+                          `${pluginsPath}/${plugin_name}/${package_json.version}`
+                        );
+                        self.importSuccess(plugin_name, package_json.version);
+                        cb(null, res);
+                      })
+                      .catch(err => {
+                        self.importError(err, item);
+                        cb(err, null);
+                      });
+                  } else if (package_json.language === "python") {
+                    pythonInit(item)
+                      .then(res => {
+                        if (
+                          !fs.existsSync(
+                            `${pluginsPath}/${plugin_name}/${package_json.version}`
+                          )
+                        ) {
+                          fse.ensureDirSync(
+                            `${pluginsPath}/${plugin_name}/${package_json.version}`
+                          );
+                        }
+                        fse.copySync(
+                          `${item}`,
+                          `${pluginsPath}/${plugin_name}/${package_json.version}`
+                        );
+                        self.importSuccess(plugin_name, package_json.version);
+                        cb(null, res);
+                      })
+                      .catch(err => {
+                        self.importError(err, item);
+                        cb(err, null);
+                      });
+                  } else {
+                    cb(1, null);
+                  }
+                } else {
+                  cb(1, null);
+                }
+              },
+              (err, res) => {
+                console.log("err", err);
+                console.log("res", res);
+                fse.emptyDirSync(`${pluginTempPath}/${plugin_name}`);
+                fs.rmdirSync(`${pluginTempPath}/${plugin_name}`);
               }
-            } catch (err) {
-              this.importError(err, pluginsPath + folderName);
-            }
-            fse.emptyDirSync(folderPath);
-            fs.rmdirSync(folderPath);
+            );
           }
         })
         .catch(err => {
+          console.log("decompress err", err);
           this.$message({
             showClose: true,
             message: "文件解压失败",
             type: "error"
           });
-          // this.importError('文件解压失败', pluginsPath + folderName);
+          this.importError(
+            `${plugin_name}插件不支持导入`,
+            `${pluginTempPath}/${plugin_name}`
+          );
         });
     },
-    importSuccess() {
+    importSuccess(plugin_name, package_version) {
       this.uploadLoading = false;
       this.dialogSelectVisible = false;
       this.uploadTitle = "";
       this.$message({
         showClose: true,
-        message: "导入成功！",
+        message: `${plugin_name}-${package_version}导入成功`,
         type: "success"
       });
       this.$store.dispatch("plugin/refreshPugin");
