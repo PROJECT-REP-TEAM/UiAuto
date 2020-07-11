@@ -211,10 +211,27 @@ export default {
               plugin_name
             )
           ) {
-            this.importError(
-              `${plugin_name}插件不支持导入`,
-              `${pluginTempPath}/${plugin_name}`
+            let plugin_path = `${pluginTempPath}${plugin_name}`;
+
+            let versionLs = _.difference(fs.readdirSync(plugin_path), [
+              ".DS_Store"
+            ]).sort(this.versionFn);
+
+            fse.copySync(
+              `${plugin_path}/${versionLs[versionLs.length - 1]}`,
+              path.join(
+                path.resolve(),
+                `/public/base_integration/${plugin_name}`
+              )
             );
+            self.importSuccess(
+              plugin_name,
+              fse.readJsonSync(
+                `${plugin_path}/${versionLs[versionLs.length - 1]}/package.json`
+              ).version
+            );
+            fse.emptyDirSync(plugin_path);
+            fs.rmdirSync(plugin_path);
           } else {
             let plugin_path = `${pluginTempPath}${plugin_name}`;
             // 读取路径内文件夹名(版本号)
@@ -331,6 +348,28 @@ export default {
         type: "error"
       });
       // ipc.send("open-error-dialog", err);
+    },
+    // 版本号排序
+    versionFn(str1, str2) {
+      var arr1 = str1.split(".");
+      var arr2 = str2.split(".");
+      var minLen = Math.min(arr1.length, arr2.length);
+      var maxLen = Math.max(arr1.length, arr2.length);
+
+      for (let i = 0; i < minLen; i++) {
+        if (parseInt(arr1[i]) > parseInt(arr2[i])) {
+          return 1;
+        } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
+          return -1;
+        }
+        if (i + 1 == minLen) {
+          if (arr1.length > arr2.length) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+      }
     }
   }
 };
