@@ -287,8 +287,6 @@ export default {
                 }
               },
               (err, res) => {
-                console.log("err", err);
-                console.log("res", res);
                 fse.emptyDirSync(`${pluginTempPath}/${plugin_name}`);
                 fs.rmdirSync(`${pluginTempPath}/${plugin_name}`);
               }
