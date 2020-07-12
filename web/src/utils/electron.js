@@ -314,189 +314,355 @@ export function pluginDownload(options = {}) {
           var hashId = crypto.createHash('md5').update(fileContent).digest('hex')
           console.log('hashId', hashId)
           console.log(result.filePath)
-          // console.log(pluginPath)
-          if (options.plugin.attachment_md5 != null && options.plugin.attachment_md5 === hashId) {
-            decompress(result.filePath, pluginTempPath, {
-              filter: function (file) {
-                var r = true;
-                if (file.path.startsWith("__MACOSX")) {
-                  r = false;
+          decompress(result.filePath, pluginTempPath, {
+            filter: function (file) {
+              var r = true;
+              if (file.path.startsWith("__MACOSX")) {
+                r = false;
+              }
+              return r;
+            }
+          }).then(files => {
+            const downloadParams = {
+              plugin_id: options.plugin.plugin_id,
+              downloadRate: 90,
+              downloadStatus: 'text',
+              isWaitDownload: false,
+              isDownloading: true
+            }
+            store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+              var folderName = files[0].path.split("/")[0];
+              var folderPath = pluginTempPath + folderName;
+              var packagePath = folderPath + "/" + "package.json";
+              if (!fs.existsSync(folderPath) ||
+                !fs.existsSync(packagePath)) {
+                fs.unlinkSync(result.filePath)
+                fse.emptyDirSync(folderPath);
+                fs.rmdirSync(folderPath);
+                const downloadParams = {
+                  plugin_id: options.plugin.plugin_id,
+                  downloadRate: 90,
+                  downloadStatus: 'exception',
+                  isWaitDownload: false,
+                  isDownloading: false,
+                  errLog: "文件内容不合法,请重新下载安装"
                 }
-                return r;
-              }
-            }).then(files => {
-              const downloadParams = {
-                plugin_id: options.plugin.plugin_id,
-                downloadRate: 90,
-                downloadStatus: 'text',
-                isWaitDownload: false,
-                isDownloading: true
-              }
-              store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                var folderName = files[0].path.split("/")[0];
-                var folderPath = pluginTempPath + folderName;
-                var packagePath = folderPath + "/" + "package.json";
-                if (!fs.existsSync(folderPath) ||
-                  !fs.existsSync(packagePath)) {
-                  fs.unlinkSync(result.filePath)
+                store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+                  reject("文件内容不合法,请重新下载安装")
+                })
+              } else {
+                var package_json = fse.readJsonSync(packagePath);
+                if (package_json.language === "nodejs") {
+                  nodeInit(folderPath)
+                    .then(returnVaule => {
+                      console.log("nodeInit success")
+                      console.log(fse.readJsonSync(packagePath).dependencies)
+                      console.log(folderPath)
+                      fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
+                      const downloadParams = {
+                        plugin_id: options.plugin.plugin_id,
+                        downloadRate: 100,
+                        downloadStatus: 'success',
+                        isWaitDownload: false,
+                        isDownloading: false
+                      }
+                      store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+                        fse.emptyDirSync(folderPath);
+                        fs.rmdirSync(folderPath);
+                        fs.unlinkSync(result.filePath)
+                        resolve(options.plugin);
+                      })
+                    })
+                    .catch(err => {
+                      console.log("nodeInit error")
+                      console.log(err)
+                      const downloadParams = {
+                        plugin_id: options.plugin.plugin_id,
+                        downloadRate: 90,
+                        downloadStatus: 'exception',
+                        isWaitDownload: false,
+                        isDownloading: false,
+                        errLog: "依赖安装出错"
+                      }
+                      store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+                        fse.emptyDirSync(folderPath);
+                        fs.rmdirSync(folderPath);
+                        fs.unlinkSync(result.filePath);
+                        reject(err)
+                      })
+                    });
+                } else if (package_json.language === "python") {
+                  pythonInit(folderPath, package_json.version)
+                    .then(returnVaule => {
+                      console.log("pythonInit success")
+                      fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
+                      const downloadParams = {
+                        plugin_id: options.plugin.plugin_id,
+                        downloadRate: 100,
+                        isDownloading: false,
+                        isWaitDownload: false,
+                        downloadStatus: 'success'
+                      }
+                      store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+                        fse.emptyDirSync(folderPath);
+                        fs.rmdirSync(folderPath);
+                        fs.unlinkSync(result.filePath);
+                        resolve(options.plugin);
+                      })
+                    })
+                    .catch(err => {
+                      console.log("pythonInit error")
+                      console.log(err)
+                      const downloadParams = {
+                        plugin_id: options.plugin.plugin_id,
+                        downloadRate: 90,
+                        downloadStatus: 'exception',
+                        isWaitDownload: false,
+                        isDownloading: false,
+                        errLog: "依赖安装出错"
+                      }
+                      store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+                        fse.emptyDirSync(folderPath);
+                        fs.rmdirSync(folderPath);
+                        fs.unlinkSync(result.filePath);
+                        reject(err)
+                      })
+                    });
+                } else if (package_json.language === "java") {
+                  fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
+                  const downloadParams = {
+                    plugin_id: options.plugin.plugin_id,
+                    downloadRate: 100,
+                    isDownloading: false,
+                    isWaitDownload: false,
+                    downloadStatus: 'success'
+                  }
+                  store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+                    fse.emptyDirSync(folderPath);
+                    fs.rmdirSync(folderPath);
+                    fs.unlinkSync(result.filePath);
+                    resolve(options.plugin);
+                  })
+                } else {
                   fse.emptyDirSync(folderPath);
                   fs.rmdirSync(folderPath);
+                  fs.unlinkSync(result.filePath)
                   const downloadParams = {
                     plugin_id: options.plugin.plugin_id,
                     downloadRate: 90,
                     downloadStatus: 'exception',
                     isWaitDownload: false,
                     isDownloading: false,
-                    errLog: "文件内容不合法,请重新下载安装"
+                    errLog: "文件格式有误，language需为一种有效语言"
                   }
                   store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                    reject("文件内容不合法,请重新下载安装")
+                    reject("文件格式有误，language需为一种有效语言")
                   })
-                } else {
-                  var package_json = fse.readJsonSync(packagePath);
-                  if (package_json.language === "nodejs") {
-                    nodeInit(folderPath)
-                      .then(returnVaule => {
-                        console.log("nodeInit success")
-                        console.log(fse.readJsonSync(packagePath).dependencies)
-                        console.log(folderPath)
-                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
-                        const downloadParams = {
-                          plugin_id: options.plugin.plugin_id,
-                          downloadRate: 100,
-                          downloadStatus: 'success',
-                          isWaitDownload: false,
-                          isDownloading: false
-                        }
-                        store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                          fse.emptyDirSync(folderPath);
-                          fs.rmdirSync(folderPath);
-                          fs.unlinkSync(result.filePath)
-                          resolve(options.plugin);
-                        })
-                      })
-                      .catch(err => {
-                        console.log("nodeInit error")
-                        console.log(err)
-                        const downloadParams = {
-                          plugin_id: options.plugin.plugin_id,
-                          downloadRate: 90,
-                          downloadStatus: 'exception',
-                          isWaitDownload: false,
-                          isDownloading: false,
-                          errLog: "依赖安装出错"
-                        }
-                        store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                          fse.emptyDirSync(folderPath);
-                          fs.rmdirSync(folderPath);
-                          fs.unlinkSync(result.filePath);
-                          reject(err)
-                        })
-                      });
-                  } else if (package_json.language === "python") {
-                    pythonInit(folderPath, package_json.version)
-                      .then(returnVaule => {
-                        console.log("pythonInit success")
-                        fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
-                        const downloadParams = {
-                          plugin_id: options.plugin.plugin_id,
-                          downloadRate: 100,
-                          isDownloading: false,
-                          isWaitDownload: false,
-                          downloadStatus: 'success'
-                        }
-                        store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                          fse.emptyDirSync(folderPath);
-                          fs.rmdirSync(folderPath);
-                          fs.unlinkSync(result.filePath);
-                          resolve(options.plugin);
-                        })
-                      })
-                      .catch(err => {
-                        console.log("pythonInit error")
-                        console.log(err)
-                        const downloadParams = {
-                          plugin_id: options.plugin.plugin_id,
-                          downloadRate: 90,
-                          downloadStatus: 'exception',
-                          isWaitDownload: false,
-                          isDownloading: false,
-                          errLog: "依赖安装出错"
-                        }
-                        store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                          fse.emptyDirSync(folderPath);
-                          fs.rmdirSync(folderPath);
-                          fs.unlinkSync(result.filePath);
-                          reject(err)
-                        })
-                      });
-                  } else if (package_json.language === "java") {
-                    fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
-                    const downloadParams = {
-                      plugin_id: options.plugin.plugin_id,
-                      downloadRate: 100,
-                      isDownloading: false,
-                      isWaitDownload: false,
-                      downloadStatus: 'success'
-                    }
-                    store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                      fse.emptyDirSync(folderPath);
-                      fs.rmdirSync(folderPath);
-                      fs.unlinkSync(result.filePath);
-                      resolve(options.plugin);
-                    })
-                  } else {
-                    fse.emptyDirSync(folderPath);
-                    fs.rmdirSync(folderPath);
-                    fs.unlinkSync(result.filePath)
-                    const downloadParams = {
-                      plugin_id: options.plugin.plugin_id,
-                      downloadRate: 90,
-                      downloadStatus: 'exception',
-                      isWaitDownload: false,
-                      isDownloading: false,
-                      errLog: "文件格式有误，language需为一种有效语言"
-                    }
-                    store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                      reject("文件格式有误，language需为一种有效语言")
-                    })
-                  }
                 }
-              })
-            }).catch(err => {
-              console.log("decompress err")
-              console.log(err)
-              const downloadParams = {
-                plugin_id: options.plugin.plugin_id,
-                downloadRate: 90,
-                downloadStatus: 'exception',
-                isWaitDownload: false,
-                isDownloading: false,
-                errLog: "文件解压出错"
               }
-              store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
-                if (fs.existsSync(folderPath)) {
-                  fse.emptyDirSync(folderPath);
-                  fs.rmdirSync(folderPath);
-                }
-                fs.unlinkSync(result.filePath)
-                reject("文件解压出错")
-              })
             })
-          } else {
+          }).catch(err => {
+            console.log("decompress err")
+            console.log(err)
             const downloadParams = {
               plugin_id: options.plugin.plugin_id,
               downloadRate: 90,
               downloadStatus: 'exception',
               isWaitDownload: false,
               isDownloading: false,
-              errLog: "文件下载不完整或文件受损,请重新下载安装"
+              errLog: "文件解压出错"
             }
             store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+              if (fs.existsSync(folderPath)) {
+                fse.emptyDirSync(folderPath);
+                fs.rmdirSync(folderPath);
+              }
               fs.unlinkSync(result.filePath)
-              reject("文件下载不完整或文件受损,请重新下载安装")
+              reject("文件解压出错")
             })
-          }
+          })
+          // if (options.plugin.attachment_md5 != null && options.plugin.attachment_md5 === hashId) {
+          //   decompress(result.filePath, pluginTempPath, {
+          //     filter: function (file) {
+          //       var r = true;
+          //       if (file.path.startsWith("__MACOSX")) {
+          //         r = false;
+          //       }
+          //       return r;
+          //     }
+          //   }).then(files => {
+          //     const downloadParams = {
+          //       plugin_id: options.plugin.plugin_id,
+          //       downloadRate: 90,
+          //       downloadStatus: 'text',
+          //       isWaitDownload: false,
+          //       isDownloading: true
+          //     }
+          //     store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //       var folderName = files[0].path.split("/")[0];
+          //       var folderPath = pluginTempPath + folderName;
+          //       var packagePath = folderPath + "/" + "package.json";
+          //       if (!fs.existsSync(folderPath) ||
+          //         !fs.existsSync(packagePath)) {
+          //         fs.unlinkSync(result.filePath)
+          //         fse.emptyDirSync(folderPath);
+          //         fs.rmdirSync(folderPath);
+          //         const downloadParams = {
+          //           plugin_id: options.plugin.plugin_id,
+          //           downloadRate: 90,
+          //           downloadStatus: 'exception',
+          //           isWaitDownload: false,
+          //           isDownloading: false,
+          //           errLog: "文件内容不合法,请重新下载安装"
+          //         }
+          //         store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //           reject("文件内容不合法,请重新下载安装")
+          //         })
+          //       } else {
+          //         var package_json = fse.readJsonSync(packagePath);
+          //         if (package_json.language === "nodejs") {
+          //           nodeInit(folderPath)
+          //             .then(returnVaule => {
+          //               console.log("nodeInit success")
+          //               console.log(fse.readJsonSync(packagePath).dependencies)
+          //               console.log(folderPath)
+          //               fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
+          //               const downloadParams = {
+          //                 plugin_id: options.plugin.plugin_id,
+          //                 downloadRate: 100,
+          //                 downloadStatus: 'success',
+          //                 isWaitDownload: false,
+          //                 isDownloading: false
+          //               }
+          //               store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //                 fse.emptyDirSync(folderPath);
+          //                 fs.rmdirSync(folderPath);
+          //                 fs.unlinkSync(result.filePath)
+          //                 resolve(options.plugin);
+          //               })
+          //             })
+          //             .catch(err => {
+          //               console.log("nodeInit error")
+          //               console.log(err)
+          //               const downloadParams = {
+          //                 plugin_id: options.plugin.plugin_id,
+          //                 downloadRate: 90,
+          //                 downloadStatus: 'exception',
+          //                 isWaitDownload: false,
+          //                 isDownloading: false,
+          //                 errLog: "依赖安装出错"
+          //               }
+          //               store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //                 fse.emptyDirSync(folderPath);
+          //                 fs.rmdirSync(folderPath);
+          //                 fs.unlinkSync(result.filePath);
+          //                 reject(err)
+          //               })
+          //             });
+          //         } else if (package_json.language === "python") {
+          //           pythonInit(folderPath, package_json.version)
+          //             .then(returnVaule => {
+          //               console.log("pythonInit success")
+          //               fse.moveSync(folderPath, `${pluginPath}${folderName}/${!!options.plugin.is_uiauto_base_integration ? '' : fse.readJsonSync(packagePath).version}`, { overwrite: true });
+          //               const downloadParams = {
+          //                 plugin_id: options.plugin.plugin_id,
+          //                 downloadRate: 100,
+          //                 isDownloading: false,
+          //                 isWaitDownload: false,
+          //                 downloadStatus: 'success'
+          //               }
+          //               store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //                 fse.emptyDirSync(folderPath);
+          //                 fs.rmdirSync(folderPath);
+          //                 fs.unlinkSync(result.filePath);
+          //                 resolve(options.plugin);
+          //               })
+          //             })
+          //             .catch(err => {
+          //               console.log("pythonInit error")
+          //               console.log(err)
+          //               const downloadParams = {
+          //                 plugin_id: options.plugin.plugin_id,
+          //                 downloadRate: 90,
+          //                 downloadStatus: 'exception',
+          //                 isWaitDownload: false,
+          //                 isDownloading: false,
+          //                 errLog: "依赖安装出错"
+          //               }
+          //               store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //                 fse.emptyDirSync(folderPath);
+          //                 fs.rmdirSync(folderPath);
+          //                 fs.unlinkSync(result.filePath);
+          //                 reject(err)
+          //               })
+          //             });
+          //         } else if (package_json.language === "java") {
+          //           fse.moveSync(folderPath, `${pluginPath}${folderName}/${fse.readJsonSync(packagePath).version}`, { overwrite: true });
+          //           const downloadParams = {
+          //             plugin_id: options.plugin.plugin_id,
+          //             downloadRate: 100,
+          //             isDownloading: false,
+          //             isWaitDownload: false,
+          //             downloadStatus: 'success'
+          //           }
+          //           store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //             fse.emptyDirSync(folderPath);
+          //             fs.rmdirSync(folderPath);
+          //             fs.unlinkSync(result.filePath);
+          //             resolve(options.plugin);
+          //           })
+          //         } else {
+          //           fse.emptyDirSync(folderPath);
+          //           fs.rmdirSync(folderPath);
+          //           fs.unlinkSync(result.filePath)
+          //           const downloadParams = {
+          //             plugin_id: options.plugin.plugin_id,
+          //             downloadRate: 90,
+          //             downloadStatus: 'exception',
+          //             isWaitDownload: false,
+          //             isDownloading: false,
+          //             errLog: "文件格式有误，language需为一种有效语言"
+          //           }
+          //           store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //             reject("文件格式有误，language需为一种有效语言")
+          //           })
+          //         }
+          //       }
+          //     })
+          //   }).catch(err => {
+          //     console.log("decompress err")
+          //     console.log(err)
+          //     const downloadParams = {
+          //       plugin_id: options.plugin.plugin_id,
+          //       downloadRate: 90,
+          //       downloadStatus: 'exception',
+          //       isWaitDownload: false,
+          //       isDownloading: false,
+          //       errLog: "文件解压出错"
+          //     }
+          //     store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //       if (fs.existsSync(folderPath)) {
+          //         fse.emptyDirSync(folderPath);
+          //         fs.rmdirSync(folderPath);
+          //       }
+          //       fs.unlinkSync(result.filePath)
+          //       reject("文件解压出错")
+          //     })
+          //   })
+          // } else {
+          //   const downloadParams = {
+          //     plugin_id: options.plugin.plugin_id,
+          //     downloadRate: 90,
+          //     downloadStatus: 'exception',
+          //     isWaitDownload: false,
+          //     isDownloading: false,
+          //     errLog: "文件下载不完整或文件受损,请重新下载安装"
+          //   }
+          //   store.dispatch("plugin/pluginDownload", downloadParams).then(plugin_cache => {
+          //     fs.unlinkSync(result.filePath)
+          //     reject("文件下载不完整或文件受损,请重新下载安装")
+          //   })
+          // }
         }
       })
     })

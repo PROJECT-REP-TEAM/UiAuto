@@ -218,9 +218,9 @@
                   <el-tooltip
                     class="item"
                     effect="dark"
-                    content="插件未安装，请右键下载"
+                    :content="item.type ==='online' ? '插件未安装，请右键下载' : (item.update ? `插件有新版(${item.update.version})，可右键更新` : '')"
                     placement="top"
-                    :disabled="item.type!=='online'"
+                    :disabled="item.type ==='online' ? false : (item.update ? false : true)"
                   >
                     <div
                       class="leftItem"
@@ -231,6 +231,11 @@
                         style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;height: 100%;"
                       >
                         <span style="position: absolute;left: 25px;">{{ item.version }}</span>
+                        <span
+                          v-if="item.update"
+                          slot="title"
+                          style="float: left;margin: 5px;background: #e65d6e;width: 5px;height: 5px;border-radius: 50%;display: inline-block;vertical-align: text-top;"
+                        />
                         <span style="display: block;">{{ item.data_label }}</span>
                       </div>
                       <svg
@@ -324,6 +329,7 @@
                     </div>
                   </el-tooltip>
                   <div v-if="item.type==='online'" slot="link1" @click="downPlugin(item)">下载</div>
+                  <div v-if="item.update" slot="link2" @click="updatePlugin(item)">更新</div>
                 </router-link-group>
               </div>
             </div>
@@ -387,9 +393,9 @@
                       <el-tooltip
                         class="item"
                         effect="dark"
-                        content="插件未安装，请右键下载"
+                        :content="item.type ==='online' ? '插件未安装，请右键下载' : (item.update ? `插件有新版(${item.update.version})，可右键更新` : '')"
                         placement="top"
-                        :disabled="item.type!=='online'"
+                        :disabled="item.type ==='online' ? false : (item.update ? false : true)"
                       >
                         <div
                           class="leftItem"
@@ -400,6 +406,11 @@
                             style="width: calc(100% - 35px);padding: 0 0 0 35px;float: left;overflow: hidden;"
                           >
                             <span style="position: absolute;left: 5px;">{{ item.version }}</span>
+                            <span
+                              v-if="item.update"
+                              slot="title"
+                              style="position: absolute;left: 40px;top: 5px;background: #e65d6e;width: 5px;height: 5px;border-radius: 50%;display: inline-block;vertical-align: text-top;"
+                            />
                             <span style="display: block;">{{ item.data_label }}</span>
                           </div>
                           <svg
@@ -493,7 +504,7 @@
                         </div>
                       </el-tooltip>
                       <div v-if="item.type==='online'" slot="link1" @click="downPlugin(item)">下载</div>
-                      <!-- <div v-else slot="link2" @click="updatePlugin(msg.child_msg)">更新</div> -->
+                      <div v-if="item.update" slot="link2" @click="updatePlugin(item)">更新</div>
                     </router-link-group>
                   </el-menu-item>
                 </el-submenu>
@@ -894,6 +905,7 @@ import { uploadTask, editTask, updateLog } from "@/api/task";
 import { getProjectPermission } from "@/api/role";
 import { pluginViews } from "@/api/plugin";
 const { pluginDownload, executeDownload } = require("@/utils/electron.js");
+import { checkPluginsVersion } from "@/utils/index.js";
 
 export default {
   components: {
@@ -1123,14 +1135,24 @@ export default {
       _.each(this.localPlugin, localItem => {
         _.each(onlinePluginLs, onlineItem => {
           if (localItem.plugin_id === onlineItem.plugin_id) {
-            pluginLs.push(
-              _.find(_.concat(this.localPlugin, onlinePluginLs), {
+            if (checkPluginsVersion(onlineItem.version, localItem.version)) {
+              pluginLs.push({
                 plugin_id: localItem.plugin_id,
-                version: [localItem.version, onlineItem.version].sort(
-                  this.versionFn
-                )[[localItem.version, onlineItem.version].length - 1]
-              })
-            );
+                version: localItem.version,
+                type: localItem.type,
+                update: {
+                  plugin_id: onlineItem.plugin_id,
+                  version: onlineItem.version,
+                  type: onlineItem.type
+                }
+              });
+            } else {
+              pluginLs.push({
+                plugin_id: localItem.plugin_id,
+                version: localItem.version,
+                type: "local"
+              });
+            }
           }
         });
       });
@@ -1208,7 +1230,8 @@ export default {
               attribution_name:
                 operation.attribution_name ||
                 package_json.uiauto_config.attribution_name,
-              type: item.type
+              type: item.type,
+              update: item.update
             };
             if (target) {
               target.msg.push(target_msg);
@@ -2421,21 +2444,21 @@ export default {
             this.$store.commit("plugin/MARK_PYTHON_DOWNLOADING", true);
           }
         }
+        executeDownload(target)
+          .then(result => {
+            this.getPluginLs().then(res => {
+              this.leftList = res;
+            });
+            if (this.pluginSearchInput) {
+              this.pluginSearch(this.pluginSearchInput);
+            }
+          })
+          .catch(err => {});
       }
-      executeDownload(target)
-        .then(result => {
-          this.getPluginLs().then(res => {
-            this.leftList = res;
-          });
-          if (this.pluginSearchInput) {
-            this.pluginSearch(this.pluginSearchInput);
-          }
-        })
-        .catch(err => {});
     },
     // 右键更新插件
     updatePlugin(plugin) {
-      console.log(plugin);
+      this.downPlugin(plugin.update);
     },
     handleOpen(key, keyPath) {
       if (this.$refs.multipleSubmenu) {
