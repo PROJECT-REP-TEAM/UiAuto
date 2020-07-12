@@ -788,6 +788,7 @@
                           :property-id="item.id"
                           :value="item.value"
                           :options="item.options"
+                          :currentProject="projectName"
                           @changeValue="changeValue"
                         />
                       </div>

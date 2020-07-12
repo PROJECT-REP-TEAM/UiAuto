@@ -8,12 +8,7 @@
       filterable
       allow-create
     >
-      <el-option
-        v-for="item in projectList"
-        :key="item"
-        :label="item"
-        :value="item"
-      />
+      <el-option v-for="item in projectList" :key="item" :label="item" :value="item" />
     </el-select>
     <el-select
       v-if="options.multiple===true"
@@ -22,19 +17,14 @@
       placeholder="请选择"
       multiple
     >
-      <el-option
-        v-for="item in projectList"
-        :key="item"
-        :label="item"
-        :value="item"
-      />
+      <el-option v-for="item in projectList" :key="item" :label="item" :value="item" />
     </el-select>
   </div>
 </template>
 
 <script>
 import config from "@/config/environment/index";
-const fs = window.require('fs')
+const fs = window.require("fs");
 
 export default {
   props: {
@@ -53,12 +43,16 @@ export default {
     options: {
       type: Object,
       default: null
+    },
+    currentProject: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {
       projectList: this.getProjectList()
-    }
+    };
   },
   methods: {
     getProjectList() {
@@ -71,15 +65,15 @@ export default {
         let files = fs.readdirSync(this.projects_path);
         files.forEach(function(fileName, index) {
           let file = fs.statSync(self.projects_path + "/" + fileName);
-          if (file.isDirectory()) {
+          if (file.isDirectory() && fileName !== self.currentProject) {
             projectsPathLs.push(fileName);
           }
         });
 
-        console.log('projectsPathLs>>>>>>>>>>>>', projectsPathLs);
-        return projectsPathLs
+        console.log("projectsPathLs>>>>>>>>>>>>", projectsPathLs);
+        return projectsPathLs;
       } else {
-        return []
+        return [];
       }
     }
   },
@@ -100,7 +94,7 @@ export default {
 
           return str;
         };
-        
+
         if (this.options.multiple === false) {
           if (Array.isArray(this.value)) {
             return parse(this.value[0]);
