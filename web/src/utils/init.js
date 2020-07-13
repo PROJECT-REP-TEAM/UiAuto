@@ -206,10 +206,11 @@ export function pythonInit(filePath, plugin_version) {
 }
 
 // python  packages.json生成缓存文件
-export function pythonGenerateCache(path) {
+export function pythonGenerateCache(filePath) {
+    const pythonPath = path.join(path.resolve(), '/env/python/win32/python.exe');
     return new Promise((reslove, reject) => {
-        exec(`pip wheel --wheel-dir packages -f packages -r requirements.txt`, {
-            cwd: path,
+        exec(`${pythonPath} -m pip wheel --wheel-dir packages -f packages -r requirements.txt`, {
+            cwd: filePath,
             windowsHide: true
         }, (error, stdout, stderr) => {
             reslove("success");

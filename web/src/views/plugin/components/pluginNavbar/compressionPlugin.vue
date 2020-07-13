@@ -91,7 +91,7 @@ export default {
       let self = this;
       if (this.filePath && this.outputPath) {
         this.$message({
-          message: `正在生成插件缓存文件，请稍候...`,
+          message: `正在生成插件缓存文件，请稍候查看...`,
           type: "success"
         });
         this.dialogFormVisible = false;
