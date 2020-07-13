@@ -592,7 +592,8 @@ export default {
                     currentProjectName: "",
                     currentProjectType: "",
                     redirectProjectName: this.projectName,
-                    redirectProjectType: "local"
+                    redirectProjectType: "local",
+                    plugins: this.webPlugins_global
                   }
                 });
               })
@@ -773,7 +774,8 @@ export default {
                 currentProjectName: "",
                 currentProjectType: "",
                 redirectProjectName: this.projectName,
-                redirectProjectType: "local"
+                redirectProjectType: "local",
+                plugins: this.webPlugins_global
               }
             });
             this.showDialog = false;
@@ -789,7 +791,8 @@ export default {
             currentProjectName: "",
             currentProjectType: "",
             redirectProjectName: val.project_name,
-            redirectProjectType: val.project_type
+            redirectProjectType: val.project_type,
+            plugins: this.webPlugins_global
           }
         });
       } else {

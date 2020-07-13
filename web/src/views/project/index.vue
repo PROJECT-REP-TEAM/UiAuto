@@ -933,9 +933,9 @@ export default {
   },
   data() {
     const leftList = [];
-    this.getPluginLs().then(res => {
-      this.leftList = res;
-    });
+    // this.getPluginLs().then(res => {
+    //   this.leftList = res;
+    // });
     return {
       dialogVisible: false,
       dialogFormVisible: false,
@@ -1043,6 +1043,9 @@ export default {
     $(".ph").height($(".main-container").height() - 62);
     $(".main-canvas").height($(".main-container").height() - 255);
     this.queryData = this.$route.query;
+    this.getPluginLs(this.queryData.plugins).then(res => {
+      this.leftList = res;
+    });
     this.projectName = this.queryData.redirectProjectName;
     this.projectType = this.queryData.redirectProjectType;
     this.description = JSON.parse(
@@ -1075,9 +1078,13 @@ export default {
   },
   methods: {
     // 左侧插件集
-    async getPluginLs() {
+    async getPluginLs(data) {
       let pluginLs = [];
-      this.webPlugin = (await pluginViews({})).data;
+      if (!data) {
+        this.webPlugin = (await pluginViews({})).data;
+      } else {
+        this.webPlugin = data;
+      }
       // 线上插件集
       const onlinePluginLs = _.map(this.webPlugin, item => {
         return {
@@ -1575,8 +1582,8 @@ export default {
         const missPlugin = [];
         _.each(data.nodes, node => {
           const target = _.find(self.localPlugin, {
-            plugin_id: node.plugin_id,
-            version: node.version
+            plugin_id: node.plugin_id
+            // version: node.version
           });
           if (!target) {
             missPlugin.push(node);
@@ -2017,7 +2024,8 @@ export default {
                             currentProjectName: this.projectName,
                             currentProjectType: this.projectType,
                             redirectProjectName: target.project_name,
-                            redirectProjectType: target.project_type
+                            redirectProjectType: target.project_type,
+                            plugins: this.webPlugin
                           }
                         });
                       }
@@ -2428,7 +2436,7 @@ export default {
       this.dialogFormVisible = true;
     },
     // 右键下载插件
-    downPlugin(plugin) {
+    async downPlugin(plugin) {
       const target = _.find(this.webPlugin, { plugin_id: plugin.plugin_id });
       if (target) {
         if (target.language === "python") {
@@ -2481,7 +2489,8 @@ export default {
               currentProjectName: "",
               currentProjectType: "",
               redirectProjectName: this.queryData.currentProjectName,
-              redirectProjectType: this.queryData.currentProjectType
+              redirectProjectType: this.queryData.currentProjectType,
+              plugins: this.webPlugin
             }
           });
         }
