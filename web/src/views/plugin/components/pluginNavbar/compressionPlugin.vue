@@ -95,7 +95,7 @@ export default {
           type: "success"
         });
         this.dialogFormVisible = false;
-        let plugin_name = _.takeRight(this.filePath.split("/"))[0];
+        let plugin_name = _.takeRight(path.normalize(this.filePath).split("/"))[0];
         let plugin_path = `${config.pluginsPath}/../plugins_temp/${plugin_name}`;
         if (
           _.includes(
