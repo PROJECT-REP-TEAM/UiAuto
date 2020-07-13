@@ -61,7 +61,13 @@
       </span>
     </el-dialog>
 
-    <el-dialog :title="tempFolderName" :visible.sync="showOpenFolder" width="50%" center>
+    <el-dialog
+      :title="tempFolderName"
+      :visible.sync="showOpenFolder"
+      width="50%"
+      center
+      @close="reset"
+    >
       <el-row :gutter="24" style="margin-bottom: 5px;" type="flex" justify="end">
         <el-col :span="6" align="right">
           <el-button
@@ -95,17 +101,6 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-dialog>
-
-    <el-dialog title="提示" :visible.sync="showDeleteFolder" width="30%">
-      <span style="font-size: large">此操作将永久删除文件夹 {{ dropData.folderName }} ，是否继续？</span>
-      <el-checkbox v-if="showDeleteProject" v-model="isDelete">
-        <span style="color: red">该文件夹不为空，是否同时删除文件夹内容？</span>
-      </el-checkbox>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="showDeleteFolder = false">取 消</el-button>
-        <el-button type="primary" @click="deleteFolder">确 定</el-button>
-      </span>
     </el-dialog>
   </div>
 </template>
@@ -144,10 +139,7 @@ export default {
       openFolderInfo: "",
       showOpenFolder: false,
       tempFolderName: "",
-      showDeleteFolder: false,
-      isDelete: false,
       deleteInfo: "",
-      showDeleteProject: false,
       show: false,
       showCurrent: ""
     };
@@ -164,14 +156,9 @@ export default {
     addFolder(folderItem) {
       const self = this;
       self.projects_path = config.projectsPath + "/";
-      var json = "";
-      try {
-        json = fse.readJsonSync(
-          `${self.projects_path}/${folderItem}/${folderItem}.json`
-        );
-      } catch (error) {
-        // console.error(error)
-      }
+      let json = fse.readJsonSync(
+        `${self.projects_path}/${folderItem}/${folderItem}.json`
+      );
       const initialStatus = {
         folder_name: json.folder_name,
         project_type: json.project_type || "folder",
@@ -266,6 +253,9 @@ export default {
       this.folderName = "";
       this.showDialog_create_folder = false;
     },
+    reset() {
+      this.$parent.cancelFolder();
+    },
     // 鼠标进入文件夹事件
     enterFolder(folder) {
       this.$parent.show = true;
@@ -356,42 +346,82 @@ export default {
       this.showDialog_rename_folder = false;
     },
     // 删除文件夹
-    deleteFolder() {
-      try {
-        if (this.isDelete) {
-          var self = this;
-          _.each(self.deleteInfo.projects, project => {
-            this.$parent.delDir(this.$parent.projects_path + project);
-            this.$store.commit("project/LOCAL_PROJECT_DELETE", {
-              project_name: project
+    deleteFolder(folder) {
+      let self = this;
+      if (folder.projects.length) {
+        this.$confirm(
+          `此操作将删除'${folder.folder_name}'文件夹, 是否继续?`,
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        )
+          .then(() => {
+            this.$confirm(`该文件夹不为空，是否同时删除文件夹内容？`, "提示", {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning"
+            })
+              .then(() => {
+                _.each(folder.projects, project => {
+                  self.$parent.delDir(
+                    `${self.$parent.projects_path}${project}`
+                  );
+                  self.$store.commit("project/LOCAL_PROJECT_DELETE", {
+                    project_name: project
+                  });
+                });
+                self.$parent.delDir(
+                  `${self.$parent.projects_path}${folder.folder_name}`
+                );
+                this.$store.commit(
+                  "project/LOCAL_PROJECT_FOLDER_DELETE",
+                  folder
+                );
+                self.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+              })
+              .catch(() => {
+                self.$parent.delDir(
+                  `${self.$parent.projects_path}${folder.folder_name}`
+                );
+                this.$store.commit(
+                  "project/LOCAL_PROJECT_FOLDER_DELETE",
+                  folder
+                );
+                self.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+              });
+          })
+          .catch();
+      } else {
+        this.$confirm(
+          `此操作将删除'${folder.folder_name}'文件夹, 是否继续?`,
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        )
+          .then(() => {
+            self.$parent.delDir(
+              `${self.$parent.projects_path}${folder.folder_name}`
+            );
+            this.$store.commit("project/LOCAL_PROJECT_FOLDER_DELETE", folder);
+            this.$message({
+              type: "success",
+              message: "删除成功!"
             });
-          });
-        }
-        this.$parent.delDir(
-          this.$parent.projects_path + this.deleteInfo.folder_name
-        );
-        this.$message({
-          type: "success",
-          message: "删除成功"
-        });
-        this.$store.commit(
-          "project/LOCAL_PROJECT_FOLDER_DELETE",
-          this.deleteInfo
-        );
-      } catch (err) {
-        console.log(err);
-        this.$message({
-          type: `${err === "cancel" ? "info" : "error"}`,
-          message: `${
-            err === "cancel" ? "已取消删除" : "文件被占用，请稍后再试"
-          }`
-        });
+          })
+          .catch();
       }
-
-      this.showDeleteFolder = false;
-      this.showDeleteProject = false;
-      this.isDelete = false;
-      this.deleteInfo = "";
     },
     // 项目拖拽
     dragstart(event, data) {
@@ -474,7 +504,6 @@ export default {
       }
     },
     outFolder(params) {
-      // console.error(params)
       this.$confirm(
         `是否将项目 ${params.project_name} 移出文件夹 ${params.folder_name}?`,
         "提示",
@@ -491,7 +520,6 @@ export default {
           const index = _.findIndex(folderLs, function(element) {
             return element.folder_name === params.folder_name;
           });
-          // console.error(folderLs)
           this.$store.commit("project/LOCAL_PROJECT_FOLDER_DELETE", params);
           let json = "";
           try {
@@ -506,7 +534,6 @@ export default {
           } else {
             projectLs = json.projects;
           }
-          // console.error(json)
           json["projects"] = _.pull(projectLs, params.project_name);
           json["updateAt"] = moment().format("YYYY-MM-DD HH:mm:ss");
           fse.writeFileSync(
@@ -548,7 +575,6 @@ export default {
       const folderLs = this.$parent.local_folderLs;
       const projectLs = this.$parent.local_folder_projects;
 
-      // console.error(folderLs)
       let json = "";
 
       if (folderLs.length) {

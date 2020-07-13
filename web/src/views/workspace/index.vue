@@ -393,7 +393,8 @@ export default {
       dialogSelectVisible: false,
       cronExpression: "",
       webPlugins_global: [],
-      searchProjectLs: []
+      searchProjectLs: [],
+      currentFolderName: ""
     };
   },
   computed: {
@@ -559,50 +560,45 @@ export default {
     // 确定按钮
     commitHandleClick() {
       const self = this;
-      // console.error(self.projectName)
-      if (!this.projectName.trim()) {
+      if (!config.projectsPath) {
+        this.message("请先到系统管理设置项目路径", "warning");
+      } else if (!this.projectName.trim()) {
         this.message("项目名称不能为空", "warning");
       } else {
-        if (!config.projectsPath) {
-          this.message("请先到系统管理设置项目路径", "warning");
-          return;
-        }
-        try {
-          fs.accessSync(
-            this.projects_path +
-              this.projectName +
-              "/" +
-              this.projectName +
-              ".json",
-            fs.F_OK
+        this.projectName = this.projectName
+          .replace(/\//g, "")
+          .replace(/\\/g, "");
+        let isFile = fs.existsSync(
+          `${this.projects_path}${this.projectName}/${this.projectName}.json`
+        );
+        if (isFile) {
+          let json = fse.readJsonSync(
+            `${this.projects_path}${this.projectName}/${this.projectName}.json`
           );
-          const index = _.findIndex(this.local_folderLs, function(element) {
-            return element.folder_name === self.projectName;
-          });
-          if (index < 0) {
+          if (json.project_type === "folder") {
+            this.message(
+              `'${this.projectName}'项目名称被文件夹名称占用，请更换项目名称后重试！`,
+              "warning"
+            );
+          } else {
             this.$confirm("文件已存在, 是否打开该文件?", "提示", {
               confirmButtonText: "确定",
               cancelButtonText: "取消",
               type: "warning"
-            })
-              .then(() => {
-                this.$router.push({
-                  path: "/project",
-                  query: {
-                    currentProjectName: "",
-                    currentProjectType: "",
-                    redirectProjectName: this.projectName,
-                    redirectProjectType: "local",
-                    plugins: this.webPlugins_global
-                  }
-                });
-              })
-              .catch(() => {});
-          } else {
-            this.$message("已存在同名文件夹", "error");
+            }).then(() => {
+              this.$router.push({
+                path: "/project",
+                query: {
+                  currentProjectName: "",
+                  currentProjectType: "",
+                  redirectProjectName: this.projectName,
+                  redirectProjectType: "local",
+                  plugins: this.webPlugins_global
+                }
+              });
+            });
           }
-        } catch (e) {
-          // console.error(e)
+        } else {
           if (
             !_.includes(
               _.difference(fs.readdirSync(config.pluginsPath), [".DS_Store"]),
@@ -615,9 +611,9 @@ export default {
               fs.readdirSync(`${config.pluginsPath}/base`),
               [".DS_Store"]
             ).sort(this.versionFn);
-            if (!fs.existsSync(this.projects_path + this.projectName)) {
-              fse.ensureDirSync(this.projects_path + this.projectName);
-              var writeJson = _.extend(
+            if (!fs.existsSync(`${this.projects_path}${this.projectName}`)) {
+              fse.ensureDirSync(`${this.projects_path}${this.projectName}`);
+              let writeJson = _.extend(
                 { project_name: this.projectName },
                 { project_type: "local" },
                 { createAt: moment().format("YYYY-MM-DD HH:mm:ss") },
@@ -728,38 +724,22 @@ export default {
                 "utf8"
               );
             }
-            // console.warn('>>>>>>>>>>>>>>>>>>' + this.$refs['childFolder'].tempFolderName)
-            if (this.$refs["childFolder"].tempFolderName) {
+            if (this.currentFolderName) {
               this.$store.commit("project/LOCAL_PROJECT_FOLDER_DELETE", {
-                folder_name: this.$refs["childFolder"].tempFolderName
+                folder_name: this.currentFolderName
               });
-              let json = "";
-              try {
-                json = fse.readJsonSync(
-                  `${config.projectsPath}/${this.$refs["childFolder"].tempFolderName}/${this.$refs["childFolder"].tempFolderName}.json`
-                );
-              } catch (error) {
-                // console.error(error)
-              }
-              const index = _.findIndex(json["projects"], function(element) {
-                return element === self.projectName;
-              });
-              // console.error('index>>>>>>>>>>>>>>' + index)
-              // console.warn(json)
-              const projects = json["projects"];
-              if (index < 0) {
-                json["projects"] = _.concat(projects, self.projectName);
-              }
-              // console.log(self.projectName)
-              json["updateAt"] = moment().format("YYYY-MM-DD HH:mm:ss");
-              // console.error(json)
+              let json = fse.readJsonSync(
+                `${config.projectsPath}/${this.currentFolderName}/${this.currentFolderName}.json`
+              );
+              json.projects = _.concat(json.projects, this.projectName);
+              json.updateAt = moment().format("YYYY-MM-DD HH:mm:ss");
               fse.writeFileSync(
-                `${config.projectsPath}/${this.$refs["childFolder"].tempFolderName}/${this.$refs["childFolder"].tempFolderName}.json`,
+                `${config.projectsPath}/${this.currentFolderName}/${this.currentFolderName}.json`,
                 JSON.stringify(json, null, "\t"),
                 "utf8"
               );
               const data = {
-                folder_name: this.$refs["childFolder"].tempFolderName,
+                folder_name: this.currentFolderName,
                 project_type: json.project_type || "folder",
                 projects: json.projects || [],
                 json: json,
@@ -1191,21 +1171,16 @@ export default {
               this.$store.commit("project/LOCAL_PROJECT_FOLDER_DELETE", {
                 folder_name: this.$refs["childFolder"].tempFolderName
               });
-              let json = "";
-              try {
-                json = fse.readJsonSync(
-                  `${config.projectsPath}/${this.$refs["childFolder"].tempFolderName}/${this.$refs["childFolder"].tempFolderName}.json`
-                );
-              } catch (error) {
-                console.error(error);
-              }
+              let json = fse.readJsonSync(
+                `${config.projectsPath}/${this.$refs["childFolder"].tempFolderName}/${this.$refs["childFolder"].tempFolderName}.json`
+              );
               const index = _.findIndex(json["projects"], function(element) {
                 return element === item.project_name;
               });
               if (index !== -1) {
                 _.pull(json["projects"], item.project_name);
               }
-              json["updateAt"] = moment().format("YYYY-MM-DD HH:mm:ss");
+              json.updateAt = moment().format("YYYY-MM-DD HH:mm:ss");
               fse.writeFileSync(
                 `${config.projectsPath}/${this.$refs["childFolder"].tempFolderName}/${this.$refs["childFolder"].tempFolderName}.json`,
                 JSON.stringify(json, null, "\t"),
@@ -1319,14 +1294,7 @@ export default {
       this.$refs["childFolder"].editFolder(folder);
     },
     deleteFolder(folder) {
-      // this.$refs['childFolder'].deleteFolder(folder)
-      // console.error(folder)
-      this.$refs["childFolder"].showDeleteFolder = true;
-      this.$refs["childFolder"].deleteInfo = folder;
-      this.$refs["childFolder"].showDeleteProject = false;
-      if (folder.projects.length > 0) {
-        this.$refs["childFolder"].showDeleteProject = true;
-      }
+      this.$refs["childFolder"].deleteFolder(folder);
     },
     drog(event, folder_name) {
       this.$refs["childFolder"].drog(event, folder_name);
@@ -1356,6 +1324,7 @@ export default {
       return index === -1;
     },
     openFolder(folder) {
+      this.currentFolderName = folder.folder_name;
       this.$refs["childFolder"].openFolder(folder);
     },
     outFolder(params) {
@@ -1363,6 +1332,9 @@ export default {
     },
     hideFolder() {
       return !this.searchProjectLs.length;
+    },
+    cancelFolder() {
+      this.currentFolderName = "";
     }
   }
 };
