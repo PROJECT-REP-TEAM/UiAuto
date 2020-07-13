@@ -183,9 +183,7 @@ export default {
         }
       })
         .then(files => {
-          let plugin_name = _.takeRight(
-            this.filePath.split(".")[0].split("/")
-          )[0];
+          let plugin_name = _.takeRight(path.normalize(this.filePath).split(".")[0].split("\\"))[0];
           let targetFile = _.find(files, {
             type: "directory",
             path: `${plugin_name}/`
@@ -274,7 +272,7 @@ export default {
                         cb(err, null);
                       });
                   } else if (package_json.language === "python") {
-                    pythonInit(item)
+                    pythonInit(item, package_json.version)
                       .then(res => {
                         if (
                           !fs.existsSync(
