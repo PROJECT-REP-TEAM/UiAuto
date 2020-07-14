@@ -7,6 +7,13 @@
         type="primary"
         size="mini"
         style="float:right;margin:5px 15px 5px 0;height:30px;"
+        @click="downloadDemoFn"
+      >下载示例</el-button>
+      <el-button
+        class="button"
+        type="primary"
+        size="mini"
+        style="float:right;margin:5px 15px 5px 0;height:30px;"
         @click="syncProject"
       >同步项目</el-button>
       <el-button
@@ -350,7 +357,10 @@ var app = window.require("electron").remote.app;
 var ipc = window.require("electron").ipcRenderer;
 var { fileSelector } = require("@/utils/electron.js");
 var { pluginDownload } = require("@/utils/electron.js");
-var { getSynchronizeParams } = require("@/utils/synchronizeProject.js");
+var {
+  getSynchronizeParams,
+  downloadDemo
+} = require("@/utils/synchronizeProject.js");
 var { execute } = window.require(path.resolve() + "/public/runner/index.js");
 import _ from "lodash";
 import moment from "moment";
@@ -472,12 +482,9 @@ export default {
   },
   methods: {
     addProject(projectItem) {
-      var json = "";
-      try {
-        json = fse.readJsonSync(
-          `${this.projects_path}/${projectItem}/${projectItem}.json`
-        );
-      } catch (error) {}
+      let json = fse.readJsonSync(
+        `${this.projects_path}/${projectItem}/${projectItem}.json`
+      );
       const initialStatus = {
         project_name: projectItem,
         project_type: json.project_type || "",
@@ -1335,6 +1342,28 @@ export default {
     },
     cancelFolder() {
       this.currentFolderName = "";
+    },
+    // 下载示例
+    downloadDemoFn() {
+      if (fs.existsSync(`${config.projectsPath}/示例项目`)) {
+        this.$message({
+          type: "warning",
+          message: "您本地已存在示例项目，无需重复下载！"
+        });
+      } else {
+        downloadDemo(`${config.serverUrl}/src/files/示例项目.zip`)
+          .then(res => {
+            this.getProjectList();
+            this.$refs["childFolder"].getFolderList();
+            this.$message({
+              type: "success",
+              message: "成功下载示例项目"
+            });
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
     }
   }
 };

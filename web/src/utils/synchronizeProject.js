@@ -17,6 +17,7 @@ import { Notification } from 'element-ui';
 import config from "@/config/environment/index";
 import environment from "@/config/environment";
 import { pluginViews } from "@/api/plugin";
+import { reject } from 'lodash';
 
 export function getSynchronizeParams(data = []) {
     let needSynchronizeProjects = [];
@@ -77,10 +78,6 @@ export function getSynchronizeParams(data = []) {
         store.commit("project/LOCAL_PROJECT", initialStatus);
     })
 
-    // _.each(deleteLocalCloudProjectLs, item => {
-    //     delDir(`${config.projectsPath}/${item}`);
-    //     store.commit("project/LOCAL_PROJECT_DELETE", { project_name: item });
-    // })
     console.log("需要同步的项目列表:", needSynchronizeProjects);
     if (needSynchronizeProjects.length > 0) {
         _.each(needSynchronizeProjects, (project, idx) => {
@@ -99,20 +96,65 @@ export function getSynchronizeParams(data = []) {
 }
 
 // 删除文件夹
-function delDir(path) {
+function deleteFolder(path) {
     let files = [];
     if (fs.existsSync(path)) {
         files = fs.readdirSync(path);
-        files.forEach((file, index) => {
-            let curPath = path + "/" + file;
+        files.forEach(function (file, index) {
+            let curPath = `${path}/${file}`;
             if (fs.statSync(curPath).isDirectory()) {
-                delDir(curPath); //递归删除文件夹
+                deleteFolder(curPath);
             } else {
-                fs.unlinkSync(curPath); //删除文件
+                fs.unlinkSync(curPath);
             }
         });
         fs.rmdirSync(path);
     }
+}
+
+export function downloadDemo(download_path) {
+    console.log('download_path', download_path)
+    return new Promise((resolve, reject) => {
+        let downData = {
+            project: {
+                downloadUrl: download_path,
+                projectName: "示例项目"
+            },
+            listener_name: "downstate示例项目.zip",
+            downloadPath: download_path,
+            configPath: path.normalize(`${config.projectsPath}/../projects_temp/`)
+        }
+
+        ipc.send('download', downData)
+        ipc.on(downData.listener_name, function (event, result) {
+            if (result.state == 'completed') {
+                decompress(result.filePath, downData.configPath, {
+                    filter: function (file) {
+                        var r = true;
+                        if (file.path.startsWith("__MACOSX")) {
+                            r = false;
+                        }
+                        return r;
+                    }
+                }).then(files => {
+                    fse.copySync(
+                        `${downData.configPath}示例项目`,
+                        `${config.projectsPath}`
+                    );
+                    if (fs.existsSync(`${result.filePath}`)) {
+                        fs.unlinkSync(result.filePath)
+                    }
+                    if (fs.existsSync(`${downData.configPath}示例项目`)) {
+                        deleteFolder(`${downData.configPath}示例项目`);
+                    }
+                    resolve();
+                }).catch(err => {
+                    reject(err);
+                })
+            }
+        })
+    })
+
 }
 
 function downloadProject(projects, index) {
