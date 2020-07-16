@@ -79,7 +79,14 @@
         </el-col>
       </el-row>
       <el-table border style="width: 100%;" :data="openFolderInfo" fit>
-        <el-table-column prop="project_name" align="center" label="项目名称" draggable="true" />
+        <el-table-column
+          prop="project_name"
+          align="center"
+          label="项目名称"
+          draggable="true"
+          min-width="50%"
+          show-overflow-tooltip
+        />
         <el-table-column
           fixed="right"
           align="center"

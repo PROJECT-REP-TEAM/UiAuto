@@ -65,7 +65,12 @@
             <i slot="suffix" class="el-input__icon el-icon-aim" style="padding: 5px;" />
           </el-input>
 
-          <el-menu class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
+          <el-menu
+            class="el-menu-vertical-demo"
+            @open="handleOpen"
+            @close="handleClose"
+            style="border: none;"
+          >
             <span>
               <el-submenu index="1" style="padding: 0 10px;">
                 <template slot="title">
