@@ -1,347 +1,369 @@
 <template>
   <div style="background: #eeeeee;">
-    <div class="navbar">
-      <div class="left-menu">项目库</div>
-      <el-button
-        class="button"
-        type="primary"
-        size="mini"
-        style="float:right;margin:5px 15px 5px 0;height:30px;"
-        @click="downloadDemoFn"
-      >下载示例</el-button>
-      <el-button
-        class="button"
-        type="primary"
-        size="mini"
-        style="float:right;margin:5px 15px 5px 0;height:30px;"
-        @click="syncProject"
-      >同步项目</el-button>
-      <el-button
-        class="button"
-        type="primary"
-        size="mini"
-        style="float:right;margin:5px 15px;height:30px;"
-        @click="dialogSelectVisible = true"
-      >导入项目</el-button>
-      <el-dialog title="导入项目" :visible.sync="dialogSelectVisible" width="30%" center>
-        <el-dialog
-          title="正在导入项目环境"
-          width="25%"
-          top="25vh"
-          :visible.sync="uploadLoading"
-          :close-on-click-modal="false"
-          :close-on-press-escape="false"
-          :show-close="false"
-          append-to-body
-          center
-        >
-          <div class="loading">
-            <i class="el-icon-loading uploadLoading" />
+    <div id="navbar" style="background: #eeeeee;">
+      <div class="navbar">
+        <div class="left-menu">项目库</div>
+        <el-button
+          class="button"
+          type="primary"
+          size="mini"
+          style="float:right;margin:5px 15px 5px 0;height:30px;"
+          @click="downloadDemoFn"
+        >下载示例</el-button>
+        <el-button
+          class="button"
+          type="primary"
+          size="mini"
+          style="float:right;margin:5px 15px 5px 0;height:30px;"
+          @click="syncProject"
+        >同步项目</el-button>
+        <el-button
+          class="button"
+          type="primary"
+          size="mini"
+          style="float:right;margin:5px 15px;height:30px;"
+          @click="dialogSelectVisible = true"
+        >导入项目</el-button>
+        <el-dialog title="导入项目" :visible.sync="dialogSelectVisible" width="30%" center>
+          <el-dialog
+            title="正在导入项目环境"
+            width="25%"
+            top="25vh"
+            :visible.sync="uploadLoading"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            :show-close="false"
+            append-to-body
+            center
+          >
+            <div class="loading">
+              <i class="el-icon-loading uploadLoading" />
+            </div>
+          </el-dialog>
+          <div class-name="small-padding fixed-width">
+            <el-input
+              v-model="filePath"
+              autocomplete="off"
+              :readonly="true"
+              style="width:70%;height:32px;"
+            />
+            <el-button
+              type="primary"
+              style="height:32px;line-height: 7px;"
+              @click="exportProject()"
+            >选择文件</el-button>
           </div>
-        </el-dialog>
-        <div class-name="small-padding fixed-width">
-          <el-input
-            v-model="filePath"
-            autocomplete="off"
-            :readonly="true"
-            style="width:70%;height:32px;"
-          />
-          <el-button
-            type="primary"
-            style="height:32px;line-height: 7px;"
-            @click="exportProject()"
-          >选择文件</el-button>
-        </div>
-        <div style="margin-top: 30px;">
-          <el-button
-            type="primary"
-            style="width: 70px;height: 32px;line-height: 7px;"
-            :disabled="filePath === ''"
-            @click="upload()"
-          >导入</el-button>
-          <el-button
-            style="color: #1890ff;border:1px solid #1890ff;width: 70px;height: 32px;line-height: 7px;"
-            @click="dialogSelectVisible = false;filePath = '';"
-          >取消</el-button>
-        </div>
-      </el-dialog>
-      <div :class="{'showSearch':showSearch}" class="header-search">
-        <svg-icon class-name="search-icon" icon-class="search" @click.stop="searchClick" />
-        <el-input
-          ref="headerSearchSelect"
-          v-model="search"
-          class="header-search-select"
-          placeholder="请输入项目名称"
-          clearable
-          @keyup.enter.native="searchFn()"
-        />
-      </div>
-    </div>
-    <div class="welcome-container">
-      <div class="dashboard-editor-container">
-        <el-row :gutter="40" class="panel-group">
-          <el-col
-            :xs="12"
-            :sm="12"
-            :lg="6"
-            class="card-panel-col-created"
-            @click.native="showDialog = true"
-          >
-            <div class="card-panel">
-              <div class="card-panel-icon-wrapper icon-edit">
-                <svg-icon icon-class="edit" class-name="card-panel-icon" />
-              </div>
-              <div class="card-panel-description" style="margin:51px 0;">
-                <div class="card-panel-text" style="color:#1890ff;">新建项目</div>
-              </div>
-            </div>
-          </el-col>
-          <el-col
-            :xs="12"
-            :sm="12"
-            :lg="6"
-            class="card-panel-col-created"
-            @click.native="createFolder()"
-          >
-            <div class="card-panel">
-              <div class="card-panel-icon-wrapper icon-edit">
-                <svg-icon icon-class="createfolder" class-name="card-panel-icon" />
-              </div>
-              <div class="card-panel-description" style="margin:51px 0;">
-                <div class="card-panel-text" style="color:#1890ff;">新建文件夹</div>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
-        <el-tabs type="border-card">
-          <div
-            v-if="showTip"
-            style="height: 60px;line-height: 60px;text-align: center;color: #909399;"
-          >请到系统管理设置项目路径</div>
-          <el-tab-pane>
-            <span slot="label">
-              <i class="el-icon-s-grid" /> 项目宫格
-            </span>
-            <el-row :gutter="40" class="panel-group">
-              <el-col
-                v-for="(folder, idx) in local_folderLs"
-                v-show="hideFolder()"
-                :key="idx"
-                :xs="12"
-                :sm="12"
-                :lg="6"
-                class="card-panel-col"
-                @drop.native="drog($event, folder.folder_name)"
-                @dragover.prevent
-                @click.native="openFolder(folder)"
-              >
-                <div
-                  class="card-panel"
-                  style="margin-top: 20px;"
-                  @mouseenter="enterFolder(folder)"
-                  @mouseleave="leaveFolder(folder)"
-                >
-                  <div class="card-panel-icon-wrapper icon-clipboard">
-                    <!--                    <svg-icon icon-class="clipboard" class-name="card-panel-icon" />-->
-                    <svg-icon icon-class="folder" class-name="card-panel-icon" />
-                  </div>
-                  <div
-                    class="card-panel-description"
-                    style="position: absolute;left: 120px;top: auto"
-                  >
-                    <div class="card-panel-text">{{ folder.folder_name }}</div>
-                    <div class="card-panel-num">文件夹</div>
-                    <div class="card-panel-num">{{ folder.date }}</div>
-                  </div>
-                  <transition name="slide-fade">
-                    <div
-                      v-if="show && showCurrent === folder.folder_name"
-                      style="position: absolute;right: 0;margin: 13px 20px;"
-                    >
-                      <div style="margin-bottom: 5px;">
-                        <el-button
-                          size="mini"
-                          type="primary"
-                          icon="el-icon-edit"
-                          circle
-                          @click.stop="editFolder(folder)"
-                        />
-                      </div>
-                      <div>
-                        <el-button
-                          size="mini"
-                          type="danger"
-                          icon="el-icon-delete"
-                          circle
-                          @click.stop="deleteFolder(folder)"
-                        />
-                      </div>
-                    </div>
-                  </transition>
-                </div>
-              </el-col>
-
-              <el-col
-                v-for="item in (searchProjectLs.length ? searchProjectLs : projectLs)"
-                v-show="changeStatus(item.project_name)"
-                :key="item.project_name"
-                :xs="12"
-                :sm="12"
-                :lg="6"
-                class="card-panel-col"
-                draggable="true"
-                @click.native="item.json ? handleSetLineChartData(item) : ''"
-                @dragstart.native="dragstart($event, item.project_name)"
-                @dragend.native="dragend($event)"
-              >
-                <div
-                  class="card-panel"
-                  style="margin-top: 20px;"
-                  @mouseenter="item.json ? enter(item) : ''"
-                  @mouseleave="item.json ? leave(item) : ''"
-                >
-                  <el-progress
-                    v-if="item.isDownloading"
-                    type="circle"
-                    :percentage="item.downloadRate"
-                    :width="50"
-                    :stroke-width="3"
-                    class="progress"
-                  />
-                  <div
-                    v-if="item.isDownloading"
-                    :style="{ filter: 'blur(' + (100 - item.downloadRate) / 10 + 'px) contrast(0.8)' }"
-                  >
-                    <div class="card-panel-icon-wrapper icon-clipboard">
-                      <svg-icon icon-class="clipboard" class-name="card-panel-icon" />
-                    </div>
-                    <div class="card-panel-description" style="position: absolute;left: 120px;">
-                      <div class="card-panel-text">{{ item.project_name }}</div>
-                      <div
-                        class="card-panel-num"
-                      >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}</div>
-                      <div class="card-panel-num">{{ item.date }}</div>
-                    </div>
-                  </div>
-                  <div v-if="!item.isDownloading">
-                    <div class="card-panel-icon-wrapper icon-clipboard">
-                      <svg-icon icon-class="clipboard" class-name="card-panel-icon" />
-                    </div>
-                    <div class="card-panel-description" style="position: absolute;left: 120px;">
-                      <div class="card-panel-text">{{ item.project_name }}</div>
-                      <div
-                        class="card-panel-num"
-                      >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}</div>
-                      <div class="card-panel-num">{{ item.date }}</div>
-                    </div>
-                  </div>
-                  <transition name="slide-fade">
-                    <div
-                      v-if="show && showCurrent === item.project_name"
-                      style="position: absolute;right: 0;margin: 13px 20px;"
-                    >
-                      <div style="margin-bottom: 5px;">
-                        <el-button
-                          size="mini"
-                          type="primary"
-                          icon="el-icon-edit"
-                          circle
-                          @click.stop="editClick(item)"
-                        />
-                      </div>
-                      <div style="margin-bottom: 5px;">
-                        <el-button
-                          size="mini"
-                          type="success"
-                          icon="el-icon-download"
-                          circle
-                          @click.stop="download(item)"
-                        />
-                      </div>
-                      <div>
-                        <el-button
-                          size="mini"
-                          type="danger"
-                          icon="el-icon-delete"
-                          circle
-                          @click.stop="deleteProject(item)"
-                        />
-                      </div>
-                    </div>
-                  </transition>
-                </div>
-              </el-col>
-            </el-row>
-          </el-tab-pane>
-          <el-tab-pane label="项目列表">
-            <span slot="label">
-              <i class="el-icon-s-unfold" /> 项目列表
-            </span>
-            <el-table
-              border
-              style="width: 100%;margin-top: 10px;"
-              :data="(searchProjectLs.length ? searchProjectLs : projectLs)"
-            >
-              <el-table-column prop="project_name" align="center" label="项目名称" />
-              <el-table-column prop="json.cron" align="center" label="执行规则" />
-              <el-table-column prop="json.retry_count" align="center" label="重试次数" />
-              <el-table-column prop="json.retry_interval" align="center" label="重试间隔(毫秒)" />
-              <el-table-column prop="json.time_out" align="center" label="超时时间(毫秒)" />
-              <el-table-column prop="date" align="center" label="日期" />
-              <el-table-column
-                fixed="right"
-                align="center"
-                label="操作"
-                width="300"
-                class-name="small-padding fixed-width"
-              >
-                <template slot-scope="scope">
-                  <el-button type="primary" size="mini" @click="editClick(scope.row)">编辑</el-button>
-                  <el-button
-                    type="success"
-                    size="mini"
-                    @click="handleSetLineChartData(scope.row)"
-                  >查看</el-button>
-                  <el-button type="info" size="mini" @click="download(scope.row)">导出</el-button>
-                  <el-button type="danger" size="mini" @click="deleteProject(scope.row)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-        </el-tabs>
-        <el-dialog
-          title="新建项目"
-          :visible.sync="showDialog"
-          center
-          :close-on-click-modal="false"
-          :close-on-press-escape="false"
-        >
-          <el-form label-position="left" label-width="80px">
-            <el-form-item label="项目名称">
-              <el-input v-model="projectName" max="100" placeholder="请输入项目名称" />
-            </el-form-item>
-            <el-form-item label="备注">
-              <el-input v-model="description" type="textarea" :rows="8" placeholder="请输入备注" />
-            </el-form-item>
-          </el-form>
           <div style="margin-top: 30px;">
             <el-button
               type="primary"
               style="width: 70px;height: 32px;line-height: 7px;"
-              @click="commitHandleClick()"
-            >确定</el-button>
+              :disabled="filePath === ''"
+              @click="upload()"
+            >导入</el-button>
             <el-button
-              style="width: 70px;height: 32px;line-height: 7px;color: #1890ff;border: 1px solid #1890ff;"
-              @click="cancelClick()"
+              style="color: #1890ff;border:1px solid #1890ff;width: 70px;height: 32px;line-height: 7px;"
+              @click="dialogSelectVisible = false;filePath = '';"
             >取消</el-button>
           </div>
         </el-dialog>
-
-        <folder ref="childFolder" />
-
-        <edit ref="editForm" />
+        <div :class="{'showSearch':showSearch}" class="header-search">
+          <svg-icon class-name="search-icon" icon-class="search" @click.stop="searchClick" />
+          <el-input
+            ref="headerSearchSelect"
+            v-model="search"
+            class="header-search-select"
+            placeholder="请输入项目名称"
+            clearable
+            @keyup.enter.native="searchFn()"
+          />
+        </div>
+      </div>
+      <div class="welcome-container">
+        <div class="dashboard-editor-container">
+          <el-row v-if="isShowCreate" :gutter="40" class="panel-group" style="margin-bottom: 20px;">
+            <el-col
+              :xs="12"
+              :sm="12"
+              :lg="6"
+              class="card-panel-col-created"
+              @click.native="showDialog = true"
+            >
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-edit">
+                  <svg-icon icon-class="edit" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description" style="margin:51px 0;width: 100%;">
+                  <div class="card-panel-text" style="color:#1890ff;">新建项目</div>
+                </div>
+              </div>
+            </el-col>
+            <el-col
+              :xs="12"
+              :sm="12"
+              :lg="6"
+              class="card-panel-col-created"
+              @click.native="createFolder()"
+            >
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-edit">
+                  <svg-icon icon-class="createfolder" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description" style="margin:51px 0;width: 100%;">
+                  <div class="card-panel-text" style="color:#1890ff;">新建文件夹</div>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+          <el-tabs
+            type="border-card"
+            v-model="activeName"
+            @tab-click="handleTabClick"
+            :before-leave="beforeLeave"
+          >
+            <div
+              v-if="showTip"
+              style="height: 60px;line-height: 60px;text-align: center;color: #909399;"
+            >请到系统管理设置项目路径</div>
+            <el-tab-pane v-if="!isShowCreate" label="新建项目" name="新建项目">
+              <span slot="label">
+                <svg-icon icon-class="edit" class-name="card-panel-icon" />新建项目
+              </span>
+            </el-tab-pane>
+            <el-tab-pane v-if="!isShowCreate" label="新建文件夹" name="新建文件夹">
+              <span slot="label">
+                <svg-icon icon-class="createfolder" class-name="card-panel-icon" />新建文件夹
+              </span>
+            </el-tab-pane>
+            <el-tab-pane label="项目宫格" name="项目宫格">
+              <span slot="label">
+                <i class="el-icon-s-grid" /> 项目宫格
+              </span>
+            </el-tab-pane>
+            <el-tab-pane label="项目列表" name="项目列表">
+              <span slot="label">
+                <i class="el-icon-s-unfold" /> 项目列表
+              </span>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
       </div>
     </div>
+    <div
+      v-if="currentTab === '项目宫格'"
+      class="welcome-container"
+      style="padding: 0px 10px 10px 10px;position: absolute;top: 249px;background: #eeeeee;"
+    >
+      <el-row class="panel-group">
+        <el-col
+          v-for="(folder, idx) in local_folderLs"
+          v-show="hideFolder()"
+          :key="idx"
+          :xs="12"
+          :sm="12"
+          :lg="6"
+          class="card-panel-col"
+          @drop.native="drog($event, folder.folder_name)"
+          @dragover.prevent
+          @click.native="openFolder(folder)"
+        >
+          <div
+            class="card-panel"
+            style="margin: 10px;"
+            @mouseenter="enterFolder(folder)"
+            @mouseleave="leaveFolder(folder)"
+          >
+            <div class="card-panel-icon-wrapper icon-clipboard">
+              <!--                    <svg-icon icon-class="clipboard" class-name="card-panel-icon" />-->
+              <svg-icon icon-class="folder" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description" style="position: absolute;left: 120px;top: auto">
+              <div class="card-panel-text">{{ folder.folder_name }}</div>
+              <div class="card-panel-num">文件夹</div>
+              <div class="card-panel-num">{{ folder.date }}</div>
+            </div>
+            <transition name="slide-fade">
+              <div
+                v-if="show && showCurrent === folder.folder_name"
+                style="position: absolute;right: 0;margin: 13px 20px;"
+              >
+                <div style="margin-bottom: 5px;">
+                  <el-button
+                    size="mini"
+                    type="primary"
+                    icon="el-icon-edit"
+                    circle
+                    @click.stop="editFolder(folder)"
+                  />
+                </div>
+                <div>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    icon="el-icon-delete"
+                    circle
+                    @click.stop="deleteFolder(folder)"
+                  />
+                </div>
+              </div>
+            </transition>
+          </div>
+        </el-col>
+
+        <el-col
+          v-for="item in (searchProjectLs.length ? searchProjectLs : projectLs)"
+          v-show="changeStatus(item.project_name)"
+          :key="item.project_name"
+          :xs="12"
+          :sm="12"
+          :lg="6"
+          class="card-panel-col"
+          draggable="true"
+          @click.native="item.json ? handleSetLineChartData(item) : ''"
+          @dragstart.native="dragstart($event, item.project_name)"
+          @dragend.native="dragend($event)"
+        >
+          <div
+            class="card-panel"
+            style="margin: 10px;"
+            @mouseenter="item.json ? enter(item) : ''"
+            @mouseleave="item.json ? leave(item) : ''"
+          >
+            <el-progress
+              v-if="item.isDownloading"
+              type="circle"
+              :percentage="item.downloadRate"
+              :width="50"
+              :stroke-width="3"
+              class="progress"
+            />
+            <div
+              v-if="item.isDownloading"
+              :style="{ filter: 'blur(' + (100 - item.downloadRate) / 10 + 'px) contrast(0.8)' }"
+            >
+              <div class="card-panel-icon-wrapper icon-clipboard">
+                <svg-icon icon-class="clipboard" class-name="card-panel-icon" />
+              </div>
+              <div class="card-panel-description" style="position: absolute;left: 120px;">
+                <div class="card-panel-text">{{ item.project_name }}</div>
+                <div
+                  class="card-panel-num"
+                >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}</div>
+                <div class="card-panel-num">{{ item.date }}</div>
+              </div>
+            </div>
+            <div v-if="!item.isDownloading">
+              <div class="card-panel-icon-wrapper icon-clipboard">
+                <svg-icon icon-class="clipboard" class-name="card-panel-icon" />
+              </div>
+              <div class="card-panel-description" style="position: absolute;left: 120px;">
+                <div class="card-panel-text">{{ item.project_name }}</div>
+                <div
+                  class="card-panel-num"
+                >{{ item.project_type ? (item.project_type == 'cloud' ? '云端' : '本地') : "" }}</div>
+                <div class="card-panel-num">{{ item.date }}</div>
+              </div>
+            </div>
+            <transition name="slide-fade">
+              <div
+                v-if="show && showCurrent === item.project_name"
+                style="position: absolute;right: 0;margin: 13px 20px;"
+              >
+                <div style="margin-bottom: 5px;">
+                  <el-button
+                    size="mini"
+                    type="primary"
+                    icon="el-icon-edit"
+                    circle
+                    @click.stop="editClick(item)"
+                  />
+                </div>
+                <div style="margin-bottom: 5px;">
+                  <el-button
+                    size="mini"
+                    type="success"
+                    icon="el-icon-download"
+                    circle
+                    @click.stop="download(item)"
+                  />
+                </div>
+                <div>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    icon="el-icon-delete"
+                    circle
+                    @click.stop="deleteProject(item)"
+                  />
+                </div>
+              </div>
+            </transition>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+    <div
+      v-if="currentTab === '项目列表'"
+      class="welcome-container"
+      style="position: absolute;width: 100%;top: 259px;padding: 0 20px 20px 20px;background: #eeeeee;"
+    >
+      <el-table border :data="(searchProjectLs.length ? searchProjectLs : projectLs)">
+        <el-table-column
+          prop="project_name"
+          align="center"
+          label="项目名称"
+          min-width="100px"
+          show-overflow-tooltip
+        />
+        <el-table-column prop="json.cron" align="center" label="执行规则" />
+        <el-table-column prop="json.retry_count" align="center" label="重试次数" />
+        <el-table-column prop="json.retry_interval" align="center" label="重试间隔(毫秒)" />
+        <el-table-column prop="json.time_out" align="center" label="超时时间(毫秒)" />
+        <el-table-column prop="date" align="center" label="日期" />
+        <el-table-column
+          fixed="right"
+          align="center"
+          label="操作"
+          width="300"
+          class-name="small-padding fixed-width"
+        >
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" @click="editClick(scope.row)">编辑</el-button>
+            <el-button type="success" size="mini" @click="handleSetLineChartData(scope.row)">查看</el-button>
+            <el-button type="info" size="mini" @click="download(scope.row)">导出</el-button>
+            <el-button type="danger" size="mini" @click="deleteProject(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <el-dialog
+      title="新建项目"
+      :visible.sync="showDialog"
+      center
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form label-position="left" label-width="80px">
+        <el-form-item label="项目名称">
+          <el-input v-model="projectName" max="100" placeholder="请输入项目名称" />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="description" type="textarea" :rows="8" placeholder="请输入备注" />
+        </el-form-item>
+      </el-form>
+      <div style="margin-top: 30px;">
+        <el-button
+          type="primary"
+          style="width: 70px;height: 32px;line-height: 7px;"
+          @click="commitHandleClick()"
+        >确定</el-button>
+        <el-button
+          style="width: 70px;height: 32px;line-height: 7px;color: #1890ff;border: 1px solid #1890ff;"
+          @click="cancelClick()"
+        >取消</el-button>
+      </div>
+    </el-dialog>
+    <folder ref="childFolder" />
+    <edit ref="editForm" />
   </div>
 </template>
 
@@ -352,23 +374,23 @@ const fs = window.require("fs");
 const os = window.require("os");
 const path = window.require("path");
 const fse = window.require("fs-extra");
-var decompress = window.require("decompress");
-var app = window.require("electron").remote.app;
-var ipc = window.require("electron").ipcRenderer;
-var { fileSelector } = require("@/utils/electron.js");
-var { pluginDownload } = require("@/utils/electron.js");
-var {
+const decompress = window.require("decompress");
+const app = window.require("electron").remote.app;
+const ipc = window.require("electron").ipcRenderer;
+const { fileSelector } = require("@/utils/electron.js");
+const { pluginDownload } = require("@/utils/electron.js");
+const {
   getSynchronizeParams,
   downloadDemo
 } = require("@/utils/synchronizeProject.js");
-var { execute } = window.require(path.resolve() + "/public/runner/index.js");
+const { execute } = window.require(path.resolve() + "/public/runner/index.js");
 import _ from "lodash";
 import moment from "moment";
-import { getCloudProjects, pluginViews } from "@/api/plugin";
 import environment from "@/config/environment";
 import config from "@/config/environment/index";
 import edit from "./components/edit";
 import folder from "./components/folder";
+import { getCloudProjects, pluginViews } from "@/api/plugin";
 
 const express_app = require("../../express/app");
 express_app.start_server();
@@ -388,6 +410,9 @@ export default {
   },
   data() {
     return {
+      activeName: "项目宫格",
+      currentTab: "项目宫格",
+      isShowCreate: true,
       search: "",
       showSearch: false,
       show: false,
@@ -453,6 +478,7 @@ export default {
   },
   created() {},
   mounted() {
+    window.addEventListener("scroll", this.scrollFn, true);
     this.getProjectList();
     this.pluginViewsFn().then(result => {
       this.webPlugins_global = result;
@@ -480,7 +506,58 @@ export default {
       }
     });
   },
+  destroyed() {
+    window.removeEventListener("scroll", this.scrollFn, true);
+  },
   methods: {
+    scrollFn(event) {
+      let self = this;
+      if (self.getScroll().top < 259) {
+        self.isShowCreate = true;
+        document.getElementById("navbar").classList.remove("s_down");
+      } else {
+        self.isShowCreate = false;
+        document.getElementById("navbar").classList.add("s_down");
+        document.getElementById("navbar").style.top =
+          378 - self.getScroll().top > 0
+            ? `${-(378 - self.getScroll().top)}px`
+            : 0;
+      }
+    },
+    // 页面滑动事件
+    getScroll() {
+      var top, left, width, height;
+      if (document.documentElement && document.documentElement.scrollTop) {
+        top = document.documentElement.scrollTop;
+        left = document.documentElement.scrollLeft;
+        width = document.documentElement.scrollWidth;
+        height = document.documentElement.scrollHeight;
+      } else if (document.body) {
+        top = document.body.scrollTop;
+        left = document.body.scrollLeft;
+        width = document.body.scrollWidth;
+        height = document.body.scrollHeight;
+      }
+      return { top: top, left: left, width: width, height: height };
+    },
+    // tab切换
+    handleTabClick(tab, event) {
+      if (_.includes(["项目宫格", "项目列表"], tab.label)) {
+        this.currentTab = tab.label;
+      } else if (tab.label == "新建项目") {
+        this.showDialog = true;
+      } else if (tab.label == "新建文件夹") {
+        this.createFolder();
+      }
+    },
+    // tab切换阻断
+    beforeLeave(item) {
+      if (_.includes(["项目宫格", "项目列表"], item)) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     addProject(projectItem) {
       let json = fse.readJsonSync(
         `${this.projects_path}/${projectItem}/${projectItem}.json`
@@ -498,8 +575,7 @@ export default {
       if (config.projectsPath) {
         // 插件目录
         this.projects_path = config.projectsPath + "/";
-        var projectsPathLs = [];
-        var json = "";
+        let projectsPathLs = [];
 
         const files = _.difference(fs.readdirSync(`${this.projects_path}`), [
           ".DS_Store"
@@ -507,7 +583,7 @@ export default {
         files.forEach(function(fileName, index) {
           const file = fs.statSync(self.projects_path + "/" + fileName);
           if (file.isDirectory()) {
-            json = fse.readJsonSync(
+            let json = fse.readJsonSync(
               `${self.projects_path}/${fileName}/${fileName}.json`
             );
             if (json.project_type !== "folder") {
@@ -796,7 +872,6 @@ export default {
     // 编辑
     editClick(params) {
       if (!params.isDownloading) {
-        // console.error(params)
         this.$refs["editForm"] && this.$refs["editForm"].show(params);
       } else {
         this.$message({
@@ -1323,11 +1398,9 @@ export default {
         }
       }
       const folderProjects = this.local_folder_projects;
-      // console.error(folderProjects)
       var index = _.findIndex(folderProjects, function(e) {
         return e === project_name;
       });
-      // console.log(index + project_name)
       return index === -1;
     },
     openFolder(folder) {
@@ -1383,7 +1456,6 @@ export default {
 }
 
 /deep/ .el-tabs--border-card {
-  margin-top: 20px;
   width: calc(100% - 20px);
   border: none;
   box-shadow: none;
@@ -1400,6 +1472,12 @@ export default {
 
 /deep/ .el-input__inner {
   height: 32px;
+}
+
+.s_down {
+  position: fixed;
+  width: calc(100% - 60px);
+  z-index: 100;
 }
 
 .navbar {
@@ -1477,7 +1555,6 @@ export default {
 
 .welcome-container {
   padding: 20px 0 20px 20px;
-  border-top: 1px solid #ddd;
 
   textarea:focus {
     outline: none;
@@ -1552,11 +1629,15 @@ export default {
       }
 
       .card-panel-description {
+        width: calc(100% - 130px);
         font-weight: bold;
         margin: 26px;
         margin-left: 0px;
 
         .card-panel-text {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
           line-height: 18px;
           color: #454545;
           font-size: 16px;

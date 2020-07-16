@@ -189,7 +189,6 @@ export default {
             }
           }
         });
-        // console.error(projects)
         this.tempFolders = _.each(folders, (folderItem, idx) => {
           this.addFolder(folderItem);
         });
@@ -425,20 +424,14 @@ export default {
     },
     // 项目拖拽
     dragstart(event, data) {
-      console.log("dragstart======================");
       event.dataTransfer.setData("item", data);
     },
     dragend(event) {
-      console.log("dragend==========================");
       event.dataTransfer.clearData();
     },
     drog(event, data) {
       event.preventDefault();
-      console.log("droping==============================");
       const project_name = event.dataTransfer.getData("item");
-      // this.dropData = data
-      console.log("project: ", project_name);
-      // this.showProjectMove = true
       this.dropData = {
         folderName: data,
         projectName: project_name
