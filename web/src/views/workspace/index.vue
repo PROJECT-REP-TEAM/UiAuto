@@ -151,7 +151,7 @@
     <div
       v-if="currentTab === '项目宫格'"
       class="welcome-container"
-      style="padding: 0px 10px 10px 10px;position: absolute;top: 249px;background: #eeeeee;"
+      style="padding: 0px 10px 10px 10px;width: 100%;position: absolute;top: 249px;background: #eeeeee;"
     >
       <el-row class="panel-group">
         <el-col
