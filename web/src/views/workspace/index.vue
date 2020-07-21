@@ -920,10 +920,13 @@ export default {
               "utf-8"
             ); // 将打包的内容写入zip中
             self.$message({
+              type: "success",
+              dangerouslyUseHTMLString: true,
               message: `项目导出成功，导出路径：${path.normalize(
                 self.projects_path + "../zip/" + params.project_name + ".zip"
-              )}`,
-              type: "success"
+              )}   <strong onclick='openDir("${path.normalize(
+                self.projects_path + "../zip/" + params.project_name + ".zip"
+              )}")'>点击打开</strong>`
             });
 
             const readJson = fse.readJsonSync(

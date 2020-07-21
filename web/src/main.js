@@ -24,7 +24,7 @@ const https = window.require('https')
 const configPath = `${os.homedir()}/.uiauto/uiauto.conf`
 
 const npm = window.require('npm');
-const {machineIdSync} = window.require('node-machine-id');
+const { machineIdSync } = window.require('node-machine-id');
 const decompress = window.require("decompress");
 window['executor'] = window.require(`${path.resolve()}/public/base_integration/uiauto_executor/executor`);
 window['uiselector'] = window.require(`${path.resolve()}/public/base_integration/uiauto_uiselector/index`);
@@ -78,6 +78,11 @@ new Vue({
   store,
   render: h => h(App)
 })
+
+const { shell } = window.require("electron").remote;
+window.openDir = (path) => {
+  shell.showItemInFolder(path);
+};
 
 // 检测chromedriver版本是否与chrome版本相符
 const checkChromeDriver = async () => {
@@ -176,32 +181,32 @@ function startInterval() {
 }
 
 npm.load({}, (err) => {
-    if (err) {
-        return false;
-    }
-    // 切换npm源
-    npm.config.set('registry', 'https://registry.npm.taobao.org');
-    console.log(npm.config.get('registry'));
+  if (err) {
+    return false;
+  }
+  // 切换npm源
+  npm.config.set('registry', 'https://registry.npm.taobao.org');
+  console.log(npm.config.get('registry'));
 });
 
 if (!fs.existsSync("C:\\logs")) {
-    fs.mkdirSync("C:\\logs")
+  fs.mkdirSync("C:\\logs")
 }
 
 window['executor'].execute_python(`${path.resolve()}\\public\\pyscript\\deviceid\\deviceid.py`, 'get_device_id', null)
-    .then(result => {
-        console.log('deviceid>>>>>>>>>>', result);
-        if (!fs.existsSync(configPath)) {
-            fs.writeFileSync(configPath, JSON.stringify({}))
-        }
+  .then(result => {
+    console.log('deviceid>>>>>>>>>>', result);
+    if (!fs.existsSync(configPath)) {
+      fs.writeFileSync(configPath, JSON.stringify({}))
+    }
 
-        const config = fse.readJsonSync(configPath);
-        config.deviceId = result;
-        fs.writeFileSync(configPath, JSON.stringify(config, null, '\t'))
-    })
-    .catch(err => {
-        console.log('生成机器码出错', err);
-    });
+    const config = fse.readJsonSync(configPath);
+    config.deviceId = result;
+    fs.writeFileSync(configPath, JSON.stringify(config, null, '\t'))
+  })
+  .catch(err => {
+    console.log('生成机器码出错', err);
+  });
 
 
 
