@@ -924,9 +924,12 @@ export default {
               dangerouslyUseHTMLString: true,
               message: `项目导出成功，导出路径：${path.normalize(
                 self.projects_path + "../zip/" + params.project_name + ".zip"
-              )}   <strong onclick='openDir("${path.normalize(
-                self.projects_path + "../zip/" + params.project_name + ".zip"
-              )}")'>点击打开</strong>`
+              )}   <strong style="cursor:pointer;" onclick='openDir("${self.projects_path.replace(
+                /\\/g,
+                "/"
+              ) +
+                "../zip/" +
+                params.project_name}")'>点击打开</strong>`
             });
 
             const readJson = fse.readJsonSync(
