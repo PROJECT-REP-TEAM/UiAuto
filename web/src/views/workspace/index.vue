@@ -1331,12 +1331,12 @@ export default {
             this.searchProjectLs.push(item);
           }
         });
-      }
-      if (!this.searchProjectLs.length) {
-        this.$message({
-          type: "warning",
-          message: "找不到该项目"
-        });
+        if (!this.searchProjectLs.length) {
+          this.$message({
+            type: "warning",
+            message: "找不到该项目"
+          });
+        }
       }
     },
     // 同步项目
