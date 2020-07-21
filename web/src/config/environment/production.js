@@ -8,7 +8,7 @@ module.exports = {
 
   // serverUrl: 'http://119.23.63.243:3019',
 
-  version: "20200718160606",
+  version: "20200721131541",
 
   express: {
     domain: "0.0.0.0",
