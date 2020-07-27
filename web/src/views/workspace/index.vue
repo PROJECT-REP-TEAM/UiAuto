@@ -1368,14 +1368,12 @@ export default {
       try {
         this.$refs["childFolder"].enterFolder(folder);
       } catch (e) {
-        console.log(e);
       }
     },
     leaveFolder(folder) {
       try {
         this.$refs["childFolder"].leaveFolder(folder);
       } catch (e) {
-        console.log(e);
       }
     },
     editFolder(folder) {
