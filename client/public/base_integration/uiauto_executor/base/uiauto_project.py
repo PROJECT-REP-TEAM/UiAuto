@@ -206,6 +206,7 @@ class __Project__():
                 else:
                     print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 4})
                     
+                    execute_result.success = True
 
                     if next_lines and len(next_lines) > 0:
 

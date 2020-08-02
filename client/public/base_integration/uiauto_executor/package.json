@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.1.50",
-  "description": "1.1.50版本：修复print缺少node_id的问题",
+  "version": "1.2.0",
+  "description": "1.2.0版本：循环节点支持异常捕获",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",
