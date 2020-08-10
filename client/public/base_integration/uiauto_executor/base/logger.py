@@ -112,7 +112,7 @@ def print(*value, sep=" ", end="\n", flush=False, level=LEVEL_LOG, options=None)
             elif isinstance(v, dict):
                 content = content + " " + json.dumps(v)
             elif isinstance(v, list):
-                content = content + " " + json.dumps(v)
+                content = content + " " + str(v)
 
         sys.stdout.send_log(status=level, content=content, options=options)
 

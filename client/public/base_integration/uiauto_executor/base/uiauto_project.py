@@ -278,7 +278,7 @@ class __Project__():
                     print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 8})
 
         except Exception as e:
-            print("节点【%s】执行异常，错误信息：" % current_node["label"], e, level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 9})
+            print("节点【%s】执行异常，错误信息：" % current_node["label"], traceback.format_exc(), level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 9})
             execute_result.success = False
             execute_result.code = -1
             execute_result.error = e
@@ -401,8 +401,8 @@ class __Project__():
                     for next_node in next_nodes:
                         child_line_result = self.execute(
                             current_node=next_node, options=options)
-                        if not child_line_result.success:
-                            raise Exception("支路执行异常")
+                        # if not child_line_result.success:
+                        #     raise Exception("支路执行异常")
 
                 print('循环节点【%s】支路执行完成' % (current_node['label']))
             else:
@@ -528,8 +528,10 @@ class __Project__():
             if node_plugin['language'] == 'python':
                 with open('%s\\script_node_py_template.py' % self.executor_dir, 'r', encoding='UTF-8') as template_file:
                     template_code = template_file.read()
-                node_params['code'] = node_params['code'].replace(
-                    "\n", "\n    ")
+                for line in node_params['code'].split("\n"):
+                    template_code += "\r    " + line
+                # node_params['code'] = node_params['code'].replace(
+                #     "\n", "\n    ")
                 template_code = template_code.replace(
                     '#execute_code', node_params['code'])
                 temp_dir = self.executor_dir + '\\temp\\'
@@ -537,8 +539,9 @@ class __Project__():
                                                          time.strftime('%Y%m%d%H%M%S',
                                                                        time.localtime(int(time.time()))))
                 temp_file_path = temp_dir + temp_file_name + '.py'
-                with open(temp_file_path, 'w', encoding='UTF-8') as template_file:
-                    template_file.write(template_code)
+                with open(temp_file_path, 'wb') as template_file:
+                    template_file.write(template_code.encode())
+                    template_file.close()
 
                 sys.path.insert(0, temp_dir)
                 try:
@@ -548,10 +551,10 @@ class __Project__():
                     execute_result = getattr(script, 'script_node_executor')(script_store)
                     self.global_variable.update(variable=script_store)
                     sys.path.remove(temp_dir)
-                    os.remove(temp_file_path)
+                    # os.remove(temp_file_path)
                 except Exception as e:
                     sys.path.remove(temp_dir)
-                    os.remove(temp_file_path)
+                    # os.remove(temp_file_path)
                     raise e
 
 
