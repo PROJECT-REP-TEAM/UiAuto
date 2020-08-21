@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.3",
-  "description": "1.2.3版本：解决代码组件经常报出空格异常的问题",
+  "version": "1.2.4",
+  "description": "1.2.4版本：解决日志监听过多的问题",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

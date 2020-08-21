@@ -167,10 +167,12 @@ const start_recording = (project_name) => {
 exports.execute = async (project_name, params, options) => {
     return new Promise(async (resolve, reject) => {
         let record_shell = null;
+        const executor_params = {};
+        executor_params["log_file"] = path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
         try {
 
             // 清理多余进程
-            cleanProcess();
+            // cleanProcess();
 
             const screenInfo = {};
             let primaryScreen = electron.screen.getPrimaryDisplay();
@@ -187,7 +189,7 @@ exports.execute = async (project_name, params, options) => {
                 record_shell = await start_recording(project_name)
             }
 
-            const executor_params = {};
+            
             executor_params['project_name'] = project_name;
             executor_params['params'] = params;
             executor_params['environment_options'] = {
@@ -213,6 +215,9 @@ exports.execute = async (project_name, params, options) => {
             reject(e);
         }
 
+        console.log("移除日志文件监听")
+        fs.unwatchFile(executor_params["log_file"]);
+
         if (record_shell) {
             setTimeout(() => {
                 record_shell.terminate()
@@ -225,8 +230,11 @@ exports.execute = async (project_name, params, options) => {
 
 exports.execute_node = (project_name, params, newCB) => {
     return new Promise(async (resolve, reject) => {
+        const executor_params = {};
+        executor_params["log_file"] = path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+        
         try {
-            const executor_params = {};
+            
             console.log("execute_node>>>>>>>>", project_name);
             executor_params['project_name'] = project_name;
             executor_params['params'] = params;
@@ -236,8 +244,7 @@ exports.execute_node = (project_name, params, newCB) => {
                 "projects_dir": config.projectsPath,
                 "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
-                "user_site_packages_dir": path.join(os.homedir(), '\\.uiauto\\site-packages'),
-                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+                "user_site_packages_dir": path.join(os.homedir(), '\\.uiauto\\site-packages')
             };
 
             listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`), executor_params['environment_options']['log_file'], newCB);
@@ -248,6 +255,8 @@ exports.execute_node = (project_name, params, newCB) => {
             reject(e);
             listener.removeAllListeners();
         }
+
+        fs.unwatchFile(executor_params["log_file"])
     });
 };
 
