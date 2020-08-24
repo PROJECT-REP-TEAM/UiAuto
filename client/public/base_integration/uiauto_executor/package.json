@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.5",
-  "description": "1.2.5版本：解决Node.js类插件的回调异常",
+  "version": "1.2.6",
+  "description": "1.2.6版本：解决日志文件重名的问题",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

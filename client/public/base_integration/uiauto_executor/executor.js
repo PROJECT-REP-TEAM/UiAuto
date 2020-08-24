@@ -168,7 +168,7 @@ exports.execute = async (project_name, params, options) => {
     return new Promise(async (resolve, reject) => {
         let record_shell = null;
         const executor_params = {};
-        executor_params["log_file"] = path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+        executor_params["log_file"] = path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss_SSS")}.log`)
         try {
 
             // 清理多余进程
@@ -199,7 +199,7 @@ exports.execute = async (project_name, params, options) => {
                 "executor_dir": path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor`),
                 "sys_site_packages_dir": path.join(path.resolve(), '\\env\\python\\win32\\Lib\\site-packages'),
                 "user_site_packages_dir": path.join(os.homedir(), '\\.uiauto\\site-packages'),
-                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`),
+                "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss_SSS")}.log`),
                 "screen_information": screenInfo,
                 "server_url": config.serverUrl,
                 "device_id": config.deviceId
@@ -231,7 +231,7 @@ exports.execute = async (project_name, params, options) => {
 exports.execute_node = (project_name, params, newCB) => {
     return new Promise(async (resolve, reject) => {
         const executor_params = {};
-        executor_params["log_file"] = path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss")}.log`)
+        executor_params["log_file"] = path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss_SSS")}.log`)
         
         try {
             
