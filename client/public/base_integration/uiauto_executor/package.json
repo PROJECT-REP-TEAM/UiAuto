@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.4",
-  "description": "1.2.4版本：解决日志监听过多的问题",
+  "version": "1.2.5",
+  "description": "1.2.5版本：解决Node.js类插件的回调异常",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

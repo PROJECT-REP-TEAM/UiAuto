@@ -5,10 +5,12 @@ import os
 import re
 import json
 import multiprocessing
+import threading
 import importlib
 import jpype
 import socketio
 import eventlet
+import asyncio
 from execute_result import ExecuteResult
 from logger import print, LEVEL_ERROR, LEVEL_SUCCESS, LEVEL_INFO, LEVEL_WARN
 
@@ -429,13 +431,14 @@ class __Project__():
             })
         # 基于nodejs开发的插件执行
         elif node_plugin['language'] == 'nodejs':
-            execute_result = self.execute_nodejs(options={
+            loop = asyncio.new_event_loop()
+            execute_result = loop.run_until_complete(self.execute_nodejs(options={
                 'js_path': plugin_dir + "\\" + exec_name + ".js",
                 'method': node_operation['method'],
                 'node': current_node,
                 'params': node_params,
                 'version': node_plugin['version']
-            })
+            }))
         # 基于java开发的插件执行
         elif node_plugin['language'] == 'java':
             process_queue = multiprocessing.Queue()
@@ -634,22 +637,27 @@ class __Project__():
         return result
 
     # 执行nodejs插件的方法
-    def execute_nodejs(self, options):
-        if sio.connected == False:
+    async def execute_nodejs(self, options):
+        sio_client = socketio.AsyncClient()
+
+        if sio_client.connected == False:
             # 连接socket.io
-            sio.connect('http://127.0.0.1:63390')
+            await sio_client.connect('http://127.0.0.1:63390')
 
         self.execute_result = None
-
-        def handle_nodejs_result(data):
+        
+        @sio_client.on("SHELL_EXECUTE_RESULT")
+        async def handle_nodejs_result(data):
+            print(">>>>>>>>>>>>>>", data)
             self.execute_result = json.loads(data)
-            sio.disconnect()
+            await sio_client.disconnect()
 
-        sio.on('SHELL_EXECUTE_RESULT', handle_nodejs_result)
+        # sio_client.on('SHELL_EXECUTE_RESULT', handle_nodejs_result)
 
-        sio.emit('SHELL_EXECUTE', json.dumps(options))
+        await sio_client.emit('SHELL_EXECUTE', json.dumps(options))
 
-        sio.wait()
+        await sio_client.wait()
+
         if self.execute_result is not None:
             if self.execute_result['code'] == -1:
                 raise Exception(self.execute_result['errorMsg'])
