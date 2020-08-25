@@ -68,6 +68,7 @@ const listen_logger = (log_dir, log_file, options) => {
             let buffer = new Buffer(curr.size - prev.size);
             const fd = fs.openSync(log_file, "a+");
             fs.readSync(fd, buffer, 0, (curr.size - prev.size), prev.size);
+            fs.closeSync(fd);
 
             // newCB(buffer.toString().replace("\n", "<br>"));
             const lines = buffer.toString().split("[line:]");

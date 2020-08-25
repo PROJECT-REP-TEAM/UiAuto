@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.6",
-  "description": "1.2.6版本：解决日志文件重名的问题",
+  "version": "1.2.7",
+  "description": "1.2.7版本：增加日志文件关闭操作",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",
