@@ -43,5 +43,10 @@
     "data_shape": "flow-rect",
     "data_size": "40*40",
     "data_color": "#1890FF"
+  },
+  "Async": {
+    "data_shape": "flow-rect",
+    "data_size": "72*29",
+    "data_color": "#ffd200"
   }
 }
