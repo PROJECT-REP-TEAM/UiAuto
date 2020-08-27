@@ -8,11 +8,14 @@ const uuid = require('uuid');
 const os = require('os')
 const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
 const moment = require('moment');
-const {execSync} = require('child_process');
+const {execSync, fork} = require('child_process');
 const EventEmitter = require('events').EventEmitter;
 let listener = new EventEmitter();
 const electron = require("electron");
 const delay = require('delay');
+const _ = require("lodash");
+
+const openFileStore = []
 
 const cleanProcess = () => {
     try {
@@ -33,19 +36,38 @@ const cleanProcess = () => {
 };
 
 exports.start = () => {
-    window['socket_client'] = shell.setup();
-
+    // window['socket_client'] = shell.setup();
+    this.start_js_shell();
     return start_executor();
 };
 
+
+exports.start_js_shell = () => {
+    console.log("js shell process start");
+    const ls = fork(path.normalize(`${path.resolve()}\\public\\base_integration\\uiauto_executor\\js_shell.js`), {
+        stdio: ["pipe", "pipe", "pipe", "ipc"]
+    });
+
+    ls.stdout.on("data", (data) => {
+        console.log(data.toString())
+    });
+
+}
+
+
 exports.restart = () => {
     console.log('-----------重启执行器进程-----------');
-    !!window['socket_client'] && shell.destroy(window['socket_client']);
+    _.forEach(openFileStore, (fid) => {
+        fs.closeSync(fid);
+        openFileStore.pop(fid)
+    })
+    // !!window['socket_client'] && shell.destroy(window['socket_client']);
     window['py_shell'].terminate();
 
-    if (!!window['socket_client']) {
-        window['socket_client'] = shell.setup();
-    }
+    // if (!!window['socket_client']) {
+    //     window['socket_client'] = shell.setup();
+    // }
+    this.start_js_shell();
     window['py_shell'] = start_executor();
 
     listener = new EventEmitter();
@@ -58,6 +80,9 @@ const listen_logger = (log_dir, log_file, options) => {
     }
     fs.writeFileSync(log_file, "");
 
+    const fd = fs.openSync(log_file, "a+");
+    openFileStore.push(fd);
+
     fs.watchFile(log_file, {
         persistent: true,
         interval: 100
@@ -66,9 +91,8 @@ const listen_logger = (log_dir, log_file, options) => {
         if (curr.mtime >= prev.mtime) {
             //文件内容有变化，那么通知相应的进程可以执行相关操作。例如读物文件写入数据库等
             let buffer = new Buffer(curr.size - prev.size);
-            const fd = fs.openSync(log_file, "a+");
+            
             fs.readSync(fd, buffer, 0, (curr.size - prev.size), prev.size);
-            fs.closeSync(fd);
 
             // newCB(buffer.toString().replace("\n", "<br>"));
             const lines = buffer.toString().split("[line:]");
@@ -218,6 +242,10 @@ exports.execute = async (project_name, params, options) => {
 
         console.log("移除日志文件监听")
         fs.unwatchFile(executor_params["log_file"]);
+        _.forEach(openFileStore, (fid) => {
+            fs.closeSync(fid);
+            openFileStore.pop(fid)
+        })
 
         if (record_shell) {
             setTimeout(() => {
@@ -258,6 +286,10 @@ exports.execute_node = (project_name, params, newCB) => {
         }
 
         fs.unwatchFile(executor_params["log_file"])
+        _.forEach(openFileStore, (fid) => {
+            fs.closeSync(fid);
+            openFileStore.pop(fid)
+        })
     });
 };
 

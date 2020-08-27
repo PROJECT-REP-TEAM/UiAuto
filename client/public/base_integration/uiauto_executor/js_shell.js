@@ -11,6 +11,8 @@ const _ = __importStar(require("lodash"));
 const path = __importStar(require("path"));
 const server = require('http').createServer();
 const io = window.require('socket.io')(server);
+server.listen(63390);
+
 const SocketClient = window.require('socket.io-client');
 let global_data_store = {};
 io.on('connection', client => {

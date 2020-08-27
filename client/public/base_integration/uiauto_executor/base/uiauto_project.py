@@ -431,7 +431,7 @@ class __Project__():
             })
         # 基于nodejs开发的插件执行
         elif node_plugin['language'] == 'nodejs':
-            loop = asyncio.new_event_loop()
+            loop = asyncio.get_event_loop()
             execute_result = loop.run_until_complete(self.execute_nodejs(options={
                 'js_path': plugin_dir + "\\" + exec_name + ".js",
                 'method': node_operation['method'],

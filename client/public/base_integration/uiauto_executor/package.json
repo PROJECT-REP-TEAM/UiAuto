@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.7",
-  "description": "1.2.7版本：增加日志文件关闭操作",
+  "version": "1.2.8",
+  "description": "1.2.8版本：增加asyncio.loop循环进程",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

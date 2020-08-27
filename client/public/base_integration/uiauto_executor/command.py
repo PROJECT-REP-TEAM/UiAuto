@@ -10,6 +10,7 @@ import ctypes
 import inspect
 import traceback
 import eventlet
+import asyncio
 from urllib.parse import unquote
 sys.path.insert(0, os.path.split(os.path.realpath(__file__))[0] + "\\base")
 from queue import Queue, LifoQueue
@@ -63,6 +64,8 @@ if __name__ == "__main__":
     sys.path.insert(0, current_dir)
     module = importlib.import_module("runner")
     # sys.stdout = Logger()
+
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
     while True:
         try:
