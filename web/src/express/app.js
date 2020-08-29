@@ -17,7 +17,7 @@ export function start_server() {
     next()
   })
 
-  app.use(bodyParser.json())
+  app.use(bodyParser.json({limit: '100mb'}))
   app.use(bodyParser.urlencoded({extended: false}))
 
   app.listen(config.express.port, '0.0.0.0', () => {
