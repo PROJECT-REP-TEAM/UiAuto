@@ -12,6 +12,8 @@ import requests
 # 日志类
 class Logger(object):
 
+    server_host = ""
+    access_token = ""
 
     def __init__(self):
         self.terminal = sys.stdout
@@ -48,8 +50,7 @@ class Logger(object):
     def send_log(self, status, content, options):
         try:
             if self.project_name is not None:
-                
-                res = requests.post(url="http://127.0.0.1:3000/uiauto/common/send_log", data={
+                res = requests.post(url="{}/api/v1/uiautoLogs/updateLog".format(self.server_host), data=json.dumps({
                     "deviceId": self.device_id,
                     "project_name": self.project_name,
                     "taskId": self.task_id,
@@ -57,7 +58,12 @@ class Logger(object):
                     "content": content,
                     "nodeId": (options['node_id'] if options is not None and 'node_id' in options.keys() else None),
                     "logOrder": (options['logOrder'] if options is not None and 'logOrder' in options.keys() else None)
+                }), headers={
+                    "Content-Type": "application/json",
+                    "Authorization": self.access_token
                 })
+
+                print(res.content)
         except Exception as e:
             print(e)
 

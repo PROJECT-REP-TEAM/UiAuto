@@ -112,6 +112,8 @@ def handle_command(command, execute_option_file):
         server_url = execute_option['environment_options']['server_url']
         task_id = execute_option['params']['uiauto_task_id']
         device_id = execute_option['environment_options']['device_id']
+        sys.stdout.server_host = execute_option["environment_options"]['server_url']
+        sys.stdout.access_token = execute_option["environment_options"]['access_token']
         sys.stdout.init_socket_data(server_url=server_url, project_name=execute_option['project_name'], task_id=task_id, device_id=device_id)
 
 
@@ -165,6 +167,7 @@ def handle_command(command, execute_option_file):
 
         # 初始化日志文件
         sys.stdout.set_log_file(filename=execute_option["environment_options"]['log_file'])
+
 
         print("------------------------------------------------------------------------------------")
         print("\n")

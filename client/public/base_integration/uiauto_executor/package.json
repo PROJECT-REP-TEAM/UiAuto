@@ -1,8 +1,8 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.8",
-  "description": "1.2.8版本：增加asyncio.loop循环进程",
+  "version": "1.2.9",
+  "description": "1.2.9版本：增加asyncio.loop循环进程",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

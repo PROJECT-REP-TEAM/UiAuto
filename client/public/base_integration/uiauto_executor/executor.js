@@ -80,8 +80,8 @@ const listen_logger = (log_dir, log_file, options) => {
     }
     fs.writeFileSync(log_file, "");
 
-    const fd = fs.openSync(log_file, "a+");
-    openFileStore.push(fd);
+    
+    // openFileStore.push(fd);
 
     fs.watchFile(log_file, {
         persistent: true,
@@ -92,7 +92,9 @@ const listen_logger = (log_dir, log_file, options) => {
             //文件内容有变化，那么通知相应的进程可以执行相关操作。例如读物文件写入数据库等
             let buffer = new Buffer(curr.size - prev.size);
             
+            const fd = fs.openSync(log_file, "a+");
             fs.readSync(fd, buffer, 0, (curr.size - prev.size), prev.size);
+            fs.closeSync(fd)
 
             // newCB(buffer.toString().replace("\n", "<br>"));
             const lines = buffer.toString().split("[line:]");
@@ -227,7 +229,8 @@ exports.execute = async (project_name, params, options) => {
                 "log_file": path.normalize(`${os.homedir()}\\.uiauto\\${project_name}\\${moment().format("YYYYMMDD_HHmmss_SSS")}.log`),
                 "screen_information": screenInfo,
                 "server_url": config.serverUrl,
-                "device_id": config.deviceId
+                "device_id": config.deviceId,
+                "access_token": localStorage.getItem('access_token')
             };
 
             listen_logger(path.normalize(`${os.homedir()}\\.uiauto\\${project_name}`),
