@@ -93,7 +93,7 @@ exports.cronFn = function () {
                         cronTime: newJob.cron,
                         onTick: function () {
                             console.error(`${newJob.project_name} is running`);
-                            ipc.send('window_minimize', null)
+                            // ipc.send('window_minimize', null)
                             if (runner.hasOwnProperty("restart")) {
                                 runner.restart();
                             }
@@ -102,11 +102,11 @@ exports.cronFn = function () {
                                     {
                                         project_code: newJob.project_name,
                                         project_name: newJob.project_name,
-                                        status: "running",
+                                        status: "todo",
                                         deviceId: JSON.parse(
                                             fs.readFileSync(`${os.homedir()}/.uiauto/uiauto.conf`, "utf8")
                                         ).deviceId,
-                                        project_type: "local"
+                                        message: '等待执行'
                                     }
                                 ]
                             }, {
@@ -114,36 +114,36 @@ exports.cronFn = function () {
                                     "Authorization": localStorage.getItem('access_token')
                                 }
                             }).then(uploadTaskRes => {
-                                runner.execute(newJob.project_name, { uiauto_task_id: uploadTaskRes.data.data[0].id }).then((res) => {
-                                    console.log('-=-=-execute res-=-=-=-=')
-                                    ipc.send('window_maximize', null);
-                                    axios.post(config.serverUrl + "/api/v1/tasks/edit", {
-                                        id: uploadTaskRes.data.data[0].id,
-                                        value: {
-                                            status: "success",
-                                            message: JSON.stringify(res)
-                                        }
-                                    }, {
-                                        headers: {
-                                            "Authorization": localStorage.getItem('access_token')
-                                        }
-                                    })
-                                }).catch((err) => {
-                                    console.error('-=-=-execute err-=-=-=-=')
-                                    console.error(err);
-                                    ipc.send('window_maximize', null);
-                                    axios.post(config.serverUrl + "/api/v1/tasks/edit", {
-                                        id: uploadTaskRes.data[0].id,
-                                        value: {
-                                            status: "fail",
-                                            message: JSON.stringify(res)
-                                        }
-                                    }, {
-                                        headers: {
-                                            "Authorization": localStorage.getItem('access_token')
-                                        }
-                                    })
-                                });
+                                // runner.execute(newJob.project_name, { uiauto_task_id: uploadTaskRes.data.data[0].id }).then((res) => {
+                                //     console.log('-=-=-execute res-=-=-=-=')
+                                //     ipc.send('window_maximize', null);
+                                //     axios.post(config.serverUrl + "/api/v1/tasks/edit", {
+                                //         id: uploadTaskRes.data.data[0].id,
+                                //         value: {
+                                //             status: "success",
+                                //             message: JSON.stringify(res)
+                                //         }
+                                //     }, {
+                                //         headers: {
+                                //             "Authorization": localStorage.getItem('access_token')
+                                //         }
+                                //     })
+                                // }).catch((err) => {
+                                //     console.error('-=-=-execute err-=-=-=-=')
+                                //     console.error(err);
+                                //     ipc.send('window_maximize', null);
+                                //     axios.post(config.serverUrl + "/api/v1/tasks/edit", {
+                                //         id: uploadTaskRes.data.data[0].id,
+                                //         value: {
+                                //             status: "fail",
+                                //             message: JSON.stringify(res)
+                                //         }
+                                //     }, {
+                                //         headers: {
+                                //             "Authorization": localStorage.getItem('access_token')
+                                //         }
+                                //     })
+                                // });
                             })
 
                         },
