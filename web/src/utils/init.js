@@ -2,7 +2,7 @@
  * @Author: chenzy
  * @LastEditors: guanhaimin
  * @Date: 2019-08-17 17:24:29
- * @LastEditTime: 2020-11-10 04:01:26
+ * @LastEditTime: 2020-11-10 04:17:16
  * @Description: file content
  */
 const {
@@ -48,7 +48,7 @@ export function nodeInit(filePath) {
                 console.log('npm install');
                 console.log(error, dependencies);
                 if (error) {
-                    resolve("success");
+                    reslove("success");
                     return false;
                 }
 

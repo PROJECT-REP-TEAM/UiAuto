@@ -8,7 +8,7 @@
    },
    "content_scripts": [{
       "js": [ "js/uiselector.js" ],
-      "matches": [ "https://*/*", "http://*/*" ],
+      "matches": [ "https://*/*", "http://*/*", "file:///*" ],
       "permissions": [ "nativeMessaging", "contextMenus", "storage", "tabs", "activeTab", "https://*/*", "http://*/*" ]
    }],
    "description": "UiAuto UiSelector",
