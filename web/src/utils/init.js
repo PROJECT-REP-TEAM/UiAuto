@@ -1,8 +1,8 @@
 /*
  * @Author: chenzy
- * @LastEditors: chenzy
+ * @LastEditors: guanhaimin
  * @Date: 2019-08-17 17:24:29
- * @LastEditTime: 2019-08-20 09:21:51
+ * @LastEditTime: 2020-11-10 03:39:49
  * @Description: file content
  */
 const {
@@ -48,7 +48,7 @@ export function nodeInit(filePath) {
                 console.log('npm install');
                 console.log(error, dependencies);
                 if (error) {
-                    reject(err);
+                    reject("success");
                     return false;
                 }
 
@@ -153,24 +153,27 @@ export function pythonInit(filePath, plugin_version) {
                 const packages_dir = path.join(filePath, "packages");
                 if (fs.existsSync(packages_dir)) {
                     let packages_files = fs.readdirSync(packages_dir);
-                    console.log(packages_files);
-                    if (!!packages_files && packages_files.length > 0) {
-                        packages_files = _.filter(packages_files, (item) => {
-                            return !fs.lstatSync(path.join(packages_dir, item)).isDirectory() && path.extname(item) === ".whl";
-                        });
+                    execSync(pythonPath + " -m pip install -r requirements.txt --user --no-warn-script-location", {
+                        cwd: filePath
+                    });
+                    // console.log(packages_files);
+                    // if (!!packages_files && packages_files.length > 0) {
+                    //     packages_files = _.filter(packages_files, (item) => {
+                    //         return !fs.lstatSync(path.join(packages_dir, item)).isDirectory() && path.extname(item) === ".whl";
+                    //     });
 
-                        _.forEach(packages_files, (file) => {
-                            const whl = path.join(packages_dir, file);
-                            try {
-                                const log = execSync(pythonPath + " -m pip install " + whl + " --user --no-warn-script-location", {
-                                    cwd: filePath
-                                });
-                                console.log("python依赖库 " + file + " 安装完成：", log.toString());
-                            } catch (e) {
-                                console.log("python依赖库 " + file + " 安装出错：", e);
-                            }
-                        })
-                    }
+                    //     _.forEach(packages_files, (file) => {
+                    //         const whl = path.join(packages_dir, file);
+                    //         try {
+                    //             const log = execSync(pythonPath + " -m pip install " + whl + " --user --no-warn-script-location", {
+                    //                 cwd: filePath
+                    //             });
+                    //             console.log("python依赖库 " + file + " 安装完成：", log.toString());
+                    //         } catch (e) {
+                    //             console.log("python依赖库 " + file + " 安装出错：", e);
+                    //         }
+                    //     })
+                    // }
 
                     lineContents[85] = 'USER_SITE = None';
                     fs.writeFileSync(sitePyPath, lineContents.join('\n'));
