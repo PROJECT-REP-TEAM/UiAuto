@@ -2,7 +2,7 @@
  * @Author: chenzy
  * @LastEditors: guanhaimin
  * @Date: 2019-08-17 17:24:29
- * @LastEditTime: 2020-11-10 04:17:16
+ * @LastEditTime: 2020-11-10 10:46:05
  * @Description: file content
  */
 const {
@@ -153,7 +153,7 @@ export function pythonInit(filePath, plugin_version) {
                 const packages_dir = path.join(filePath, "packages");
                 if (fs.existsSync(packages_dir)) {
                     let packages_files = fs.readdirSync(packages_dir);
-                    execSync(pythonPath + " -m pip install -r requirements.txt --user --no-warn-script-location", {
+                    execSync(pythonPath + " -m pip install -r requirements.txt --no-index --find-links=" + packages_dir, {
                         cwd: filePath
                     });
                     // console.log(packages_files);
