@@ -12,7 +12,7 @@
 
 ## 安装包下载<img src="./images/new.png" width="64" /><br>
 - v1.1.5 x64
-[阿里云下载](https://uiautodev.oss-cn-beijing.aliyuncs.com/UiAuto%20Setup%201.1.5%20x64.exe)
+[百度云下载](https://pan.baidu.com/s/1Xa8EMEByaFicoKumzgQs8g) 提取码: i4yn 
 
 ## 安装、配置
 - 双击安装包便可自动安装。
@@ -138,6 +138,7 @@ qq群号：1028434014，或者直接qq扫码进群<br><br>
 <img src="./images/qq_qun.png" /><br>
 
 ## 商务合作
-> 联系电话：0755-26470325<br>
-> 电子邮箱：legion@legion-tech.net
+> 联系电话：400-0380-010<br>
+> 电子邮箱：markecting@legion-tech.net
+> 官网：[http://www.legion-tech.net](http://www.legion-tech.net)
 
