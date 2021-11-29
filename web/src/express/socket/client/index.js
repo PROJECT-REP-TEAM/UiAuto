@@ -51,7 +51,9 @@ export function start_socket_client() {
 function start_socket_client_fn() {
   const uiautoConfig = fse.readJsonSync(configPath);
   const socketUrl = new URL(uiautoConfig.serverUrl);
-  socket_client = socket_client || SocketClient(socketUrl.origin);
+  socket_client = socket_client || SocketClient(socketUrl.origin, {
+    path: `${socketUrl.pathname === "/" ? "" : socketUrl.pathname}/socket.io/`
+  });
   socket_client.on('connect', function () {
     console.log('connect>>>>>>>>>>>>>>')
     console.log(uiautoConfig.deviceId)
