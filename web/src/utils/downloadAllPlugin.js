@@ -5,5 +5,5 @@
  * @LastEditTime: 2019-08-20 09:19:07
  * @Description: file content
  */
-import Vue from 'vue';
-export const downloadAllPlugin = new Vue();
+import Vue from 'vue'
+export const downloadAllPlugin = new Vue()

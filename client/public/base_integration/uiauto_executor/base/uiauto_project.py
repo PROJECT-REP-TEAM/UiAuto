@@ -7,12 +7,12 @@ import json
 import multiprocessing
 import threading
 import importlib
-import jpype
 import socketio
 import eventlet
 import asyncio
 from execute_result import ExecuteResult
 from logger import print, LEVEL_ERROR, LEVEL_SUCCESS, LEVEL_INFO, LEVEL_WARN
+# import jpype
 
 project_config_store = None
 
@@ -117,7 +117,8 @@ class __Project__():
             if current_node is None:
                 raise Exception("不能执行空节点")
 
-            print("节点【%s】开始执行" % current_node["label"], level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 1})
+            print("节点【%s】开始执行" % current_node["label"], level=LEVEL_INFO, options={
+                  "node_id": current_node['id'], "logOrder": 1})
             # 获取当前节点的参数
             node_params = self.generate_node_params(node=current_node)
             print("节点【%s】参数：" % current_node["label"], node_params)
@@ -144,7 +145,8 @@ class __Project__():
                 # 节点执行异常，执行重试
                 if not node_result.success:
                     if 'retry_count' in general_property.keys() and int(general_property['retry_count']) > 0:
-                        print("节点【%s】执行异常，执行重试" % current_node["label"], level=LEVEL_WARN, options={"node_id": current_node['id']})
+                        print("节点【%s】执行异常，执行重试" % current_node["label"], level=LEVEL_WARN, options={
+                              "node_id": current_node['id']})
                         retry_count = int(general_property['retry_count'])
                         retry_index = 0
                         while retry_index < retry_count:
@@ -169,7 +171,8 @@ class __Project__():
 
                     is_kill_flow = True
 
-                    print("节点【%s】执行异常，异常信息：" % current_node['label'], node_result.error, level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 1})
+                    print("节点【%s】执行异常，异常信息：" % current_node['label'], node_result.error, level=LEVEL_ERROR, options={
+                          "node_id": current_node['id'], "logOrder": 1})
                     execute_result.success = False
                     execute_result.code = -1
                     execute_result.error = node_result.error
@@ -179,7 +182,8 @@ class __Project__():
                     if next_lines and len(next_lines) > 0:
                         for next_line in next_lines:
                             # 查找下一个节点
-                            next_node = self.find_node(node_id=next_line["target"])
+                            next_node = self.find_node(
+                                node_id=next_line["target"])
                             print(next_node['shapeType'])
                             if next_node['shapeType'] == "Abnormal":
                                 print("节点【%s】 -> 异常线路【%s】开始执行" %
@@ -194,7 +198,7 @@ class __Project__():
                                     break
                                 else:
                                     is_kill_flow = (
-                                            is_kill_flow or abnormal_node_result.data)
+                                        is_kill_flow or abnormal_node_result.data)
 
                     # 判断是否执行了异常节点，若没有执行异常节点，则默认终止流程
                     if abnormal_node_result is not None and abnormal_node_result.success:
@@ -206,8 +210,9 @@ class __Project__():
                     # 终止流程
                     pass
                 else:
-                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 4})
-                    
+                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={
+                          "node_id": current_node['id'], "logOrder": 4})
+
                     execute_result.success = True
 
                     if next_lines and len(next_lines) > 0:
@@ -215,7 +220,8 @@ class __Project__():
                         wait_node_result = None
                         # 处理等待节点
                         for next_line in next_lines:
-                            next_node = self.find_node(node_id=next_line['target'])
+                            next_node = self.find_node(
+                                node_id=next_line['target'])
                             if next_node and next_node['shapeType'] == 'Wait':
                                 print('节点【%s】 -> 等待节点【%s】的支路执行开始' %
                                       (current_node['label'], next_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 5})
@@ -224,7 +230,8 @@ class __Project__():
 
                                 if not wait_node_result.success:
                                     print('节点【%s】 -> 等待节点【%s】的支路执行出错，错误信息：' %
-                                          (current_node['label'], next_node['label']), wait_node_result.error,
+                                          (current_node['label'], next_node['label']
+                                           ), wait_node_result.error,
                                           level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 6})
                                     is_kill_flow = True
                                     execute_result.success = False
@@ -235,7 +242,7 @@ class __Project__():
                                     print('节点【%s】 -> 等待节点【%s】的支路执行完成' %
                                           (current_node['label'], next_node['label']), level=LEVEL_SUCCESS)
                                     is_kill_flow = (
-                                            is_kill_flow or wait_node_result.data)
+                                        is_kill_flow or wait_node_result.data)
 
                         if is_kill_flow is True:
                             # 等待节点处理异常，流程终止
@@ -272,15 +279,18 @@ class __Project__():
             else:
                 if not node_result.success:
                     # print('节点【%s】执行出错' % (current_node['label']), level=LEVEL_ERROR)
-                    print("节点【%s】执行异常，异常信息：" % current_node['label'], node_result.error, level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 7})
+                    print("节点【%s】执行异常，异常信息：" % current_node['label'], node_result.error, level=LEVEL_ERROR, options={
+                          "node_id": current_node['id'], "logOrder": 7})
                     execute_result.success = False
                     execute_result.code = -1
                     execute_result.error = node_result.error
                 else:
-                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={"node_id": current_node['id'], "logOrder": 8})
+                    print('节点【%s】执行完成，返回结果：' % (current_node['label']), node_result.data, level=LEVEL_INFO, options={
+                          "node_id": current_node['id'], "logOrder": 8})
 
         except Exception as e:
-            print("节点【%s】执行异常，错误信息：" % current_node["label"], traceback.format_exc(), level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 9})
+            print("节点【%s】执行异常，错误信息：" % current_node["label"], traceback.format_exc(
+            ), level=LEVEL_ERROR, options={"node_id": current_node['id'], "logOrder": 9})
             execute_result.success = False
             execute_result.code = -1
             execute_result.error = e
@@ -310,7 +320,8 @@ class __Project__():
             # 根据通用属性控制节点执行是否超时
             if 'execution_timeout' in general_property.keys() and int(general_property['execution_timeout']) > 0:
 
-                execution_timeout = round(int(general_property['execution_timeout']) / 1000, 2)
+                execution_timeout = round(
+                    int(general_property['execution_timeout']) / 1000, 2)
 
                 print('节点【%s】执行超时限制：%.2f秒' %
                       (current_node['label'], execution_timeout))
@@ -336,9 +347,9 @@ class __Project__():
                 # 节点执行
                 execute_result.data = getattr(
                     self, current_node["shapeType"])(current_node=current_node, node_plugin=node_plugin,
-                                                         node_operation=node_operation,
-                                                         node_params=node_params, node_output=node_output,
-                                                         options=options)
+                                                     node_operation=node_operation,
+                                                     node_params=node_params, node_output=node_output,
+                                                     options=options)
 
             # 根据通用属性控制节点执行完之后是否等待
             if 'waiting_time_after_execution' in general_property.keys() and \
@@ -403,8 +414,8 @@ class __Project__():
                     for next_node in next_nodes:
                         child_line_result = self.execute(
                             current_node=next_node, options=options)
-                        # if not child_line_result.success:
-                        #     raise Exception("支路执行异常")
+                        if not child_line_result.success:
+                            raise Exception("循环支路执行异常")
 
                 print('循环节点【%s】支路执行完成' % (current_node['label']))
             else:
@@ -415,7 +426,8 @@ class __Project__():
     # 通用节点执行方法
     def Convention(self, current_node, node_plugin, node_operation, node_params, node_output, options):
         execute_result = None
-        plugin_dir = self.plugins_dir + "\\" + node_plugin['id'] + "\\" + node_plugin['version']
+        plugin_dir = self.plugins_dir + "/" + \
+            node_plugin['id'] + "/" + node_plugin['version']
         exec_name = 'index'
         # 将UiAuto的基础设置参数传递给插件方法
         node_params["uiauto_config"] = self.global_variable.get_value(
@@ -433,7 +445,7 @@ class __Project__():
         elif node_plugin['language'] == 'nodejs':
             loop = asyncio.get_event_loop()
             execute_result = loop.run_until_complete(self.execute_nodejs(options={
-                'js_path': plugin_dir + "\\" + exec_name + ".js",
+                'js_path': plugin_dir + "/" + exec_name + ".js",
                 'method': node_operation['method'],
                 'node': current_node,
                 'params': node_params,
@@ -441,19 +453,31 @@ class __Project__():
             }))
         # 基于java开发的插件执行
         elif node_plugin['language'] == 'java':
-            process_queue = multiprocessing.Queue()
-            process = multiprocessing.Process(target=self.execute_java, args=(process_queue, node_params, {
+            execute_result = self.execute_java("process_queue", node_params, {
                 'executor_dir': self.executor_dir,
                 'plugin_dir': plugin_dir,
+                'client_dir': self.client_dir,
                 'main': node_plugin['main'],
                 'jar': node_plugin['jar'],
                 'method': node_operation['method'],
                 'version': node_plugin['version']
-            }))
-            process.daemon = True
-            process.start()
-            execute_result = process_queue.get()
-            process.terminate()
+            })
+            # process_queue = multiprocessing.Queue()
+            # process = multiprocessing.Process(target=self.execute_java, args=(process_queue, node_params, {
+            #     'executor_dir': self.executor_dir,
+            #     'plugin_dir': plugin_dir,
+            #     'client_dir': self.client_dir,
+            #     'main': node_plugin['main'],
+            #     'jar': node_plugin['jar'],
+            #     'method': node_operation['method'],
+            #     'version': node_plugin['version']
+            # }))
+            # process.daemon = True
+            # process.start()
+            # process.join()
+            # execute_result = process_queue.get()
+            print(f">>>>>>>>>>>>>>execute_result  {execute_result}")
+            # process.terminate()
         else:
             raise Exception('当前插件语言尚未支持')
 
@@ -496,10 +520,12 @@ class __Project__():
         project_name = node_params['project_name']
         participation = node_params['participation']
 
-        environment_options = self.global_variable.get_value("environment_options")
+        environment_options = self.global_variable.get_value(
+            "environment_options")
 
         print("子流程【%s】开始执行" % project_name)
-        project_path = "%s\\%s\\%s.json" % (environment_options["projects_dir"], project_name, project_name)
+        project_path = "%s/%s/%s.json" % (
+            environment_options["projects_dir"], project_name, project_name)
 
         with open(project_path, 'r', encoding='UTF-8') as project_file:
             project_config = json.loads(project_file.read())
@@ -508,19 +534,21 @@ class __Project__():
         if node_params['participation'] is not None and node_params['participation'] != '':
             self.global_variable.update(variable=node_params['participation'])
 
-        save_project(project_name=project_name, config=project_config, global_variable=self.global_variable)
+        save_project(project_name=project_name, config=project_config,
+                     global_variable=self.global_variable)
 
         execute_result = execute_project(project_name=project_name)
-
-        if execute_result.success:
-            print("子流程【%s】执行成功" % project_name)
-        else:
-            print("子流程【%s】执行出错" % project_name)
 
         if 'is_allow_global_use' in node_output.keys() and node_output['is_allow_global_use'] == True and \
                 'value' in node_output.keys() and node_output['value'] is not None and node_output['value'] != '':
             self.global_variable.set_value(
                 node_output['value'], execute_result)
+
+        if execute_result.success:
+            print("子流程【%s】执行成功" % project_name)
+        else:
+            print("子流程【%s】执行出错" % project_name)
+            raise Exception("子流程【%s】执行出错" % project_name)
 
         return execute_result
 
@@ -529,7 +557,7 @@ class __Project__():
         execute_result = None
         if 'code' in node_params and node_params['code'] is not None and node_params['code'] != '':
             if node_plugin['language'] == 'python':
-                with open('%s\\script_node_py_template.py' % self.executor_dir, 'r', encoding='UTF-8') as template_file:
+                with open('%s/script_node_py_template.py' % self.executor_dir, 'r', encoding='UTF-8') as template_file:
                     template_code = template_file.read()
                 for line in node_params['code'].split("\n"):
                     template_code += "\r    " + line
@@ -537,7 +565,7 @@ class __Project__():
                 #     "\n", "\n    ")
                 template_code = template_code.replace(
                     '#execute_code', node_params['code'])
-                temp_dir = self.executor_dir + '\\temp\\'
+                temp_dir = self.executor_dir + '/temp/'
                 temp_file_name = 'py_script_%s_%s_%s' % (current_node['label'], current_node['id'],
                                                          time.strftime('%Y%m%d%H%M%S',
                                                                        time.localtime(int(time.time()))))
@@ -551,7 +579,8 @@ class __Project__():
                     script = __import__(temp_file_name)
                     script.print = print
                     script_store = self.global_variable.get_all()
-                    execute_result = getattr(script, 'script_node_executor')(script_store)
+                    execute_result = getattr(
+                        script, 'script_node_executor')(script_store)
                     self.global_variable.update(variable=script_store)
                     sys.path.remove(temp_dir)
                     # os.remove(temp_file_path)
@@ -560,15 +589,14 @@ class __Project__():
                     # os.remove(temp_file_path)
                     raise e
 
-
             elif node_plugin['language'] == 'nodejs':
-                with open('%s\\script_node_js_template.js' % self.executor_dir, 'r', encoding='UTF-8') as template_file:
+                with open('%s/script_node_js_template.js' % self.executor_dir, 'r', encoding='UTF-8') as template_file:
                     template_code = template_file.read()
                 node_params['code'] = node_params['code'].replace(
                     "\n", "\n    ")
                 template_code = template_code.replace(
                     '// execute_code', node_params['code'])
-                temp_dir = self.executor_dir + '\\temp\\'
+                temp_dir = self.executor_dir + '/temp/'
                 temp_file_name = 'js_script_%s_%s_%s' % (current_node['label'], current_node['id'],
                                                          time.strftime('%Y%m%d%H%M%S',
                                                                        time.localtime(int(time.time()))))
@@ -578,7 +606,7 @@ class __Project__():
 
                 if sio.connected == False:
                     # 连接socket.io
-                    sio.connect('http://localhost:63390')
+                    sio.connect('http://127.0.0.1:63390')
 
                 self.execute_result = None
 
@@ -590,7 +618,7 @@ class __Project__():
 
                 # print(temp_file_path)
                 sio.emit('SHELL_EXECUTE_SCRIPT', json.dumps({
-                    'js_path': temp_file_name,
+                    'js_path': temp_file_name + '.js',
                     '$store': self.global_variable.get_all(),
                     'node': current_node
                 }))
@@ -622,8 +650,9 @@ class __Project__():
     # 执行python插件的方法
     def execute_python(self, params, options):
         sys.path.insert(0, options['py_dir'])
-        plugin_site_packages_path = options['py_dir'] + '\\site-packages'
-        user_site_packages_path = '%s\\%s\\%s' % (self.user_site_packages_dir, options['plugin_name'], options['version'])
+        plugin_site_packages_path = options['py_dir'] + '/site-packages'
+        user_site_packages_path = '%s/%s/%s' % (
+            self.user_site_packages_dir, options['plugin_name'], options['version'])
         sys.path.insert(1, user_site_packages_path)
         sys.path.insert(2, plugin_site_packages_path)
         metaclass = importlib.import_module(options['py_name'])
@@ -645,7 +674,7 @@ class __Project__():
             await sio_client.connect('http://127.0.0.1:63390')
 
         self.execute_result = None
-        
+
         @sio_client.on("SHELL_EXECUTE_RESULT")
         async def handle_nodejs_result(data):
             print(">>>>>>>>>>>>>>", data)
@@ -666,13 +695,22 @@ class __Project__():
         return self.execute_result
 
     # 执行java插件的方法
-    def execute_java(self, process_queue, params, options):
+    @staticmethod
+    def execute_java(process_queue, params, options):
         try:
+            import jpype
             jvm_path = options['client_dir'] + \
-                       "\\env\\jre\\bin\\client\\jvm.dll"
-            jar_path = options['plugin_dir'] + "\\" + options['jar']
-            jpype.startJVM(jvm_path, "-ea",
-                           "-Djava.class.path=%s" % (jar_path))
+                "/env/jre/" + sys.platform + "/bin/client/jvm.dll"
+            if sys.platform.startswith('linux'):
+                jvm_path = options['client_dir'] + \
+                    "/env/jre/" + sys.platform + "/lib/amd64/server/libjvm.so"
+            elif sys.platform.startswith('darwin'):
+                jvm_path = options['client_dir'] + \
+                    "/env/jre/" + sys.platform + "/lib/jli/libjli.dylib"
+            jar_path = options['plugin_dir'] + "/" + options['jar']
+            if not jpype.isJVMStarted():
+                jpype.startJVM(jvm_path, "-ea",
+                               "-Djava.class.path=%s" % (jar_path))
             MapClass = jpype.JClass("java.util.HashMap")
             params_map = MapClass()
             for key in params.keys():
@@ -681,12 +719,13 @@ class __Project__():
             JDClass = jpype.JClass(options['main'])
             java_instance = JDClass()
             result = getattr(java_instance, options['method'])(params_map)
-            jpype.shutdownJVM()
-            process_queue.put(result)
-            # return result
+            # jpype.shutdownJVM()
+
+            # process_queue.put(result)
+            return result
         except Exception as e:
-            if jpype.isJVMStarted() is True:
-                jpype.shutdownJVM()
+            # if jpype.isJVMStarted() is True:
+            #     jpype.shutdownJVM()
             raise e
 
     # 解析节点参数
@@ -772,11 +811,12 @@ class __Project__():
     # 查找节点对应的插件
     def find_plugin_for_node(self, node):
         plugin = None
-        plugin_path = self.plugins_dir + "\\" + \
-                      node['plugin_id'] + "\\" + node['version'] + "\\package.json"
+        plugin_path = self.plugins_dir + "/" + \
+            node['plugin_id'] + "/" + node['version'] + "/package.json"
         if not os.path.exists(plugin_path):
-            plugin_path = self.plugins_dir + "\\" + \
-                      node['plugin_id'] + "\\" + self.get_latest_version(node=node) + "\\package.json"
+            plugin_path = self.plugins_dir + "/" + \
+                node['plugin_id'] + "/" + \
+                self.get_latest_version(node=node) + "/package.json"
         if os.path.exists(plugin_path):
             with open(plugin_path, 'r', encoding='UTF-8') as plugin_file:
                 plugin = json.loads(plugin_file.read())
@@ -785,21 +825,20 @@ class __Project__():
 
         return plugin
 
-    
     def get_latest_version(self, node):
-        plugin_path = "%s\\%s" % (self.plugins_dir, node['plugin_id'])
+        plugin_path = "%s/%s" % (self.plugins_dir, node['plugin_id'])
         version_list = os.listdir(plugin_path)
         reverse_version = {}
         for version in version_list:
-            if os.path.isdir("%s\\%s" % (plugin_path, version)):
+            if os.path.isdir("%s/%s" % (plugin_path, version)):
                 reverse_version[int(version.replace(".", ""))] = version
-        
+
         max_verstion = max(reverse_version.keys())
 
         return reverse_version[max_verstion]
 
-
     # 查找节点对应的操作
+
     def find_operation_for_node(self, plugin, node):
         exec_operation = None
         if 'uiauto_config' not in plugin.keys():

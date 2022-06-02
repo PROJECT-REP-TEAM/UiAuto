@@ -26,12 +26,17 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        localStorage.setItem('access_token', `Bearer ${data.token}`)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        // commit('SET_TOKEN', data.token)
-        // setToken(data.token)
-        resolve()
+        if (response.code != 200) {
+          reject({
+            error: response.message
+          })
+        } else {
+          const { result } = response
+          localStorage.setItem('access_token', `Bearer ${result.token}`)
+          localStorage.setItem('uiauto_access_token', `${result.token}`)
+          localStorage.setItem('user', JSON.stringify(result.user))
+          resolve()
+        }
       }).catch(error => {
         reject(error)
       })
@@ -101,7 +106,7 @@ const actions = {
   // user sendMsg
   sendMsg({ commit, state }, data) {
     return new Promise((resolve, reject) => {
-      sendMsg(data).then(() => { resolve() }).catch(error => {
+      sendMsg(data).then((res) => { resolve(res) }).catch(error => {
         reject(error)
       })
     })
@@ -139,7 +144,6 @@ const actions = {
         })
     })
   }
-
 
 }
 

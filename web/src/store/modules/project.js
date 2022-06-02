@@ -1,18 +1,43 @@
 import Vue from 'vue'
 import _ from 'lodash'
 import config from '@/config/environment/index'
-const fs = window.require('fs')
-const moment = window.require('moment')
+const fs = window.nodeRequire('fs')
+const moment = window.nodeRequire('moment')
 
 const state = {
   projectDownload: {},
   localProjectLs: {},
   has_project_synchronize: false,
   browser: null,
-  localProjectFoldersLs: {}
+  localProjectFoldersLs: {},
+  projectByFolder: [],
 }
 
 const mutations = {
+  PROJECT_BY_FOLDER: (state, data) => {
+    state.projectByFolder = data
+  },
+  ADD_PROJECT_BY_FOLDER: (state, data) => {
+    // state.projectByFolder.some(v => {
+    //   if( v.folderName === data ){
+
+    //   }
+    //   console.log("ADD_PROJECT_BY_FOLDER")
+    //   console.log(v)
+    // })
+    // if (state.projectByFolder.some(v => v.path === data.path)) 
+    return
+    // let tempData = Object.assign({},state[data.plugin_id],data); 
+    // state[data.id] = tempData;
+  },
+  DEL_PROJECT_BY_FOLDER: (state, data) => {
+    for (const [i, v] of state.projectByFolder.entries()) {
+      if (v.path === data.path) {
+        state.projectByFolder.splice(i, 1)
+        break
+      }
+    }
+  },
   LOCAL_PROJECT: (state, data) => {
     Vue.set(state.localProjectLs, data.project_name, data)
   },

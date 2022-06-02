@@ -1,12 +1,9 @@
-const fse = require('fs-extra');
-const { PythonShell } = require('python-shell');
-const path = require('path');
-const uuid = require('uuid');
-const os = require('os')
-const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
-const EventEmitter = require('events').EventEmitter;
+const fse = window.nodeRequire('fs-extra');
+const fs = window.nodeRequire('fs');
+const path = window.nodeRequire('path');
+const EventEmitter = window.nodeRequire('events').EventEmitter;
 const listener = new EventEmitter();
-const child_process = require("child_process");
+const child_process = window.nodeRequire("child_process");
 
 exports.start_process = () => {
     console.log(__dirname + "\\UiSelector.exe");

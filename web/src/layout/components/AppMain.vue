@@ -1,31 +1,29 @@
 <template>
   <section class="app-main">
-    <transition name="fade-transform" mode="out-in">
+    <!-- <transition name="fade-transform" mode="out-in"> -->
       <!-- <keep-alive :include="cachedViews"> -->
-      <router-view :key="key"/>
+      <!-- <router-view :key="key" /> -->
       <!-- </keep-alive> -->
-    </transition>
+    <!-- </transition> -->
+    <router-view :key="key" />
   </section>
 </template>
 
 <script>
 export default {
-  name: "AppMain",
+  name: 'AppMain',
   computed: {
     // cachedViews() {
     //   return this.$store.state.tagsView.cachedViews
     // },
     key() {
-      return this.$route.fullPath;
+      return this.$route.fullPath
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
-::-webkit-scrollbar {
-  display: none;
-}
 .app-main {
   /* 50= navbar  50  */
   // min-height: calc(100vh - 60px);
@@ -33,7 +31,7 @@ export default {
   width: 100%;
   position: relative;
   // overflow: hidden;
-  background-color: #eeeeee;
+  background-color: #e3e3e3;
 }
 
 .fixed-header + .app-main {

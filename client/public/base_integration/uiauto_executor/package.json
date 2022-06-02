@@ -1,13 +1,22 @@
 {
   "id": "uiauto_executor",
   "name": "UiAuto执行器",
-  "version": "1.2.9",
-  "description": "1.2.9版本：增加asyncio.loop循环进程",
-  "author": "guanhm",
+  "version": "1.2.31",
+  "description": "支持windows、linux、macos录屏",
+  "author": "legion",
   "language": "python",
-  "license": "ISC",
+  "license": "Legion",
   "devDependencies": {},
   "dependencies": {
+    "@electron/remote": "2.0.8",
+    "moment": "2.29.2",
+    "decompress": "4.2.0",
+    "fs-extra": "10.0.1",
+    "lodash": "4.17.21",
+    "python-shell": "3.0.1",
+    "socket.io": "2.4.1",
+    "socket.io-client": "2.4.0",
+    "uuid": "8.3.2"
   },
   "is_uiauto_base_integration": true
 }

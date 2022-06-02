@@ -15,6 +15,11 @@
   display: none;
 }
 
+.el-tooltip__popper {
+  max-width: 700px;
+  font-size: 13px;
+}
+
 
 // to fixed https://github.com/ElemeFE/element/issues/2461
 .el-dialog {

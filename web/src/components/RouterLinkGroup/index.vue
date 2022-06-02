@@ -8,24 +8,24 @@
       <ul
         v-if="vIf"
         v-show="vShow"
+        v-loading="loading"
         :style="{left:left+'px',top:top+'px'}"
         class="contextmenu"
-        v-loading="loading"
       >
         <li v-if="$scopedSlots.link1">
-          <slot name="link1"></slot>
+          <slot name="link1" />
         </li>
         <li v-if="$scopedSlots.link2">
-          <slot name="link2"></slot>
+          <slot name="link2" />
         </li>
         <li v-if="$scopedSlots.link3">
-          <slot name="link3"></slot>
+          <slot name="link3" />
         </li>
         <li v-if="$scopedSlots.link4">
-          <slot name="link4"></slot>
+          <slot name="link4" />
         </li>
         <li v-if="$scopedSlots.link5">
-          <slot name="link5"></slot>
+          <slot name="link5" />
         </li>
       </ul>
     </transition>
@@ -53,10 +53,10 @@
 </template>
 
 <script>
-import { addClass, removeClass } from "@/utils";
+import { addClass, removeClass } from '@/utils'
 
 export default {
-  name: "router-link-group",
+  name: 'RouterLinkGroup',
   props: {},
   data() {
     return {
@@ -65,49 +65,49 @@ export default {
       vIf: false,
       vShow: false,
       loading: true
-    };
+    }
   },
   computed: {},
   watch: {
     vShow(value) {
       if (value) {
-        document.body.addEventListener("click", this.closeMenu);
-        window.addEventListener("scroll", this.closeMenu);
+        document.body.addEventListener('click', this.closeMenu)
+        window.addEventListener('scroll', this.closeMenu)
         setTimeout(() => {
-          document.body.addEventListener("contextmenu", this.closeMenu);
-        }, 0);
+          document.body.addEventListener('contextmenu', this.closeMenu)
+        }, 0)
       } else {
-        document.body.removeEventListener("click", this.closeMenu);
-        document.body.removeEventListener("contextmenu", this.closeMenu);
-        window.removeEventListener("scroll", this.closeMenu);
+        document.body.removeEventListener('click', this.closeMenu)
+        document.body.removeEventListener('contextmenu', this.closeMenu)
+        window.removeEventListener('scroll', this.closeMenu)
       }
     }
   },
   methods: {
     showMenu(e) {
-      let menuHeight = 10 + (Object.keys(this.$scopedSlots).length - 1) * 37;
+      const menuHeight = 10 + (Object.keys(this.$scopedSlots).length - 1) * 37
 
-      this.left = e.clientX;
+      this.left = e.clientX
 
       if (e.clientY + menuHeight >= document.body.clientHeight) {
-        this.top = e.clientY - menuHeight;
+        this.top = e.clientY - menuHeight
       } else {
-        this.top = e.clientY;
+        this.top = e.clientY
       }
 
-      this.vShow = true;
+      this.vShow = true
       if (!this.vIf) {
-        this.vIf = true;
+        this.vIf = true
         setTimeout(() => {
-          this.loading = false;
-        }, 500);
+          this.loading = false
+        }, 500)
       }
     },
     closeMenu() {
-      this.vShow = false;
+      this.vShow = false
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

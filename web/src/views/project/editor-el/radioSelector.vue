@@ -2,16 +2,16 @@
   <div>
     <el-radio-group v-model="currValue">
       <div
-        class="radio-editor"
         v-for="(item, key) in options.checked"
         :key="key"
+        class="radio-editor"
         style="margin-top: 5px;"
       >
         <el-radio
+          :id="propertyId + '-' + item"
           :label="item"
-          :id="propertyId  + '-' + item"
           type="text"
-        >{{key}}</el-radio>
+        >{{ key }}</el-radio>
       </div>
     </el-radio-group>
   </div>
@@ -19,11 +19,6 @@
 
 <script>
 export default {
-  data() {
-    return {
-    //   radio: "1"
-    };
-  },
   props: {
     inputId: {
       type: String,
@@ -42,19 +37,24 @@ export default {
       default: null
     }
   },
+  data() {
+    return {
+    //   radio: "1"
+    }
+  },
   computed: {
     currValue: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val) {
-        this.$emit("changeValue", {
+        this.$emit('changeValue', {
           input_id: this.inputId,
           property_id: this.propertyId,
           value: val
-        });
+        })
       }
     }
   }
-};
+}
 </script>

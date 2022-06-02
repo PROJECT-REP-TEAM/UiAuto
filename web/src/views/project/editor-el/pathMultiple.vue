@@ -1,35 +1,52 @@
 <template>
   <div>
-    <div class="fileSelector" v-for="(item, idx) in currValue" :key="idx">
+    <div
+      style="
+        background-color: #f5f7fa;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px 0 0 4px;
+        padding: 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      "
+    >
+      <span
+        v-if="required"
+        style="color: red; font-size: 16px; vertical-align: middle"
+        >*</span
+      >
+      <span>{{ name }}</span>
+    </div>
+
+    <div v-for="(item, idx) in currValue" :key="idx" class="fileSelector">
       <el-input
         :id="propertyId + idx"
         v-model="item.value"
-        @input="changeValue()"
         type="text"
         placeholder="请选择路径"
-      ></el-input>
-      <el-button
-        style="width: 100%;margin-top: 8px;"
-        :id="propertyId + idx"
-        type="primary"
-        @click="openFileDialog(propertyId + idx, idx)"
-      >选择路径</el-button>
-      <el-button
-        type="danger"
-        icon="el-icon-delete"
-        style="width:100%;margin-top:5px;margin-left: 0;"
-        @click="deleteCondition(idx)"
-      ></el-button>
+        @input="changeValue()"
+      >
+        <el-button
+          :id="propertyId + idx"
+          type="primary"
+          slot="prepend"
+          @click="openFileDialog(propertyId + idx, idx)"
+          >选择路径</el-button
+        >
+        <el-button type="danger" slot="append" @click="deleteCondition(idx)"
+          >删除</el-button
+        >
+      </el-input>
     </div>
-    <div style="text-align: center;margin: 5px 0;">
-      <el-button
-        v-if="!options.keyChoices || currValue.length < options.keyChoices.length"
-        type="success"
-        icon="el-icon-edit"
-        circle
-        @click="addCondition()"
-      ></el-button>
-    </div>
+    <el-button
+      v-if="!options.keyChoices || currValue.length < options.keyChoices.length"
+      type="success"
+      icon="el-icon-edit"
+      style="width: 100%; margin-top: 5px; margin-left: 0"
+      @click="addCondition()"
+      >新 增</el-button
+    >
   </div>
 </template>
 
@@ -39,26 +56,34 @@ export default {
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: Object,
-      default: {}
+      default: {},
     },
     options: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     currValue: {
       get() {
         var result = _.map(this.value, (value, key) => {
-          let _value =
+          const _value =
             typeof value === "object" ? JSON.stringify(value) : value;
           return { value: _value };
         });
@@ -66,8 +91,8 @@ export default {
       },
       set(val) {
         this.changeValue();
-      }
-    }
+      },
+    },
   },
   mounted() {},
   methods: {
@@ -77,7 +102,7 @@ export default {
     },
     addCondition() {
       this.currValue.push({
-        value: ""
+        value: "",
       });
       this.changeValue();
     },
@@ -85,11 +110,11 @@ export default {
       this.$emit("changeValue", {
         input_id: this.inputId,
         property_id: this.propertyId,
-        value: val || this.arrayToObject(this.currValue)
+        value: val || this.arrayToObject(this.currValue),
       });
     },
     arrayToObject(array) {
-      let result = {};
+      const result = {};
       _.each(array, (item, idx) => {
         result[idx] = item.value;
       });
@@ -99,37 +124,21 @@ export default {
     openFileDialog(propertyId, idx) {
       var self = this;
       document.querySelector(`#${propertyId}`).blur();
-      fileSelector({ properties: [self.options.select_type] }).then(result => {
-        if (Array.isArray(result)) {
-          self.currValue[idx].value = result[0];
-          self.changeValue();
+      fileSelector({ properties: [self.options.select_type] }).then(
+        (result) => {
+          if (Array.isArray(result)) {
+            self.currValue[idx].value = result[0];
+            self.changeValue();
+          }
         }
-      });
-    }
-  }
+      );
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .fileSelector {
-  border: 1px dashed #ccc;
-  padding: 8px;
-  border-radius: 5px;
-  font-size: 11px;
-  color: #999;
   margin-top: 5px;
 }
-/* file-selector>.el-input__inner {
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  border-radius: 0px;
-  border-bottom: 1px solid #cccccc;
-  padding-left: 0;
-  height: unset;
-  line-height: unset;
-}
-file-selector>.el-input__suffix {
-  top: -7px !important;
-} */
 </style>

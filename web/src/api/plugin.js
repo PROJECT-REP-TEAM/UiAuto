@@ -1,7 +1,7 @@
 /*
  * @Author: Bobol_Lum
  * @LastEditors: chenzy
- * @Description: 
+ * @Description:
  * @Date: 2019-05-10 09:12:58
  * @LastEditTime: 2019-05-22 10:10:43
  */
@@ -9,15 +9,17 @@
 import $http from './global/http-client'
 
 export function pluginList(data) {
-  !data.attributes && (data.attributes = ["language", "plugin_id", "plugin_name", "author", "version", "plugin_description", "attachment_md5", "updatedAt"])
-  return $http.post('/api/v1/plugins/uiautoPluginList', data)
+  return $http.get('/uiauto/plugin/pluginList', data)
+}
+
+export function historyPluginList(data) {
+  return $http.get('/uiauto/plugin/list', data)
 }
 
 export function pluginViews(data) {
-  !data.attributes && (data.attributes = ["language", "plugin_id", "plugin_name", "author", "version", "plugin_description", "attachment_md5", "updatedAt"])
-  return $http.post('/api/v1/plugins/base/admin/views', data)
+  return $http.get('/uiauto/plugin/view', data)
 }
 
 export function getCloudProjects(data) {
-  return $http.post('/api/v1/uiautoClients/getCloudProjects', data)
+  return $http.post('/uiauto/script/getCloudProjects', data)
 }

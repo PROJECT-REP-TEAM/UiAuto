@@ -2,13 +2,13 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/home/index">
-        <img v-if="logoVuex" :src="logoOnline" class="sidebar-logo" />
-        <img v-else :src="logoOffline" class="sidebar-logo" />
+        <img v-if="logoVuex" :src="logoOnline" class="sidebar-logo">
+        <img v-else :src="logoOffline" class="sidebar-logo">
         <!-- <h1 v-else class="sidebar-title">{{ title }} </h1> -->
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/home/index">
-        <img v-if="logoVuex" :src="logoOnline" class="sidebar-logo" />
-        <img v-else :src="logoOffline" class="sidebar-logo" />
+        <img v-if="logoVuex" :src="logoOnline" class="sidebar-logo">
+        <img v-else :src="logoOffline" class="sidebar-logo">
         <!-- <h1 class="sidebar-title">{{ title }} </h1> -->
       </router-link>
     </transition>
@@ -16,10 +16,10 @@
 </template>
 
 <script>
-import logoOffline from "@/assets/images/logoOffline.png";
-import logoOnline from "@/assets/images/logoOnline.png";
+import logoOffline from '@/assets/images/logoOffline.png'
+import logoOnline from '@/assets/images/logoOnline.png'
 export default {
-  name: "SidebarLogo",
+  name: 'SidebarLogo',
   props: {
     collapse: {
       type: Boolean,
@@ -28,26 +28,26 @@ export default {
   },
   data() {
     return {
-      title: "UiAuto",
+      title: 'UiAuto',
       logoOffline: logoOffline,
       logoOnline: logoOnline
-    };
+    }
   },
   computed: {
     logoVuex() {
-      return this.$store.state.socket.socketOnline;
+      return this.$store.state.socket.socketOnline
     }
   },
   methods: {
     logoFn() {
       if (logoVuex) {
-        this.logo = logoOnline;
+        this.logo = logoOnline
       } else {
-        this.logo = logoOffline;
+        this.logo = logoOffline
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

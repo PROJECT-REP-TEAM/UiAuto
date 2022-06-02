@@ -1,4 +1,4 @@
-const WebSocket = window.require('ws')
+const WebSocket = window.nodeRequire('ws')
 
 export function start_server() {
   const wss = new WebSocket.Server({

@@ -1,23 +1,28 @@
 <div align=center><img src="./images/icon.jpg" /></div><br>
 
-## UiAuto更新公告
-### UiAuto 1.1.5 版本
-- 更新内容：安装时可更换安装路径
 
 ## 关于 UiAuto<br>
 [UiAuto](#) 是览众独立开发的一款[RPA](#)工具，致力于减少人员处理重复性任务的时间，为客户提供高效的解决方案。通过它帮助企业解决业务流程自动化难题，主要用户处理标准、重复、繁琐、大批量的工作任务。[RPA](#)应用以更低的成本、更快的速度和更高的质量进行全天候服务，极大减少人为从事规律可循的机械性工作，释放员工创造力、提升员工满意度。<br>
 
 ## 开始使用<br>
-`在Windows系统下，下载安装，通过手机号注册即可使用。`<br>
+`在 Windows、mac、linux 系统下，下载安装，通过手机号注册即可使用。`<br>
+`* 提醒：mac、linux 暂不支持元素选择器功能`
 
-## 安装包下载<img src="./images/new.png" width="64" /><br>
-- v1.1.5 x64
-[百度云下载](https://pan.baidu.com/s/1Xa8EMEByaFicoKumzgQs8g) 提取码: i4yn 
+## 安装包下载
+
+- [安装包下载](http://legion.easyup.cn:5000/fsdownload/7V5s8T0kT/release) v2.1.0 x64
 
 ## 安装、配置
 - 双击安装包便可自动安装。
 - 安装完成之后，启动UiAuto，
-- 打开系统配置页面，修改需要连接的服务器地址
+- 打开系统配置页面，修改需要连接的服务器地址(可使用默认地址 http://uiauto-api.legion-tech.net/legion)
+- <img src="./images/download.jpg"/>
+`* 提醒：1.X 版本更新，请务必备份项目及插件，具体路径请前往系统管理查看`
+
+## 管理后台
+- [管理后台访问](http://rpa-admin.legion-tech.net)
+- 注册时企业ID填写legion即可。
+
 
 ## 基础组件介绍
 <img src="./images/common_component.jpg" /><br>
@@ -48,6 +53,9 @@
 ## 下载、上传新的功能组件<br>
 - 移步到插件库，可管理本地功能组件。包括：下载服务器上的插件、上传自己编写的插件、删除本地下载的插件、更新插件。<br>
 
+## 应用市场<br>
+- 开发者新增的流程项目可以自行选择是否公开（即发布版本），提交后由系统管理员审核，待审核通过后将在应用市场展示，供其它用户下载使用。<br>
+
 # 成为开发者
 
 ## 技术框架
@@ -65,7 +73,6 @@ UIAUTO
 |   ├ public ----- 基础插件集成，包含执行器、UI选择器、日志输出等插件
 ├ web ----- web目录
 │   ├ build ----- 存放打包后html、css、js等文件(构建相关)
-│   ├ mock ----- 模拟接口文件
 │   ├ public ----- 插件文件
 │   ├ src ----- src目录
 │   │   ├ api ----- 存放模拟接口文件
@@ -78,6 +85,7 @@ UIAUTO
 │   │   ├ styles ----- 框架样式文件
 │   │   ├ util ----- 公用文件
 │   │   ├ view ----- 模块文件
+│   │   │   ├ application ----- 应用市场模块
 │   │   │   ├ dependency ----- 环境依赖模块
 │   │   │   ├ home ----- 首页模块
 │   │   │   ├ login ----- 登录模块
@@ -92,10 +100,10 @@ UIAUTO
 ```
 
 ## 环境准备
-- 下载[Java8]()的jre，并解压至目录client/env/jre
-    - 百度网盘下载地址：[https://pan.baidu.com/s/1XNiOdzLUZ1QkmVYLdhugiw](https://pan.baidu.com/s/1XNiOdzLUZ1QkmVYLdhugiw) 提取码：l735 
-- 下载[Python](http://python.org)解释器，并解压至目录client/env/python/win32
-    - 百度网盘下载地址：[https://pan.baidu.com/s/12wc_lEmrlxdi05Nd5tvrvA](https://pan.baidu.com/s/12wc_lEmrlxdi05Nd5tvrvA) 提取码：qyst
+- 下载[Java8]()的jre，并解压至目录client/env/jre/
+    - 下载：[http://legion.easyup.cn:5000/fsdownload/7V5s8T0kT/release](http://legion.easyup.cn:5000/fsdownload/7V5s8T0kT/release) （env环境包 / 所需系统）
+- 下载[Python]()解释器，并解压至目录client/env/python/
+    - 下载：[http://legion.easyup.cn:5000/fsdownload/7V5s8T0kT/release](http://legion.easyup.cn:5000/fsdownload/7V5s8T0kT/release) （env环境包 / 所需系统）
 - 在clent/public目录下打开命令行终端执行命令`npm install`
 
 ## 执行器<br>
@@ -110,7 +118,7 @@ UIAUTO
 > 标准Windows组件属性捕获是通过UIAutomationCore.dll的api实现。<br>
 > 网页元素的属性捕获是通过是向浏览器注入javascript脚本来实现，因此，浏览器必须通过webdriver启动。<br>
 
-## UI选择器的Chrome扩展程序安装 <img src="./images/new.png" width="64" />
+## UI选择器的Chrome扩展程序安装
 > Chrome扩展程序存放位置：[C:/UiAuto/public/base_integration/uiauto-chrome-plugin]()
 - 添加扩展程序方法：<br>
   1.打开Chrome浏览器，输入地址[chrome://extensions]()跳转扩展程序管理页面。<br>
@@ -126,6 +134,7 @@ UIAUTO
 
 ## 软件截图<br>
 <img src="./images/project.jpg" /><br><br>
+<img src="./images/application.jpg" /><br><br>
 <img src="./images/plugin.jpg" /><br><br>
 <img src="./images/task.jpg" /><br><br>
 <img src="./images/designer.jpg" /><br><br>
@@ -133,12 +142,13 @@ UIAUTO
 
 ## [常见问题](./quesions.md)
 
-## 问题讨论
-qq群号：1028434014，或者直接qq扫码进群<br><br>
-<img src="./images/qq_qun.png" /><br>
+
+## 福利派送 🎁
+- 可微信扫码添加联系人，领取UIAUTO培训视频资料<br>
+<img src="./images/wechat.png" height="350" width="600"/><br>
 
 ## 商务合作
-> 联系电话：400-0380-010<br>
-> 电子邮箱：markecting@legion-tech.net
-> 官网：[http://www.legion-tech.net](http://www.legion-tech.net)
+> 联系电话：0755-26470325<br>
+> 电子邮箱：hehl@legion-tech.net<br>
+> 官网：[http://legion-tech.net](http://legion-tech.net)
 

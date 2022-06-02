@@ -47,140 +47,140 @@
 </template>
 
 <script>
-import registerForm from "./register-form";
-import { globalBus } from "@/store/globalBus";
+import registerForm from './register-form'
+import { globalBus } from '@/store/globalBus'
 
 export default {
-  name: "MobileLogin",
+  name: 'MobileLogin',
   components: { registerForm },
   data() {
     const checkMobile = (rule, value, callback) => {
       if (!/^1[34578]\d{9}$/.test(value)) {
-        callback(new Error("请输入正确的手机号码"));
+        callback(new Error('请输入正确的手机号码'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     const validateCode = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入验证码"));
-      } else if (value !== "") {
-        var reg = /^\d{6}$/;
+      if (value === '') {
+        callback(new Error('请输入验证码'))
+      } else if (value !== '') {
+        var reg = /^\d{6}$/
         if (!reg.test(value)) {
-          callback(new Error("验证码不能少于6位纯数字"));
+          callback(new Error('验证码不能少于6位纯数字'))
         }
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     return {
       loading: false,
       redirect: null,
       isSendCode: false,
-      statusMsg: "发送验证码",
+      statusMsg: '发送验证码',
       form: {
-        mobile: "",
-        cerification_code: ""
+        mobile: '',
+        cerification_code: ''
       },
       rules: {
-        mobile: [{ required: true, trigger: "blur", validator: checkMobile }],
+        mobile: [{ required: true, trigger: 'blur', validator: checkMobile }],
         cerification_code: [
-          { required: true, trigger: "blur", validator: validateCode }
+          { required: true, trigger: 'blur', validator: validateCode }
         ]
       }
-    };
+    }
   },
   methods: {
     // 登录
     handleLogin() {
-      let mobilePass;
-      this.$refs.form.validateField("mobile", valid => {
-        mobilePass = valid;
-      });
-      let cerificationCodePass;
-      this.$refs.form.validateField("cerification_code", valid => {
-        cerificationCodePass = valid;
-      });
+      let mobilePass
+      this.$refs.form.validateField('mobile', valid => {
+        mobilePass = valid
+      })
+      let cerificationCodePass
+      this.$refs.form.validateField('cerification_code', valid => {
+        cerificationCodePass = valid
+      })
       if (!mobilePass && !cerificationCodePass) {
-        this.loading = true;
+        this.loading = true
         this.$store
-          .dispatch("user/smsLogin", this.form)
+          .dispatch('user/smsLogin', this.form)
           .then(() => {
-            globalBus.$emit("is_first_run");
-            const is_first_run = localStorage.getItem("is_first_run");
+            globalBus.$emit('is_first_run')
+            const is_first_run = localStorage.getItem('is_first_run')
             if (is_first_run === null || is_first_run === true) {
-              this.redirect = "/workspace/index";
+              this.redirect = '/workspace/index'
             }
-            this.$router.push({ path: this.redirect || "/" });
-            this.$store.state.user.name = this.form.username;
-            this.loading = false;
+            this.$router.push({ path: this.redirect || '/' })
+            this.$store.state.user.name = this.form.username
+            this.loading = false
           })
           .catch(err => {
-            this.loading = false;
+            this.loading = false
             if (!err.isSuccess) {
               this.$message({
                 message: err.error,
-                type: "error"
-              });
+                type: 'error'
+              })
             }
-          });
+          })
       } else {
         this.$message({
           message: mobilePass || cerificationCodePass,
-          type: "error"
-        });
+          type: 'error'
+        })
       }
     },
     // 获取验证码
     sendMsg() {
-      this.$refs.form.validateField("mobile", valid => {
+      this.$refs.form.validateField('mobile', valid => {
         if (!valid) {
           this.$store
-            .dispatch("user/sendMsg", {
-              type: "recover",
+            .dispatch('user/sendMsg', {
+              type: 'recover',
               mobile: this.form.mobile
             })
             .then(() => {
-              const self = this;
-              this.statusMsg = "验证码已发送";
-              this.isSendCode = true;
-              let count = 60;
-              this.statusMsg = `${count--}s后重新获取`;
+              const self = this
+              this.statusMsg = '验证码已发送'
+              this.isSendCode = true
+              let count = 60
+              this.statusMsg = `${count--}s后重新获取`
               this.timer = setInterval(function() {
-                self.statusMsg = `${count--}s后重新获取`;
+                self.statusMsg = `${count--}s后重新获取`
                 if (count === 0) {
-                  self.isSendCode = false;
-                  self.statusMsg = `重新发送`;
-                  clearInterval(self.timer);
+                  self.isSendCode = false
+                  self.statusMsg = `重新发送`
+                  clearInterval(self.timer)
                 }
-              }, 1000);
+              }, 1000)
               this.$message({
-                message: "验证码发送成功，请前往手机查看",
-                type: "success"
-              });
+                message: '验证码发送成功，请前往手机查看',
+                type: 'success'
+              })
             })
             .catch(err => {
               if (!err.isSuccess) {
                 this.$message({
                   message: err.error,
-                  type: "error"
-                });
+                  type: 'error'
+                })
               }
-            });
+            })
         } else {
           this.$message({
             message: valid,
-            type: "error"
-          });
+            type: 'error'
+          })
         }
-      });
+      })
     },
     // 快速注册
     handleRegister() {
-      this.$refs["registerForm"] && this.$refs["registerForm"].show();
+      this.$refs['registerForm'] && this.$refs['registerForm'].show()
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 .svg-container {

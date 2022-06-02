@@ -1,10 +1,8 @@
 <template>
-  <div class="password-login" style="margin: 0 40px;">
+  <div class="password-login" style="margin: 0 40px">
     <el-form ref="form" :model="form" :rules="rules">
-      <el-form-item prop="username" style="margin-top: 30px;">
-        <span class="svg-container">
-          <svg-icon icon-class="user" style="color: #333;" />
-        </span>
+      <el-form-item prop="username" style="margin-top: 30px">
+        <i class="el-icon-user" style="margin-left: 15px" />
         <el-input
           ref="username"
           v-model="form.username"
@@ -12,13 +10,11 @@
           name="username"
           type="text"
           auto-complete="on"
-          style="color: #333333;"
+          style="color: #333333"
         />
       </el-form-item>
       <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" style="color: #333;" />
-        </span>
+        <i class="el-icon-lock" style="margin-left: 15px" />
         <el-input
           ref="password"
           v-model="form.password"
@@ -26,13 +22,13 @@
           placeholder="密码"
           name="password"
           auto-complete="on"
-          style="color: #333333;"
+          style="color: #333333; width: 83%"
           @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon
             :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
-            style="color: #333;"
+            style="color: #333"
           />
         </span>
       </el-form-item>
@@ -40,33 +36,39 @@
         :loading="loading"
         size="max"
         type="primary"
-        style="width: 100%;background: #2249a8;margin-bottom: 20px;"
+        style="width: 100%; background: #2249a8; margin-bottom: 20px"
         @click.native.prevent="handleLogin"
-      >登录</el-button>
-      <div style="text-align: end;">
-        <el-link
-          href="#"
-          type="info"
-          size="mini"
-          :underline="false"
-          style="margin-right: 10px;"
-          @click.native.prevent="handleResetPassword()"
-        >忘记密码</el-link>
-        <el-link
-          href="#"
-          type="info"
-          size="mini"
-          :underline="false"
-          style="margin-right: 10px;"
-          @click.native.prevent="handleResetUsername()"
-        >忘记用户名</el-link>
-        <el-link
-          href="#"
-          type="info"
-          size="mini"
-          :underline="false"
-          @click.native.prevent="handleRegister()"
-        >快速注册</el-link>
+        >登录</el-button
+      >
+      <div style="text-align: end">
+        <div style="text-align: end">
+          <!-- <el-link
+            href="#"
+            type="info"
+            size="mini"
+            :underline="false"
+            style="margin-right: 10px"
+            @click.native.prevent="handleResetPassword()"
+            >忘记密码</el-link
+          >
+          <el-link
+            href="#"
+            type="info"
+            size="mini"
+            :underline="false"
+            style="margin-right: 10px"
+            @click.native.prevent="handleResetUsername()"
+            >忘记用户名</el-link
+          > -->
+          <el-link
+            href="#"
+            type="info"
+            size="mini"
+            :underline="false"
+            @click.native.prevent="handleRegister()"
+            >快速注册</el-link
+          >
+        </div>
       </div>
     </el-form>
     <resetPassword ref="resetPassword" />
@@ -105,16 +107,16 @@ export default {
       passwordType: "password",
       form: {
         username: "",
-        password: ""
+        password: "",
       },
       rules: {
         username: [
-          { required: true, trigger: "blur", validator: validateUsername }
+          { required: true, trigger: "blur", validator: validateUsername },
         ],
         password: [
-          { required: true, trigger: "blur", validator: validatePassword }
-        ]
-      }
+          { required: true, trigger: "blur", validator: validatePassword },
+        ],
+      },
     };
   },
   methods: {
@@ -132,11 +134,11 @@ export default {
     // 登录
     handleLogin() {
       let usernamePass;
-      this.$refs.form.validateField("username", valid => {
+      this.$refs.form.validateField("username", (valid) => {
         usernamePass = valid;
       });
       let passwordPass;
-      this.$refs.form.validateField("password", valid => {
+      this.$refs.form.validateField("password", (valid) => {
         passwordPass = valid;
       });
       if (!usernamePass && !passwordPass) {
@@ -153,19 +155,21 @@ export default {
             this.$store.state.user.name = this.form.username;
             this.loading = false;
           })
-          .catch(err => {
+          .catch((err) => {
             this.loading = false;
-            if (!err.isSuccess) {
+            if (err && err.error) {
               this.$message({
                 message: err.error,
-                type: "error"
+                type: "error",
               });
+            } else {
+              this.$message.error("请求的资源不存在");
             }
           });
       } else {
         this.$message({
           message: usernamePass || passwordPass,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -180,12 +184,9 @@ export default {
     // 快速注册
     handleRegister() {
       this.$refs["registerForm"] && this.$refs["registerForm"].show();
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
-.svg-container {
-  margin-left: 15px;
-}
 </style>

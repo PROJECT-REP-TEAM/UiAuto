@@ -16,5 +16,5 @@ export const getUiSelectorStaticAssets = (req, res) => {
 }
 
 export const sendLog = (req, res) => {
-  service.sendLog(req, res);
+  service.sendLog(req, res)
 }

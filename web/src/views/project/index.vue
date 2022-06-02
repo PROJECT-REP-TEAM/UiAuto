@@ -2,12 +2,6 @@
   <div id="wrapId" class="wrap">
     <!-- 工具栏 -->
     <div id="toolbar" class="toolbar navbar">
-      <!-- <i data-command="undo" class="command el-icon el-icon-arrow-left" title="撤回"></i>
-      <i data-command="redo" class="command el-icon el-icon-arrow-right" title="重做"></i>
-      <i data-command="delete" class="command el-icon el-icon-delete" title="删除"></i>
-      <i data-command="zoomOut" class="command el-icon el-icon-zoom-out" title="缩小"></i>
-      <i data-command="zoomIn" class="command el-icon el-icon-zoom-in" title="放大"></i>
-      <i data-command="save" class="command el-icon el-icon-upload" title="保存"></i>-->
       <el-button
         v-if="queryData.currentProjectName"
         type="primary"
@@ -18,1197 +12,772 @@
       </el-button>
       <div class="left-menu">
         项目
-        <span v-if="projectName">/ {{ projectName }}</span>
-      </div>
-      <div
-        v-if="!hasModificationRights"
-        style="
-          position: fixed;
-          font-size: 14px;
-          color: red;
-          line-height: 40px;
-          left: 45%;
-        "
-      >
-        您没有权限修改本云端项目
+        <span v-if="projectJson.name">/ {{ projectJson.name }}</span>
       </div>
       <div class="right-menu">
+        <div class="right-menu-item" @click="openGlobalVariableDialog">
+          <img src="../../assets/images/global-variable.png" class="icon" />
+          <span class="icon-text">全局变量</span>
+        </div>
         <div class="right-menu-item" @click="updateVersionFn">
           <img src="../../assets/images/update.png" class="icon" />
-          <span class="icon-text">更新</span>
+          <span class="icon-text">使用最新插件</span>
         </div>
-        <div class="right-menu-item" @click="executecurrentNode">
-          <img src="../../assets/images/run.png" class="icon" />
-          <span class="icon-text">执行当前节点</span>
+        <el-divider direction="vertical"></el-divider>
+        <div class="right-menu-item" @click="handleDetection()">
+          <img src="../../assets/images/detection.png" class="icon" />
+          <span class="icon-text">依赖检测(F4)</span>
         </div>
         <div class="right-menu-item" @click="toolClick('run')">
           <img src="../../assets/images/run.png" class="icon" />
-          <span class="icon-text">执行</span>
+          <span class="icon-text">执行(F5)</span>
+        </div>
+        <div class="right-menu-item" @click="executecurrentNode">
+          <img src="../../assets/images/run.png" class="icon" />
+          <span class="icon-text">执行当前节点(F6)</span>
         </div>
         <div data-command="save" class="command right-menu-item">
           <img src="../../assets/images/save.png" class="icon" />
-          <span class="icon-text">保存</span>
+          <span class="icon-text">保存(ctrl+s)</span>
         </div>
         <div class="right-menu-item" @click="toolClick('stop')">
           <img src="../../assets/images/stop.png" class="icon" />
-          <span class="icon-text">停止</span>
+          <span class="icon-text">停止(F9)</span>
         </div>
       </div>
     </div>
-    <el-row :gutter="20">
-      <el-col
-        v-loading="loading"
-        :span="4"
-        element-loading-text
-        element-loading-spinner="none"
-        element-loading-background="rgba(255, 255, 255, 0.5)"
+    <!-- 右键菜单 -->
+    <div id="contextmenu" style="display: none">
+      <div data-status="node-selected" class="menu">
+        <el-button size="mini" data-command="copy" class="command"
+          >复制</el-button
+        >
+        <el-button size="mini" data-command="paste" class="command"
+          >粘贴</el-button
+        >
+        <el-button size="mini" data-command="delete" class="command"
+          >删除</el-button
+        >
+      </div>
+      <div data-status="multi-selected" class="menu">
+        <el-button size="mini" data-command="copy" class="command"
+          >复制</el-button
+        >
+        <el-button size="mini" data-command="paste" class="command"
+          >粘贴</el-button
+        >
+        <el-button size="mini" data-command="delete" class="command"
+          >删除</el-button
+        >
+      </div>
+    </div>
+
+    <split-pane
+      split="vertical"
+      :default-percent="15"
+      :max-percent="30"
+      @resize="resize"
+    >
+      <template slot="paneL">
+        <div id="itempannel" class="ph left">
+          <el-input
+            placeholder="插件搜索"
+            v-model.trim="filterText"
+            clearable
+            id="search_plugin"
+          />
+          <el-tree
+            :data="treeData"
+            :props="defaultProps"
+            :filter-node-method="filterNode"
+            onselectstart="return false;"
+            style="
+              font-size: 14px;
+              height: calc(100% - 42px);
+              overflow-y: scroll;
+            "
+            ref="tree"
+          >
+            <span
+              class="custom-tree-node getItem"
+              slot-scope="{ node, data }"
+              :data-type="data.data_type"
+              :data-shape="data.data_shape"
+              :data-shape-type="data.data_shape_type"
+              :data-size="data.data_size"
+              :data-label="data.data_label"
+              :data-color="data.data_color"
+              :data-operation_id="data.operation_id"
+              :data-plugin_id="data.plugin_id"
+              :data-input="data.input"
+              :data-output="data.output"
+              :data-version="data.version"
+              :data-operation-name="data.operation_name"
+              :data-category-name="data.category_name"
+              :data-language="data.language"
+              :data-attribution-name="data.attribution_name"
+              @click="handleOpenBrowser(node.label)"
+            >
+              <!-- <i :class="data.icon"></i> -->
+              <font-awesome-icon v-if="data.icon" :icon="data.icon" />
+              {{ node.label }}
+            </span>
+          </el-tree>
+        </div>
+      </template>
+      <template slot="paneR">
+        <split-pane split="vertical" :default-percent="75" @resize="resize">
+          <template slot="paneL">
+            <split-pane
+              split="horizontal"
+              :default-percent="70"
+              @resize="resize"
+            >
+              <template slot="paneL">
+                <!-- 主画布 -->
+                <div
+                  id="page"
+                  ref="page"
+                  v-loading="loading"
+                  class="main-canvas"
+                  element-loading-text="正在执行，请稍候…"
+                  element-loading-background="rgba(255, 255, 255, 0.5)"
+                  style="margin-top: 7px; height: 100%"
+                />
+              </template>
+              <template slot="paneR">
+                <!-- <div id="xterm"></div> -->
+                <div
+                  id="logMessageId"
+                  style="
+                    height: calc(100% - 40px);
+                    background: #475058;
+                    color: #eee;
+                    overflow: auto;
+                    padding: 10px;
+                  "
+                >
+                  <div id="logMessageBox">
+                    <div v-for="(item, idx) in logMessage" :key="idx">
+                      <span
+                        v-if="item.type === 'warn'"
+                        style="color: #fec171"
+                        v-text="item.line"
+                      />
+                      <span
+                        v-else-if="item.type === 'error'"
+                        style="color: #e65d6e"
+                        v-text="item.line"
+                      />
+                      <span
+                        v-else-if="item.type === 'success'"
+                        style="color: green"
+                        v-text="item.line"
+                      />
+                      <span
+                        v-else-if="item.type === 'log'"
+                        v-text="item.line"
+                      />
+                      <span
+                        v-else-if="item.type === 'info'"
+                        style="color: #4169e1"
+                        v-text="item.line"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </split-pane>
+          </template>
+          <template slot="paneR">
+            <div class="ph right">
+              <!-- 详细面板 -->
+              <div id="detailpannel" style="overflow-y: scroll">
+                <div v-if="isShowDescription">
+                  <div
+                    class="panel-title"
+                    style="margin-top: 10px; font-size: 13px; font-weight: 500"
+                  >
+                    项目描述
+                  </div>
+                  <el-input
+                    v-model="description"
+                    type="textarea"
+                    :autosize="{ minRows: 8, maxRows: 30 }"
+                    style="padding: 10px 10px 0 10px"
+                  />
+                  <div
+                    style="border-bottom: 1px solid #ebeef5; margin: 0 10px"
+                  />
+                </div>
+                <div v-if="operationName">
+                  <div
+                    class="panel-title"
+                    style="margin-top: 10px; font-size: 13px; font-weight: 500"
+                  >
+                    <font style="line-height: 25px">插件名称</font>
+                    <el-select
+                      v-model="version"
+                      placeholder="版本"
+                      size="mini"
+                      style="float: right; width: 100px; margin-right: 10px"
+                      @change="changePluginVersion"
+                    >
+                      <el-option
+                        v-for="item in currentPluginVersionLs"
+                        :key="item"
+                        :label="item"
+                        :value="item"
+                      />
+                    </el-select>
+                  </div>
+                  <div class="block-container">
+                    <el-input
+                      v-if="language === 'nodejs'"
+                      v-model="plugin_info"
+                      prefix-icon="el-icon-skl-java-script"
+                      :disabled="true"
+                    >
+                      <el-button
+                        slot="append"
+                        icon="el-icon-aim"
+                        @click="findPlugin"
+                      />
+                    </el-input>
+                    <el-input
+                      v-if="language === 'python'"
+                      v-model="plugin_info"
+                      prefix-icon=" el-icon-skl-logo-python"
+                      :disabled="true"
+                    >
+                      <el-button
+                        slot="append"
+                        icon="el-icon-aim"
+                        @click="findPlugin"
+                      />
+                    </el-input>
+                    <el-input
+                      v-if="language === 'java'"
+                      v-model="plugin_info"
+                      prefix-icon=" el-icon-skl-java"
+                      :disabled="true"
+                    >
+                      <el-button
+                        slot="append"
+                        icon="el-icon-aim"
+                        @click="findPlugin"
+                      />
+                    </el-input>
+                  </div>
+                  <div
+                    style="border-bottom: 1px solid #ebeef5; margin: 0 10px"
+                  />
+                </div>
+                <div v-if="nodeLineLabelShow">
+                  <div
+                    class="panel-title"
+                    style="margin-top: 10px; font-size: 13px; font-weight: 500"
+                  >
+                    节点名称
+                  </div>
+                  <div class="block-container">
+                    <el-input
+                      v-model="nodeLabel"
+                      placeholder="请输入内容"
+                      @change="changeValue('line')"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <el-collapse
+                    v-if="nodeLabelShow"
+                    v-model="active_tag"
+                    style="
+                      width: calc(100% - 20px);
+                      margin: 0 10px;
+                      height: 100%;
+                      float: left;
+                    "
+                  >
+                    <el-collapse-item
+                      v-for="inputItem in store_input"
+                      :key="inputItem.id"
+                      :title="inputItem.name"
+                      :name="inputItem.name"
+                    >
+                      <div
+                        v-for="(item, idx) in inputItem.properties"
+                        :key="idx"
+                        class="getItem"
+                      >
+                        <template v-if="handleShowIf(item)">
+                          <el-row style="padding: 5px 10px">
+                            <textEditor
+                              v-if="item.type === 'text'"
+                              :editor="editor.getCurrentPage().save()"
+                              :global-variable="global_variable"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <pathSelector
+                              v-if="item.type === 'path'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <pathMultiple
+                              v-if="item.type === 'pathMultiple'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <switchSelector
+                              v-if="item.type === 'switch'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <selectPicker
+                              v-if="item.type === 'select'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <codemirror
+                              v-if="item.type === 'code'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :language="language"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <passwordEditor
+                              v-if="item.type === 'password'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <dateTimeRangePicker
+                              v-if="item.type === 'dateTimeRange'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <dateTimePicker
+                              v-if="item.type === 'dateTime'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <stringShower
+                              v-if="item.type === 'string'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                            />
+                            <inputNumberEditor
+                              v-if="item.type === 'inputNumber'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <colorPicker
+                              v-if="item.type === 'color'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <projectSelector
+                              v-if="item.type === 'projectSelector'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :current-project="projectJson.project_name"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <ui-screenshot
+                              v-if="item.type === 'uiScreenshot'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :projectName="projectJson.project_name"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <uiSelector
+                              v-if="item.type === 'uiselector'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :browsers="item.browsers"
+                              :projectName="projectJson.project_name"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <tinymce
+                              v-if="item.type === 'tinymce'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <checkboxEditor
+                              v-if="item.type === 'checkbox'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <sliderEditor
+                              v-if="item.type === 'slider'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <jsonEditor
+                              v-if="item.type === 'json'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <radioEditor
+                              v-if="item.type === 'radio'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                            <conditionEditor
+                              v-if="item.type === 'conditions'"
+                              :input-id="inputItem.id"
+                              :property-id="item.id"
+                              :value="item.value"
+                              :options="item.options"
+                              :name="item.name"
+                              :required="item.required"
+                              @changeValue="changeValue"
+                            />
+                          </el-row>
+                        </template>
+                      </div>
+                    </el-collapse-item>
+                    <el-collapse-item
+                      v-if="
+                        JSON.stringify(output) !== '{}' &&
+                        output.is_allow_global_use
+                      "
+                      class="params-editor-title"
+                      title="组件返回值"
+                      name="组件返回值"
+                    >
+                      <el-input
+                        id="output_input"
+                        v-model="output.value"
+                        type="text"
+                        style="padding: 10px"
+                        @change="changeValue('output')"
+                      >
+                        <template slot="prepend">{{
+                          output.description
+                        }}</template>
+                      </el-input>
+                      <!-- <div id="output_div">
+                        <span
+                          class="params-editor-el"
+                          style="margin-left: 10px"
+                          >{{ output.description }}</span
+                        >
+                        <el-input
+                          id="output_input"
+                          v-model="output.value"
+                          type="text"
+                          style="padding: 10px"
+                          @change="changeValue('output')"
+                        />
+                      </div> -->
+                    </el-collapse-item>
+                    <el-collapse-item
+                      class="params-editor-title"
+                      title="通用属性"
+                      name="通用属性"
+                    >
+                      <div
+                        v-for="generalItem in store_general_property"
+                        id="general_div"
+                        :key="generalItem.id"
+                      >
+                        <el-input
+                          :id="generalItem.id"
+                          v-model="generalItem.value"
+                          type="number"
+                          style="padding: 10px"
+                          @change="changeValue(generalItem.id)"
+                        >
+                          <template slot="prepend">{{
+                            generalItem.name
+                          }}</template>
+                        </el-input>
+                      </div>
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
+              </div>
+              <!-- 缩略图 -->
+              <!-- <div class="minimap" id="minimapId"> -->
+              <!-- <div class="panel-title">缩略图</div> -->
+              <!-- <div id="minimap"></div> -->
+              <!-- </div> -->
+            </div>
+          </template>
+        </split-pane>
+      </template>
+    </split-pane>
+
+    <el-dialog
+      title="全局变量编辑"
+      :visible.sync="globalVariableDialog"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      width="60%"
+      top="2vh"
+      @close="handleCloseGlobalVariableDialog"
+    >
+      <el-divider content-position="left">全局变量</el-divider>
+      <el-button size="mini" type="primary" @click="addGlobalVariable"
+        >新 增</el-button
       >
-        <!-- 元素面板栏 -->
+      <div style="height: 20vh; overflow: scroll">
         <div
-          id="itempannel"
-          class="ph left"
-          :class="{ filter: !hasModificationRights }"
+          v-for="(row, index) in global_variable"
+          :key="index"
+          style="margin: 10px 0"
         >
           <el-input
-            v-model="pluginSearchInput"
-            placeholder="插件搜索"
-            style="padding: 5px 5px 0"
-            @input="pluginSearch(pluginSearchInput)"
+            v-model="row.key"
+            class="filter-item"
+            style="width: 125px"
+            size="mini"
+            placeholder="属性名"
+          />
+
+          <el-select
+            slot="prepend"
+            v-model="row.type"
+            placeholder="类型"
+            style="width: 100px"
+            size="mini"
           >
-            <i
-              slot="suffix"
-              class="el-input__icon el-icon-aim"
-              style="padding: 5px"
-            />
-          </el-input>
+            <el-option label="文本" value="text" />
+            <el-option label="密码" value="password" />
+            <el-option label="日期" value="date" />
+            <el-option label="数字" value="number" />
+            <el-option label="数组" value="array" />
+            <el-option label="JSON" value="json" />
+          </el-select>
 
-          <el-menu
-            class="el-menu-vertical-demo"
-            @open="handleOpen"
-            @close="handleClose"
-            style="border: none"
-          >
-            <span>
-              <el-submenu index="1" style="padding: 0 10px">
-                <template slot="title">
-                  <span>内置浏览器</span>
-                </template>
-                <el-menu-item
-                  index="1-1"
-                  style="padding: 0; min-width: 100%"
-                  class="getItem"
-                  :class="{
-                    mini: size == 'mini',
-                    medium: size == 'medium',
-                    default: size == 'default',
-                    small: size == 'small',
-                  }"
-                  @click="openBrowser('Chrome')"
-                >
-                  <div
-                    class="leftItem"
-                    :style="{ background: '#3a71a8' }"
-                    :class="{
-                      mini: size == 'mini',
-                      medium: size == 'medium',
-                      default: size == 'default',
-                      small: size == 'small',
-                    }"
-                  >
-                    <div
-                      style="
-                        width: calc(100% - 35px);
-                        padding: 0 0 0 35px;
-                        float: left;
-                        overflow: hidden;
-                      "
-                    >
-                      <span style="position: absolute; left: 5px"></span>
-                      <span style="display: block">启动Chrome</span>
-                    </div>
-                    <svg
-                      style="float: right"
-                      :class="{
-                        mini: size == 'mini',
-                        medium: size == 'medium',
-                        default: size == 'default',
-                        small: size == 'small',
-                      }"
-                      t="1593957768721"
-                      class="icon"
-                      viewBox="0 0 1024 1024"
-                      version="1.1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      p-id="2123"
-                    >
-                      <path
-                        d="M938.666667 512c0 235.605333-191.061333 426.666667-426.666667 426.666667S85.333333 747.605333 85.333333 512 276.394667 85.333333 512 85.333333s426.666667 191.061333 426.666667 426.666667z"
-                        fill="#4CAF50"
-                        p-id="2124"
-                      />
-                      <path
-                        d="M512 85.333333v426.666667l170.666667 85.333333-188.650667 341.333334H512c235.797333 0 426.666667-190.869333 426.666667-426.666667S747.797333 85.333333 512 85.333333z"
-                        fill="#FFC107"
-                        p-id="2125"
-                      />
-                      <path
-                        d="M938.666667 512c0 235.605333-191.061333 426.666667-426.666667 426.666667S85.333333 747.605333 85.333333 512 276.394667 85.333333 512 85.333333s426.666667 191.061333 426.666667 426.666667z"
-                        fill="#4CAF50"
-                        p-id="2126"
-                      />
-                      <path
-                        d="M512 85.333333v426.666667l170.666667 85.333333-188.650667 341.333334H512c235.797333 0 426.666667-190.869333 426.666667-426.666667S747.797333 85.333333 512 85.333333z"
-                        fill="#FFC107"
-                        p-id="2127"
-                      />
-                      <path
-                        d="M892.586667 320H512v277.333333l-64-21.333333L152.746667 282.88h-0.426667C227.84 164.053333 360.746667 85.333333 512 85.333333c166.4 0 310.4 95.573333 380.586667 234.666667z"
-                        fill="#F44336"
-                        p-id="2128"
-                      />
-                      <path
-                        d="M152.704 282.965333l188.650667 317.056L448 576 152.704 282.965333z"
-                        fill="#DD2C00"
-                        p-id="2129"
-                      />
-                      <path
-                        d="M494.016 938.666667l190.592-342.592L597.333333 533.333333l-103.317333 405.333334z"
-                        fill="#558B2F"
-                        p-id="2130"
-                      />
-                      <path
-                        d="M893.12 320H512l-33.685333 97.706667L893.12 320z"
-                        fill="#F9A825"
-                        p-id="2131"
-                      />
-                      <path
-                        d="M704 512c0 106.005333-85.994667 192-192 192s-192-85.994667-192-192 85.994667-192 192-192 192 85.994667 192 192z"
-                        fill="#FFFFFF"
-                        p-id="2132"
-                      />
-                      <path
-                        d="M661.333333 512c0 82.496-66.837333 149.333333-149.333333 149.333333s-149.333333-66.837333-149.333333-149.333333 66.837333-149.333333 149.333333-149.333333 149.333333 66.837333 149.333333 149.333333z"
-                        fill="#2196F3"
-                        p-id="2133"
-                      />
-                    </svg>
-                  </div>
-                </el-menu-item>
-                <el-menu-item
-                  index="1-2"
-                  style="padding: 0; min-width: 100%"
-                  class="getItem"
-                  :class="{
-                    mini: size == 'mini',
-                    medium: size == 'medium',
-                    default: size == 'default',
-                    small: size == 'small',
-                  }"
-                  @click="openBrowser('Internet Explorer')"
-                >
-                  <div
-                    class="leftItem"
-                    :style="{ background: '#3a71a8' }"
-                    :class="{
-                      mini: size == 'mini',
-                      medium: size == 'medium',
-                      default: size == 'default',
-                      small: size == 'small',
-                    }"
-                  >
-                    <div
-                      style="
-                        width: calc(100% - 35px);
-                        padding: 0 0 0 35px;
-                        float: left;
-                        overflow: hidden;
-                      "
-                    >
-                      <span style="position: absolute; left: 5px"></span>
-                      <span style="display: block">启动IE</span>
-                    </div>
-                    <svg
-                      style="float: right"
-                      :class="{
-                        mini: size == 'mini',
-                        medium: size == 'medium',
-                        default: size == 'default',
-                        small: size == 'small',
-                      }"
-                      t="1593957896347"
-                      class="icon"
-                      viewBox="0 0 1024 1024"
-                      version="1.1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      p-id="2880"
-                    >
-                      <path
-                        d="M151.1 891.9c-39.3-39.3-27.5-121.8 23.2-221.2 31.5 88.4 92.9 162.6 172 210.5-87.6 39.8-159.4 46.5-195.2 10.7z m738-737.9c30.8 31.1 30 88.4 3.7 159.8-45.1-68.8-110.7-123-188.1-154 82.7-35.5 150-40.2 184.4-5.8z m-504 320.5c5-89.2 79.2-160.4 169.7-160.4s164.7 71.2 169.7 160.4H385.1z m354.5 106.6h216.8c1.7-15 2.4-30.4 2.4-46.1 0-73.7-19.8-142.8-54.3-202.3 35.7-94.9 34.4-175.4-13.4-223.5-45.5-45.3-167.4-37.9-305.3 23.1-10.2-0.8-20.5-1.2-30.9-1.2-189.2 0-348 130.2-391.9 305.7 59.4-76 121.8-131.1 205.3-171.2-7.6 7.1-51.8 51.1-59.3 58.6C89 544.2 19.6 831.5 94.3 906.1c56.8 56.7 159.6 47.1 277.7-10.7 54.9 28 117.1 43.7 183 43.7 177.4 0 327.7-114.2 382.2-273.2H718.6c-30.1 55.5-88.8 93.2-156.3 93.2S436 721.4 405.9 665.9c-13.4-25-21-53.8-21-84.2v-0.7l354.7 0.1z"
-                        fill="#1296DB"
-                        p-id="2881"
-                      />
-                    </svg>
-                  </div>
-                </el-menu-item>
-              </el-submenu>
-            </span>
-          </el-menu>
+          <el-date-picker
+            v-if="row.type == 'date'"
+            v-model="row.value"
+            type="date"
+            size="mini"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+            style="width: 330px"
+          />
 
-          <div
-            v-if="searchPluginLs.length"
-            style="padding: 10px; height: 93%; overflow: scroll"
-          >
-            <div>
-              <div
-                v-for="(item, idx) in searchPluginLs"
-                :key="idx"
-                class="getItem"
-                :data-type="item.data_type"
-                :data-shape="item.data_shape"
-                :data-shape-type="item.data_shape_type"
-                :data-size="item.data_size"
-                :data-label="item.data_label"
-                :data-color="item.data_color"
-                :data-operation_id="item.operation_id"
-                :data-plugin_id="item.plugin_id"
-                :data-input="item.input"
-                :data-output="item.output"
-                :data-version="item.version"
-                :data-operation-name="item.operation_name"
-                :data-category-name="item.category_name"
-                :data-language="item.language"
-                :data-attribution-name="item.attribution_name"
-              >
-                <router-link-group>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    :content="
-                      item.type === 'online'
-                        ? '插件未安装，请右键下载'
-                        : item.update
-                        ? `插件有新版(${item.update.version})，可右键更新`
-                        : ''
-                    "
-                    placement="top"
-                    :disabled="
-                      item.type === 'online'
-                        ? false
-                        : item.update
-                        ? false
-                        : true
-                    "
-                  >
-                    <div
-                      class="leftItem"
-                      :style="{
-                        background:
-                          download_plugin[item.plugin_id] &&
-                          (download_plugin[item.plugin_id].downloadStatus ===
-                            'success' ||
-                            download_plugin[item.plugin_id].downloadStatus ===
-                              'text') &&
-                          download_plugin[item.plugin_id].downloadRate
-                            ? '#3a71a8'
-                            : download_plugin[item.plugin_id] &&
-                              download_plugin[item.plugin_id].downloadStatus ===
-                                'exception' &&
-                              download_plugin[item.plugin_id].downloadRate
-                            ? '#F56C6C'
-                            : item.background_color,
-                        opacity:
-                          download_plugin[item.plugin_id] &&
-                          download_plugin[item.plugin_id].downloadRate / 100,
-                      }"
-                      :class="{
-                        mini: size == 'mini',
-                        medium: size == 'medium',
-                        default: size == 'default',
-                        small: size == 'small',
-                      }"
-                    >
-                      <div
-                        style="
-                          width: calc(100% - 35px);
-                          padding: 0 0 0 35px;
-                          float: left;
-                          overflow: hidden;
-                          height: 100%;
-                        "
-                      >
-                        <span style="position: absolute; left: 25px">{{
-                          item.version
-                        }}</span>
-                        <span
-                          v-if="item.update"
-                          slot="title"
-                          style="
-                            float: left;
-                            margin: 5px;
-                            background: #e65d6e;
-                            width: 5px;
-                            height: 5px;
-                            border-radius: 50%;
-                            display: inline-block;
-                            vertical-align: text-top;
-                          "
-                        />
-                        <span style="display: block">{{
-                          item.data_label
-                        }}</span>
-                      </div>
-                      <svg
-                        v-if="item.language === 'nodejs'"
-                        t="1565963200375"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="4393"
-                        style="float: right"
-                        :class="{
-                          mini: size == 'mini',
-                          medium: size == 'medium',
-                          default: size == 'default',
-                          small: size == 'small',
-                        }"
-                      >
-                        <path
-                          d="M875.2 262.3L546.7 72.7c-20.7-11.8-48.3-11.8-69 0L148.8 262.3c-21.5 12.2-34.5 34.9-34.5 59.7v379.2c0 24.8 13.4 47.9 34.5 60.1l86.1 49.5c41.8 20.7 56.8 20.7 75.9 20.7 62.1 0 97.4-37.8 97.4-102.7V354.4c0-5.3-4.1-9.3-9.3-9.3h-41.4c-5.3 0-9.3 4.1-9.3 9.3v374.3c0 28.8-30 57.7-78.8 33.3l-90.1-52c-3.2-2-5.3-5.3-5.3-8.9V321.9c0-3.7 2-7.3 5.3-8.9l328.1-190c3.2-1.6 7.3-1.6 10.2 0l328.5 189.6c3.2 1.6 5.3 5.3 5.3 8.9v379.2c0 3.7-2 7.3-4.9 8.9L517.9 899.3c-2.8 1.6-7.3 1.6-10.2 0l-84.4-49.9c-2.4-1.2-5.7-1.6-8.1-0.4-23.1 13.4-27.6 15-49.5 22.7-5.7 1.6-13.4 4.9 2.8 14.2l109.6 65c10.6 6.1 22.3 9.3 34.5 9.3 11.8-0.4 24-3.2 34.1-9.7l328.5-189.6c21.1-12.2 34.5-34.9 34.5-59.7V321.9c0-24.3-13.4-47.5-34.5-59.6z"
-                          fill="#689F63"
-                          p-id="4394"
-                        />
-                        <path
-                          d="M614.1 641.1c-86.9 0-106-21.9-112.5-65-0.8-4.9-4.5-8.1-9.3-8.1h-42.6c-5.3 0-9.3 4.1-9.3 9.3 0 55.2 30 121.4 173.8 121.4l-0.4-0.4c103.9 0 163.6-41 163.6-112.5 0-70.6-47.9-89.7-149-103.1-101.9-13.4-112.5-20.3-112.5-44.3 0-19.5 8.9-45.9 84.4-45.9 67.8 0 92.6 14.6 102.7 60.1 1.2 4.1 4.9 7.3 9.3 7.3H755c2.4 0 5.3-0.8 6.9-2.8 1.6-2 2.8-4.5 2.4-7.3-6.9-78.4-58.9-114.9-164-114.9-93.4 0-149.4 39.4-149.4 105.6 0 71.9 55.6 91.8 145.8 100.7 107.6 10.6 116.1 26.4 116.1 47.5 0 36.5-29.3 52.4-98.7 52.4z"
-                          fill="#689F63"
-                          p-id="4395"
-                        />
-                      </svg>
-                      <svg
-                        v-if="item.language === 'python'"
-                        id="mx_n_1572263765672"
-                        t="1572263765671"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="4139"
-                        data-spm-anchor-id="a313x.7781069.0.i18"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        style="float: right"
-                        :class="{
-                          mini: size == 'mini',
-                          medium: size == 'medium',
-                          default: size == 'default',
-                          small: size == 'small',
-                        }"
-                      >
-                        <path
-                          d="M386.92 498.112a130.632 130.632 0 0 1 23.172-2.082l-6.244-0.03h207.646c9.006 0 17.612-1.234 25.816-3.508 38.74-10.726 66.69-45.074 66.69-87.326v-174.448c0-49.664-42.3-86.968-92.578-95.212-31.862-5.248-78.516-7.654-110.178-7.498-31.658 0.172-61.962 2.808-88.554 7.498C334.286 149.152 320 177.856 320 230.718V288h192v32H257.64c-71.256 0-129.076 85.142-129.626 190.484-0.004 0.506-0.014 1.01-0.014 1.516 0 19.046 1.88 37.44 5.37 54.808C149.296 646.14 198.902 704 257.64 704H288v-91.87c0-53.654 40.292-103.466 98.92-114.018z m20.392-244.108c-19.184 0-34.768-15.57-34.768-34.806 0-19.328 15.548-35.04 34.768-35.04 19.148 0 34.798 15.71 34.798 35.04 0.002 19.236-15.618 34.806-34.798 34.806z"
-                          p-id="4140"
-                          fill="#0075AA"
-                          data-spm-anchor-id="a313x.7781069.0.i13"
-                          class
-                        />
-                        <path
-                          d="M887.902 445.086C869.56 372.042 822.066 320 766.36 320H736v81.344c0 67.83-44.572 116.948-98.978 125.362a107.886 107.886 0 0 1-16.602 1.292H412.702a102.82 102.82 0 0 0-26.098 3.344C348.36 541.378 320 573.2 320 614.472v174.454c0 49.664 49.954 78.852 98.962 93.102 58.654 17.062 122.534 20.136 192.732 0C658.3 868.708 704 841.786 704 788.926V736h-192v-32h254.36c50.48 0 94.214-42.73 115.628-105.098C890.948 572.808 896 543.282 896 512c0-23.536-2.866-46.076-8.098-66.914zM615.734 765.64c19.18 0 34.762 15.57 34.762 34.8 0 19.3-15.582 35.042-34.762 35.042-19.154 0-34.798-15.742-34.798-35.042 0-19.26 15.612-34.8 34.798-34.8z"
-                          p-id="4141"
-                          fill="#FFD400"
-                          data-spm-anchor-id="a313x.7781069.0.i16"
-                          class
-                        />
-                      </svg>
-                      <svg
-                        v-if="item.language === 'java'"
-                        t="1572767890841"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="2391"
-                        data-spm-anchor-id="a313x.7781069.0.i2"
-                        style="float: right"
-                        :class="{
-                          mini: size == 'mini',
-                          medium: size == 'medium',
-                          default: size == 'default',
-                          small: size == 'small',
-                        }"
-                      >
-                        <path
-                          d="M701.72245 245.828637s-162.696653 40.05327-190.648146 134.112978c-27.951493 94.059708 107.42585 114.379856 24.790581 191.957666 0 0 71.165674-36.847202 71.165675-85.796181s-67.37258-73.73956-48.316797-120.746836c19.055783-47.097588 143.008687-119.527627 143.008687-119.527627z"
-                          fill="#E83418"
-                          p-id="2392"
-                          data-spm-anchor-id="a313x.7781069.0.i1"
-                          class="selected"
-                        />
-                        <path
-                          d="M594.2966 68.501477s64.843851 74.371742-34.950655 184.326322-185.590687 106.116329-55.948141 286.017375c0 0-141.11214-93.427526-103.5876-183.69414s234.539666-126.481633 194.486396-286.649557z"
-                          fill="#E83418"
-                          p-id="2393"
-                        />
-                        <path
-                          d="M408.073731 545.79918s-88.324911 23.526216-88.324911 38.788905c0 15.262689 223.702253 34.318472 370.549191-7.631345 0 0-102.323235 46.375094-266.284253 46.375094s-251.06672-48.903823-15.940027-77.532654zM371.226529 645.593685s-45.110729 12.056621-45.110729 29.893196c0 17.791419 96.588438 69.269127 331.760286 12.688804 0 0-30.525378-15.894871-35.582837-21.629669 0 0-324.761124 46.42025-251.06672-20.952331zM390.282312 738.389029s-65.476033 55.270803 207.1752 20.320148l45.110729 22.894033s-73.73956 29.215857-163.328835 29.215858-175.385457-38.111567-88.957094-72.430039zM322.27755 804.497244s-81.370904 15.262689-81.370905 33.054108 125.217269 34.950655 275.812145 34.950654 291.074834-26.054946 256.756361-61.637782c0 0 15.894871 6.999162 15.894871 18.423601s-36.847202 64.843851-333.656832 64.84385-266.916435-44.478547-266.916436-44.478546 7.044318-34.363628 133.480796-45.155885z"
-                          fill="#06509B"
-                          p-id="2394"
-                          data-spm-anchor-id="a313x.7781069.0.i0"
-                          class="selected"
-                        />
-                        <path
-                          d="M303.221767 910.613573s366.710941 52.742073 523.040613-54.63862c0 0 12.056621 62.269965-228.172686 76.900471s-294.867928-22.261851-294.867927-22.261851zM708.08943 552.798342s81.370904-17.159236 81.370904 48.948979-99.162323 105.484147-99.162323 105.484147 136.641707-21.629669 136.641708-110.586762-118.850289-43.846364-118.850289-43.846364z"
-                          fill="#06509B"
-                          p-id="2395"
-                        />
-                      </svg>
-                    </div>
-                  </el-tooltip>
-                  <div
-                    v-if="item.type === 'online'"
-                    slot="link1"
-                    @click="downPlugin(item)"
-                  >
-                    下载
-                  </div>
-                  <div
-                    v-if="item.update"
-                    slot="link2"
-                    @click="updatePlugin(item)"
-                  >
-                    更新
-                  </div>
-                </router-link-group>
-              </div>
-            </div>
-          </div>
+          <el-input
+            v-if="row.type != 'date'"
+            v-model="row.value"
+            placeholder="属性值"
+            size="mini"
+            style="width: 330px"
+            :type="row.type"
+          />
 
-          <!-- :unique-opened="true" -->
-          <el-menu
-            v-else
-            ref="multipleSubmenu"
-            class="el-menu-vertical-demo"
-            style="height: calc(100% - 75px); border: none; overflow: scroll"
-          >
-            <el-submenu
-              v-for="(leftItem, leftIdx) in leftList"
-              :key="leftItem.id"
-              :index="'' + (leftIdx + 1)"
-              style="padding: 0 10px"
-            >
-              <template slot="title">
-                <span>{{ leftItem.title }}</span>
-              </template>
-              <div
-                v-if="leftItem.type === 'online'"
-                slot="title"
-                style="
-                  background: #e65d6e;
-                  width: 5px;
-                  height: 5px;
-                  border-radius: 50%;
-                  display: inline-block;
-                  vertical-align: text-top;
-                "
-              />
-
-              <span v-for="(msg, msgIdx) in leftItem.msg" :key="msgIdx">
-                <el-submenu
-                  :index="'' + (leftIdx + 1) + '-' + '' + (msgIdx + 1)"
-                >
-                  <template slot="title">{{ msg.child_title }}</template>
-                  <div
-                    v-if="msg.child_type === 'online'"
-                    slot="title"
-                    style="
-                      background: #e65d6e;
-                      width: 5px;
-                      height: 5px;
-                      border-radius: 50%;
-                      display: inline-block;
-                      vertical-align: text-top;
-                    "
-                  />
-
-                  <el-menu-item
-                    v-for="(item, idx) in msg.child_msg"
-                    :key="idx"
-                    :index="
-                      '' +
-                      (leftIdx + 1) +
-                      '-' +
-                      '' +
-                      (msgIdx + 1) +
-                      '-' +
-                      '' +
-                      (idx + 1)
-                    "
-                    :class="{
-                      mini: size == 'mini',
-                      medium: size == 'medium',
-                      default: size == 'default',
-                      small: size == 'small',
-                    }"
-                    style="padding: 0; min-width: 100%"
-                    class="getItem"
-                    :data-type="item.data_type"
-                    :data-shape="item.data_shape"
-                    :data-shape-type="item.data_shape_type"
-                    :data-size="item.data_size"
-                    :data-label="item.data_label"
-                    :data-color="item.data_color"
-                    :data-operation_id="item.operation_id"
-                    :data-plugin_id="item.plugin_id"
-                    :data-input="item.input"
-                    :data-output="item.output"
-                    :data-version="item.version"
-                    :data-operation-name="item.operation_name"
-                    :data-category-name="item.category_name"
-                    :data-language="item.language"
-                    :data-attribution-name="item.attribution_name"
-                  >
-                    <router-link-group>
-                      <el-tooltip
-                        class="item"
-                        effect="dark"
-                        :content="
-                          item.type === 'online'
-                            ? '插件未安装，请右键下载'
-                            : item.update
-                            ? `插件有新版(${item.update.version})，可右键更新`
-                            : ''
-                        "
-                        placement="top"
-                        :disabled="
-                          item.type === 'online'
-                            ? false
-                            : item.update
-                            ? false
-                            : true
-                        "
-                      >
-                        <div
-                          class="leftItem"
-                          :style="{
-                            background:
-                              download_plugin[item.plugin_id] &&
-                              (download_plugin[item.plugin_id]
-                                .downloadStatus === 'success' ||
-                                download_plugin[item.plugin_id]
-                                  .downloadStatus === 'text') &&
-                              download_plugin[item.plugin_id].downloadRate
-                                ? '#3a71a8'
-                                : download_plugin[item.plugin_id] &&
-                                  download_plugin[item.plugin_id]
-                                    .downloadStatus === 'exception' &&
-                                  download_plugin[item.plugin_id].downloadRate
-                                ? '#F56C6C'
-                                : item.background_color,
-                            opacity:
-                              download_plugin[item.plugin_id] &&
-                              download_plugin[item.plugin_id].downloadRate /
-                                100,
-                          }"
-                          :class="{
-                            mini: size == 'mini',
-                            medium: size == 'medium',
-                            default: size == 'default',
-                            small: size == 'small',
-                          }"
-                        >
-                          <div
-                            style="
-                              width: calc(100% - 35px);
-                              padding: 0 0 0 35px;
-                              float: left;
-                              overflow: hidden;
-                            "
-                          >
-                            <span style="position: absolute; left: 5px">{{
-                              item.version
-                            }}</span>
-                            <span
-                              v-if="item.update"
-                              slot="title"
-                              style="
-                                position: absolute;
-                                left: 40px;
-                                top: 5px;
-                                background: #e65d6e;
-                                width: 5px;
-                                height: 5px;
-                                border-radius: 50%;
-                                display: inline-block;
-                                vertical-align: text-top;
-                              "
-                            />
-                            <span style="display: block">{{
-                              item.data_label
-                            }}</span>
-                          </div>
-                          <svg
-                            v-if="item.language === 'nodejs'"
-                            t="1565963200375"
-                            class="icon"
-                            viewBox="0 0 1024 1024"
-                            version="1.1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            p-id="4393"
-                            style="float: right"
-                            :class="{
-                              mini: size == 'mini',
-                              medium: size == 'medium',
-                              default: size == 'default',
-                              small: size == 'small',
-                            }"
-                          >
-                            <path
-                              d="M875.2 262.3L546.7 72.7c-20.7-11.8-48.3-11.8-69 0L148.8 262.3c-21.5 12.2-34.5 34.9-34.5 59.7v379.2c0 24.8 13.4 47.9 34.5 60.1l86.1 49.5c41.8 20.7 56.8 20.7 75.9 20.7 62.1 0 97.4-37.8 97.4-102.7V354.4c0-5.3-4.1-9.3-9.3-9.3h-41.4c-5.3 0-9.3 4.1-9.3 9.3v374.3c0 28.8-30 57.7-78.8 33.3l-90.1-52c-3.2-2-5.3-5.3-5.3-8.9V321.9c0-3.7 2-7.3 5.3-8.9l328.1-190c3.2-1.6 7.3-1.6 10.2 0l328.5 189.6c3.2 1.6 5.3 5.3 5.3 8.9v379.2c0 3.7-2 7.3-4.9 8.9L517.9 899.3c-2.8 1.6-7.3 1.6-10.2 0l-84.4-49.9c-2.4-1.2-5.7-1.6-8.1-0.4-23.1 13.4-27.6 15-49.5 22.7-5.7 1.6-13.4 4.9 2.8 14.2l109.6 65c10.6 6.1 22.3 9.3 34.5 9.3 11.8-0.4 24-3.2 34.1-9.7l328.5-189.6c21.1-12.2 34.5-34.9 34.5-59.7V321.9c0-24.3-13.4-47.5-34.5-59.6z"
-                              fill="#689F63"
-                              p-id="4394"
-                            />
-                            <path
-                              d="M614.1 641.1c-86.9 0-106-21.9-112.5-65-0.8-4.9-4.5-8.1-9.3-8.1h-42.6c-5.3 0-9.3 4.1-9.3 9.3 0 55.2 30 121.4 173.8 121.4l-0.4-0.4c103.9 0 163.6-41 163.6-112.5 0-70.6-47.9-89.7-149-103.1-101.9-13.4-112.5-20.3-112.5-44.3 0-19.5 8.9-45.9 84.4-45.9 67.8 0 92.6 14.6 102.7 60.1 1.2 4.1 4.9 7.3 9.3 7.3H755c2.4 0 5.3-0.8 6.9-2.8 1.6-2 2.8-4.5 2.4-7.3-6.9-78.4-58.9-114.9-164-114.9-93.4 0-149.4 39.4-149.4 105.6 0 71.9 55.6 91.8 145.8 100.7 107.6 10.6 116.1 26.4 116.1 47.5 0 36.5-29.3 52.4-98.7 52.4z"
-                              fill="#689F63"
-                              p-id="4395"
-                            />
-                          </svg>
-                          <svg
-                            v-if="item.language === 'java'"
-                            t="1572767890841"
-                            class="icon"
-                            viewBox="0 0 1024 1024"
-                            version="1.1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            p-id="2391"
-                            data-spm-anchor-id="a313x.7781069.0.i2"
-                            style="float: right"
-                            :class="{
-                              mini: size == 'mini',
-                              medium: size == 'medium',
-                              default: size == 'default',
-                              small: size == 'small',
-                            }"
-                          >
-                            <path
-                              d="M701.72245 245.828637s-162.696653 40.05327-190.648146 134.112978c-27.951493 94.059708 107.42585 114.379856 24.790581 191.957666 0 0 71.165674-36.847202 71.165675-85.796181s-67.37258-73.73956-48.316797-120.746836c19.055783-47.097588 143.008687-119.527627 143.008687-119.527627z"
-                              fill="#E83418"
-                              p-id="2392"
-                              data-spm-anchor-id="a313x.7781069.0.i1"
-                              class="selected"
-                            />
-                            <path
-                              d="M594.2966 68.501477s64.843851 74.371742-34.950655 184.326322-185.590687 106.116329-55.948141 286.017375c0 0-141.11214-93.427526-103.5876-183.69414s234.539666-126.481633 194.486396-286.649557z"
-                              fill="#E83418"
-                              p-id="2393"
-                            />
-                            <path
-                              d="M408.073731 545.79918s-88.324911 23.526216-88.324911 38.788905c0 15.262689 223.702253 34.318472 370.549191-7.631345 0 0-102.323235 46.375094-266.284253 46.375094s-251.06672-48.903823-15.940027-77.532654zM371.226529 645.593685s-45.110729 12.056621-45.110729 29.893196c0 17.791419 96.588438 69.269127 331.760286 12.688804 0 0-30.525378-15.894871-35.582837-21.629669 0 0-324.761124 46.42025-251.06672-20.952331zM390.282312 738.389029s-65.476033 55.270803 207.1752 20.320148l45.110729 22.894033s-73.73956 29.215857-163.328835 29.215858-175.385457-38.111567-88.957094-72.430039zM322.27755 804.497244s-81.370904 15.262689-81.370905 33.054108 125.217269 34.950655 275.812145 34.950654 291.074834-26.054946 256.756361-61.637782c0 0 15.894871 6.999162 15.894871 18.423601s-36.847202 64.843851-333.656832 64.84385-266.916435-44.478547-266.916436-44.478546 7.044318-34.363628 133.480796-45.155885z"
-                              fill="#06509B"
-                              p-id="2394"
-                              data-spm-anchor-id="a313x.7781069.0.i0"
-                              class="selected"
-                            />
-                            <path
-                              d="M303.221767 910.613573s366.710941 52.742073 523.040613-54.63862c0 0 12.056621 62.269965-228.172686 76.900471s-294.867928-22.261851-294.867927-22.261851zM708.08943 552.798342s81.370904-17.159236 81.370904 48.948979-99.162323 105.484147-99.162323 105.484147 136.641707-21.629669 136.641708-110.586762-118.850289-43.846364-118.850289-43.846364z"
-                              fill="#06509B"
-                              p-id="2395"
-                            />
-                          </svg>
-                          <svg
-                            v-if="item.language === 'python'"
-                            id="mx_n_1572263765672"
-                            t="1572263765671"
-                            class="icon"
-                            viewBox="0 0 1024 1024"
-                            version="1.1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            p-id="4139"
-                            data-spm-anchor-id="a313x.7781069.0.i18"
-                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                            style="float: right"
-                            :class="{
-                              mini: size == 'mini',
-                              medium: size == 'medium',
-                              default: size == 'default',
-                              small: size == 'small',
-                            }"
-                          >
-                            <path
-                              d="M386.92 498.112a130.632 130.632 0 0 1 23.172-2.082l-6.244-0.03h207.646c9.006 0 17.612-1.234 25.816-3.508 38.74-10.726 66.69-45.074 66.69-87.326v-174.448c0-49.664-42.3-86.968-92.578-95.212-31.862-5.248-78.516-7.654-110.178-7.498-31.658 0.172-61.962 2.808-88.554 7.498C334.286 149.152 320 177.856 320 230.718V288h192v32H257.64c-71.256 0-129.076 85.142-129.626 190.484-0.004 0.506-0.014 1.01-0.014 1.516 0 19.046 1.88 37.44 5.37 54.808C149.296 646.14 198.902 704 257.64 704H288v-91.87c0-53.654 40.292-103.466 98.92-114.018z m20.392-244.108c-19.184 0-34.768-15.57-34.768-34.806 0-19.328 15.548-35.04 34.768-35.04 19.148 0 34.798 15.71 34.798 35.04 0.002 19.236-15.618 34.806-34.798 34.806z"
-                              p-id="4140"
-                              fill="#0075AA"
-                              data-spm-anchor-id="a313x.7781069.0.i13"
-                              class
-                            />
-                            <path
-                              d="M887.902 445.086C869.56 372.042 822.066 320 766.36 320H736v81.344c0 67.83-44.572 116.948-98.978 125.362a107.886 107.886 0 0 1-16.602 1.292H412.702a102.82 102.82 0 0 0-26.098 3.344C348.36 541.378 320 573.2 320 614.472v174.454c0 49.664 49.954 78.852 98.962 93.102 58.654 17.062 122.534 20.136 192.732 0C658.3 868.708 704 841.786 704 788.926V736h-192v-32h254.36c50.48 0 94.214-42.73 115.628-105.098C890.948 572.808 896 543.282 896 512c0-23.536-2.866-46.076-8.098-66.914zM615.734 765.64c19.18 0 34.762 15.57 34.762 34.8 0 19.3-15.582 35.042-34.762 35.042-19.154 0-34.798-15.742-34.798-35.042 0-19.26 15.612-34.8 34.798-34.8z"
-                              p-id="4141"
-                              fill="#FFD400"
-                              data-spm-anchor-id="a313x.7781069.0.i16"
-                              class
-                            />
-                          </svg>
-                        </div>
-                      </el-tooltip>
-                      <div
-                        v-if="item.type === 'online'"
-                        slot="link1"
-                        @click="downPlugin(item)"
-                      >
-                        下载
-                      </div>
-                      <div
-                        v-if="item.update"
-                        slot="link2"
-                        @click="updatePlugin(item)"
-                      >
-                        更新
-                      </div>
-                    </router-link-group>
-                  </el-menu-item>
-                </el-submenu>
-              </span>
-            </el-submenu>
-          </el-menu>
+          <el-button
+            size="mini"
+            :icon="
+              checkNewExtendEl(row) ? 'el-icon-delete' : 'el-icon-circle-close'
+            "
+            @click="handleDelete(index)"
+          />
         </div>
-      </el-col>
-      <el-col :span="15">
-        <!-- 主画布 -->
-        <div
-          id="page"
-          v-loading="loading"
-          class="main-canvas"
-          element-loading-text="正在执行，请稍候…"
-          element-loading-background="rgba(255, 255, 255, 0.5)"
-        />
-        <!-- <div id="xterm"></div> -->
-        <div
-          id="logMessageId"
-          style="
-            height: 194px;
-            background: #475058;
-            color: #eee;
-            overflow: auto;
-            padding: 10px;
-          "
-        >
-          <div id="logMessageBox">
-            <div v-for="(item, idx) in logMessage" :key="idx">
-              <span
-                v-if="item.type === 'warn'"
-                style="color: #fec171"
-                v-text="item.line"
-              />
-              <span
-                v-else-if="item.type === 'error'"
-                style="color: #e65d6e"
-                v-text="item.line"
-              />
-              <span
-                v-else-if="item.type === 'success'"
-                style="color: green"
-                v-text="item.line"
-              />
-              <span v-else-if="item.type === 'log'" v-text="item.line" />
-              <span
-                v-else-if="item.type === 'info'"
-                style="color: #4169e1"
-                v-text="item.line"
-              />
-            </div>
-          </div>
-        </div>
-      </el-col>
-      <el-col
-        v-loading="loading"
-        :span="5"
-        element-loading-text
-        element-loading-spinner="none"
-        element-loading-background="rgba(255, 255, 255, 0.5)"
+      </div>
+
+      <el-divider content-position="left">节点变量</el-divider>
+      <el-table
+        ref="singleTable"
+        height="20vh"
+        :data="node_variable"
+        style="width: 100%"
+        highlight-current-row
       >
-        <div class="ph right">
-          <!-- 详细面板 -->
-          <div
-            id="detailpannel"
-            class="detailpannel"
-            :class="{ filter: !hasModificationRights }"
-          >
-            <div v-if="isShowDescription">
-              <div
-                class="panel-title"
-                style="margin-top: 10px; font-size: 13px; font-weight: 500"
-              >
-                项目描述
-              </div>
-              <el-input
-                v-model="description"
-                type="textarea"
-                :autosize="{ minRows: 8, maxRows: 30 }"
-                style="padding: 10px 10px 0 10px"
-              />
-              <div style="border-bottom: 1px solid #ebeef5; margin: 0 10px" />
-            </div>
-            <div v-if="operationName">
-              <div
-                class="panel-title"
-                style="margin-top: 10px; font-size: 13px; font-weight: 500"
-              >
-                插件名称
-                <span style="float: right; margin-right: 10px"
-                  >V{{ version }}</span
-                >
-              </div>
-              <div class="block-container">
-                <el-input
-                  v-if="language === 'nodejs'"
-                  v-model="plugin_info"
-                  prefix-icon="el-icon-skl-java-script"
-                  :disabled="true"
-                >
-                  <el-button
-                    slot="append"
-                    icon="el-icon-aim"
-                    @click="findPlugin"
-                  />
-                </el-input>
-                <el-input
-                  v-if="language === 'python'"
-                  v-model="plugin_info"
-                  prefix-icon=" el-icon-skl-logo-python"
-                  :disabled="true"
-                >
-                  <el-button
-                    slot="append"
-                    icon="el-icon-aim"
-                    @click="findPlugin"
-                  />
-                </el-input>
-                <el-input
-                  v-if="language === 'java'"
-                  v-model="plugin_info"
-                  prefix-icon=" el-icon-skl-java"
-                  :disabled="true"
-                >
-                  <el-button
-                    slot="append"
-                    icon="el-icon-aim"
-                    @click="findPlugin"
-                  />
-                </el-input>
-              </div>
-              <div style="border-bottom: 1px solid #ebeef5; margin: 0 10px" />
-            </div>
-            <div v-if="nodeLineLabelShow">
-              <div
-                class="panel-title"
-                style="margin-top: 10px; font-size: 13px; font-weight: 500"
-              >
-                节点名称
-              </div>
-              <div class="block-container">
-                <el-input
-                  v-model="nodeLabel"
-                  placeholder="请输入内容"
-                  @change="changeValue('line')"
-                />
-              </div>
-            </div>
-            <div>
-              <el-collapse
-                v-if="nodeLabelShow"
-                v-model="active_tag"
-                style="
-                  width: calc(100% - 20px);
-                  margin: 0 10px;
-                  height: 100%;
-                  float: left;
-                "
-              >
-                <el-collapse-item
-                  v-for="inputItem in store_input"
-                  :key="inputItem.id"
-                  :title="inputItem.name"
-                  :name="inputItem.name"
-                >
-                  <div
-                    v-for="(item, idx) in inputItem.properties"
-                    :key="idx"
-                    class="getItem"
-                  >
-                    <template v-if="handleShowIf(item)">
-                      <div class="panel-title">
-                        <span>{{ item.name }}</span>
-                        <span
-                          v-if="item.required"
-                          style="
-                            color: red;
-                            font-size: 16px;
-                            vertical-align: middle;
-                          "
-                          >*</span
-                        >
-                      </div>
-                      <div class="block-container">
-                        <textEditor
-                          v-if="item.type === 'text'"
-                          :editor="editor.getCurrentPage().save()"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <dateTimeRangePicker
-                          v-if="item.type === 'dateTimeRange'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <passwordEditor
-                          v-if="item.type === 'password'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <stringShower
-                          v-if="item.type === 'string'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                        />
-                        <pathSelector
-                          v-if="item.type === 'path'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <pathMultiple
-                          v-if="item.type === 'pathMultiple'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <conditionEditor
-                          v-if="item.type === 'conditions'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <jsonEditor
-                          v-if="item.type === 'json'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <colorPicker
-                          v-if="item.type === 'color'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <radioEditor
-                          v-if="item.type === 'radio'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <checkboxEditor
-                          v-if="item.type === 'checkbox'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <inputNumberEditor
-                          v-if="item.type === 'inputNumber'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <selectPicker
-                          v-if="item.type === 'select'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <switchSelector
-                          v-if="item.type === 'switch'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <sliderEditor
-                          v-if="item.type === 'slider'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <dateTimePicker
-                          v-if="item.type === 'dateTime'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          @changeValue="changeValue"
-                        />
-                        <uiSelector
-                          v-if="item.type === 'uiselector'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          :browsers="item.browsers"
-                          :project_name="projectName"
-                          @changeValue="changeValue"
-                        />
-                        <el-button
-                          v-if="item.type === 'code'"
-                          type="primary"
-                          @click="codeClick"
-                          >代码编辑器</el-button
-                        >
-                        <codemirror
-                          v-if="item.type === 'code'"
-                          ref="code"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          :language="language"
-                          @changeValue="changeValue"
-                        />
-                        <ui-screenshot
-                          v-if="item.type === 'uiScreenshot'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :project_name="projectName"
-                          @changeValue="changeValue"
-                        />
-                        <projectSelector
-                          v-if="item.type === 'projectSelector'"
-                          :input-id="inputItem.id"
-                          :property-id="item.id"
-                          :value="item.value"
-                          :options="item.options"
-                          :currentProject="projectName"
-                          @changeValue="changeValue"
-                        />
-                      </div>
-                    </template>
-                  </div>
-                </el-collapse-item>
-                <el-collapse-item
-                  v-if="
-                    JSON.stringify(output) !== '{}' &&
-                    output.is_allow_global_use
-                  "
-                  class="params-editor-title"
-                  title="组件返回值"
-                  name="组件返回值"
-                >
-                  <div id="output_div">
-                    <span class="params-editor-el" style="margin-left: 10px">{{
-                      output.description
-                    }}</span>
-                    <el-input
-                      id="output_input"
-                      v-model="output.value"
-                      type="text"
-                      style="padding: 10px"
-                      @change="changeValue('output')"
-                    />
-                  </div>
-                </el-collapse-item>
-                <el-collapse-item
-                  class="params-editor-title"
-                  title="通用属性"
-                  name="通用属性"
-                >
-                  <div
-                    v-for="generalItem in store_general_property"
-                    id="general_div"
-                    :key="generalItem.id"
-                  >
-                    <span class="params-editor-el" style="margin-left: 10px">{{
-                      generalItem.name
-                    }}</span>
-                    <!-- <span style="color:red;font-size: 16px;vertical-align: middle;">*</span> -->
-                    <el-input
-                      :id="generalItem.id"
-                      v-model="generalItem.value"
-                      type="number"
-                      style="padding: 10px"
-                      @change="changeValue(generalItem.id)"
-                    />
-                  </div>
-                </el-collapse-item>
-              </el-collapse>
-            </div>
-          </div>
-          <!-- 缩略图 -->
-          <!-- <div class="minimap" id="minimapId"> -->
-          <!-- <div class="panel-title">缩略图</div> -->
-          <!-- <div id="minimap"></div> -->
-          <!-- </div> -->
-        </div>
-      </el-col>
-    </el-row>
-    <!-- <el-dialog
-      class="child-process"
-      title="提示"
-      :visible.sync="dialogVisible"
-      width="30%"
-      style="display: float; top:100px; left: 400px;"
-      :modal="false"
-      :close-on-click-modal="false"
-      :append-to-body="true"
-    >
-      <span>这是一段信息</span>
+        <el-table-column type="index" width="50" />
+        <el-table-column prop="label" label="节点名称" />
+        <el-table-column prop="value" label="返回值" />
+      </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="handleCloseGlobalVariableDialog">取 消</el-button>
+        <el-button type="primary" @click="handleConfirm">确 定</el-button>
       </span>
-    </el-dialog>-->
+    </el-dialog>
+
+    <el-dialog
+      title="执行时参数"
+      :visible.sync="executeParamsDialog"
+      width="40%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      @close="handleExecuteParamsDialog"
+    >
+      <el-form label-width="100px">
+        <el-form-item
+          v-for="(item, index) in execute_params"
+          :key="index"
+          :label="item.keyName"
+          style="margin-bottom: 8px"
+        >
+          <el-input
+            v-model.trim="item.value"
+            :placeholder="'请输入' + item.keyName"
+          />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleExecuteParamsDialog">取 消</el-button>
+        <el-button type="primary" @click="handleExecuteParamsConfirm"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      title="依赖检测"
+      :visible.sync="detectionDialog"
+      width="60%"
+      top="10vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      @close="handleDetectionDialog"
+    >
+      <el-table v-loading="detectionLoading" border lazy :data="detectionData">
+        <el-table-column
+          prop="plugin_id"
+          align="center"
+          label="插件ID"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="version"
+          align="center"
+          label="插件版本"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="message"
+          align="center"
+          label="信息"
+          show-overflow-tooltip
+          ><template slot-scope="scope">
+            {{
+              scope.row.message
+                ? scope.row.message
+                : plugin_status[scope.row.plugin_id + scope.row.version]
+                ? plugin_status[scope.row.plugin_id + scope.row.version]
+                    .buttonText
+                : download_plugin[scope.row.plugin_id + scope.row.version] &&
+                  download_plugin[scope.row.plugin_id + scope.row.version]
+                    .errLog
+            }}
+          </template></el-table-column
+        >
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleDetectionDialog">关 闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import UiScreenshot from "./editor-el/uiScreenshot";
-
+const socket = require("../../express/socket/client");
 const electron = require("../../utils/electron");
-var os = window.require("os");
-// var pty = window.require("node-pty");
-// var Terminal = window.require("xterm").Terminal;
-const fs = window.require("fs");
-const path = window.require("path");
-const fse = window.require("fs-extra");
+var os = window.nodeRequire("os");
+const fs = window.nodeRequire("fs");
+const path = window.nodeRequire("path");
+const fse = window.nodeRequire("fs-extra");
+const { app } = window.nodeRequire("@electron/remote");
+const async = require("async");
 import config from "@/config/environment/index";
-import environment from "@/config/environment";
 import _ from "lodash";
 import $ from "jquery";
 import moment from "moment";
@@ -1233,19 +802,14 @@ import uiSelector from "./editor-el/uiSelector";
 import codemirror from "./editor-el/codemirror";
 import uiScreenshot from "./editor-el/uiScreenshot";
 import projectSelector from "./editor-el/projectSelector";
+import tinymce from "./editor-el/tinymce";
 import * as ui_selector from "../../uiselector";
-import { constants } from "crypto";
-
-const { stop, views } = window.require(
-  path.normalize(path.resolve() + "/public/runner/child_process_cache")
-);
-
-import { uploadTask, editTask, updateLog } from "@/api/task";
-import { getProjectPermission } from "@/api/role";
+import { updateLog } from "@/api/task";
 import { pluginViews } from "@/api/plugin";
-
-const { pluginDownload, executeDownload } = require("@/utils/electron.js");
-import { checkPluginsVersion } from "@/utils/index.js";
+const { executeDownload } = require("@/utils/electron.js");
+import splitPane from "vue-splitpane";
+import elementResizeDetectorMaker from "element-resize-detector";
+let erd = elementResizeDetectorMaker();
 
 export default {
   components: {
@@ -1269,22 +833,19 @@ export default {
     inputNumberEditor,
     dateTimeRangePicker,
     projectSelector,
+    tinymce,
+    splitPane,
   },
   data() {
-    const leftList = [];
-    // this.getPluginLs().then(res => {
-    //   this.leftList = res;
-    // });
     return {
       dialogVisible: false,
-      dialogFormVisible: false,
       size: this.$store.getters.size,
       input: "",
       logMessage: [],
       output: {},
       graph: null,
       loading: false,
-      nodeData: "",
+      projectJson: {},
       nodeLabel: "",
       operationName: "",
       categoryName: "",
@@ -1293,14 +854,9 @@ export default {
       version: "",
       isShowDescription: true,
       description: "",
-      projectName: "",
       projectType: "",
-      leftList: leftList,
       nodeLabelShow: false,
       nodeLineLabelShow: false,
-      executeJobId: "",
-      activeNames: _.map(leftList, "id"),
-      hasModificationRights: true,
       general_property: [
         { id: "retry_count", value: "1", name: "重试次数" },
         { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
@@ -1316,13 +872,64 @@ export default {
           name: "执行后等待时间",
         },
       ],
-      searchPluginLs: [],
-      pluginSearchInput: "",
       currentNode: {},
-      webPlugin: [],
-      localPlugin: [],
+      localLastPlugin: [],
+      localAllPlugin: [],
       localProjectsLs: [],
       queryData: {},
+      currentPluginVersionLsInfo: [],
+      currentPluginVersionLs: [],
+      // 当前选中节点信息内存（谨慎：会影响内存）
+      currentNmModel: null,
+      globalVariableDialog: false,
+      global_variable: [],
+      node_variable: [],
+      filterText: "",
+      treeData: [
+        // {
+        //   label: "内置浏览器",
+        //   children: [
+        //     {
+        //       icon: "fa-brands fa-chrome",
+        //       label: "启动谷歌浏览器",
+        //     },
+        //     {
+        //       icon: "fa-brands fa-internet-explorer",
+        //       label: "启动IE浏览器",
+        //     },
+        //   ],
+        // },
+      ],
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
+      general_property_temporary: [
+        { id: "retry_count", value: "1", name: "重试次数" },
+        { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
+        {
+          id: "execution_timeout",
+          value: "50000",
+          name: "执行超时时间(ms)",
+        },
+        {
+          id: "delayed_execution_time",
+          value: "50",
+          name: "延迟执行时间(ms)",
+        },
+        {
+          id: "waiting_time_after_execution",
+          value: "50",
+          name: "执行后等待时间",
+        },
+      ],
+      // 依赖检测
+      detectionDialog: false,
+      detectionLoading: false,
+      detectionData: [],
+      // 执行时参数
+      executeParamsDialog: false,
+      execute_params: [],
     };
   },
   computed: {
@@ -1340,121 +947,149 @@ export default {
     },
     active_tag: {
       get() {
-        return _.map(this.input, "name").concat(["组件返回值"]);
+        return _.map(this.input, "name").concat(["组件返回值", "通用属性"]);
       },
       set() {
-        return _.map(this.input, "name").concat(["组件返回值"]);
+        return _.map(this.input, "name").concat(["组件返回值", "通用属性"]);
       },
     },
     download_plugin() {
       return this.$store.state.plugin.pluginDownload;
     },
+    plugin_status() {
+      return this.$store.state.plugin.pluginStatus;
+    },
+  },
+  created: function () {
+    let self = this;
+    document.onkeydown = function (e) {
+      let key = window.event.keyCode;
+      if (key == 115) {
+        // F4 依赖检测
+        self.handleDetection();
+      } else if (key == 116) {
+        // F5 执行
+        self.toolClick("run");
+      } else if (key == 117) {
+        // F6 执行当前节点
+        self.executecurrentNode();
+      } else if (key == 118) {
+        // F7
+      } else if (key == 120) {
+        // F9 停止
+        self.toolClick("stop");
+      }
+    };
   },
   mounted() {
     // 重启执行器
-    delete window.require.cache[
-      path.normalize(
-        path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
-      )
-    ];
-    window["executor"] = window.require(
-      path.normalize(
-        path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
-      )
-    );
-    if (window["executor"].hasOwnProperty("restart")) {
-      window["executor"].restart();
-    }
-    // execute = executor.execute;
-    // 重启选择器
-    delete window.require.cache[
-      path.normalize(
-        path.resolve() + "/public/base_integration/uiauto_uiselector/index.js"
-      )
-    ];
-    window["uiselector"] = window.require(
-      path.normalize(
-        path.resolve() + "/public/base_integration/uiauto_uiselector/index.js"
-      )
-    );
-    window["uiselector"].restart_process();
+    // delete window.nodeRequire.cache[
+    //   path.normalize(
+    //     path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
+    //   )
+    // ];
+    // window["executor"] = window.nodeRequire(
+    //   path.normalize(
+    //     path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
+    //   )
+    // );
+    // if (window["executor"].hasOwnProperty("restart")) {
+    //   window["executor"].restart();
+    // }
+    // // 重启选择器
+    // if (os.platform() === "win32") {
+    //   delete window.nodeRequire.cache[
+    //     path.normalize(
+    //       path.resolve() + "/public/base_integration/uiauto_uiselector/index.js"
+    //     )
+    //   ];
+    //   window["uiselector"] = window.nodeRequire(
+    //     path.normalize(
+    //       path.resolve() + "/public/base_integration/uiauto_uiselector/index.js"
+    //     )
+    //   );
+    //   window["uiselector"].restart_process();
+    // } else {
+    //   delete window.nodeRequire.cache[
+    //     path.normalize(
+    //       path.resolve() +
+    //         "/public/base_integration/uiauto_uiselector_ukylin/index.js"
+    //     )
+    //   ];
+    //   window["uiselector"] = window.nodeRequire(
+    //     path.normalize(
+    //       path.resolve() +
+    //         "/public/base_integration/uiauto_uiselector_ukylin/index.js"
+    //     )
+    //   );
+    //   // window["uiselector"].restart_process();
+    // }
 
-    $(".ph").height($(".main-container").height() - 62);
-    $(".main-canvas").height($(".main-container").height() - 255);
-    this.queryData = this.$route.query;
-    this.getPluginLs(this.queryData.plugins).then((res) => {
-      this.leftList = res;
+    erd.listenTo($(".main-container"), (page_element) => {
+      $(".ph").height(page_element.offsetHeight - 79);
     });
-    this.projectName = this.queryData.redirectProjectName;
-    this.projectType = this.queryData.redirectProjectType;
-    this.description = JSON.parse(
+
+    this.queryData = this.$route.query;
+    this.getPluginLs().then((res) => {
+      this.treeData = _.concat(this.treeData, res);
+    });
+    this.projectJson = JSON.parse(
       fs.readFileSync(
-        `${config.projectsPath}/${this.projectName}/${this.projectName}.json`,
+        `${config.projectsPath}/${this.queryData.redirectProjectName}/${this.queryData.redirectProjectName}.json`,
         "utf-8"
       )
-    ).description;
-    if (this.projectType === "cloud") {
-      // 访问接口是否有权限修改项目
-      getProjectPermission({
-        roleName: JSON.parse(localStorage.getItem("user")).role,
-      })
-        .then((getProjectPermissionRes) => {
-          if (getProjectPermissionRes && getProjectPermissionRes.data.length) {
-            if (!_.includes(getProjectPermissionRes.data, this.projectName)) {
-              this.hasModificationRights = false;
-            }
-          } else {
-            this.hasModificationRights = false;
-          }
-        })
-        .catch(() => {
-          this.hasModificationRights = false;
-        });
-    }
+    );
+    this.projectType = this.projectJson.project_type;
+    this.description = this.projectJson.description;
+    this.global_variable = _.cloneDeep(this.projectJson.global_variable) || [];
+    this.execute_params = this.projectJson.execute_params || [];
     this.initG6Editor();
     this.initTerminal();
     this.getProjectList();
   },
+  watch: {
+    filterText(val) {
+      this.$refs.tree.filter(val);
+    },
+  },
   methods: {
+    filterNode(value, data) {
+      if (!value) return true;
+      if (!data.label) return false;
+      return data.label.indexOf(value) !== -1;
+    },
+    resize(e) {
+      this.resizeFn();
+    },
+    resizeFn: _.debounce(function (value) {
+      window.dispatchEvent(new Event("resize"));
+    }, 100),
     // 左侧插件集
-    async getPluginLs(data) {
+    async getPluginLs() {
       let pluginLs = [];
-      if (!data) {
-        this.webPlugin = (await pluginViews({})).data;
-      } else {
-        this.webPlugin = data;
-      }
-      // 线上插件集
-      const onlinePluginLs = _.map(this.webPlugin, (item) => {
-        return {
-          plugin_id: item.plugin_id,
-          version: item.version,
-          plugin_package_json: JSON.parse(item.plugin_package_json),
-          type: "online",
-        };
-      });
       // 本地插件集
-      const base_integration_path = path.join(
-        path.resolve(),
-        "/public/base_integration/"
-      );
-      const base_integration_file_list = _.map(
-        _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
+      this.localAllPlugin = _.map(
+        _.difference(fs.readdirSync(`${config.pluginsPath}/`), [
+          "list.json",
+          "npm_i.sh",
+          ".DS_Store",
+        ]),
         (file_name) => {
-          return {
-            plugin_id: file_name,
-            version: fs.existsSync(
-              `${base_integration_path}${file_name}/package.json`
-            )
-              ? fse.readJsonSync(
-                  `${base_integration_path}${file_name}/package.json`
-                ).version
-              : "",
-            type: "local",
-          };
+          if (
+            fs.lstatSync(`${config.pluginsPath}/${file_name}`).isDirectory()
+          ) {
+            return {
+              plugin_id: file_name,
+              version: _.difference(
+                fs.readdirSync(`${config.pluginsPath}/${file_name}`),
+                [".DS_Store"]
+              ),
+              type: "local",
+            };
+          }
         }
       );
-      this.localPlugin = _.map(
+      this.localLastPlugin = _.map(
         _.difference(fs.readdirSync(`${config.pluginsPath}/`), [
           "list.json",
           "npm_i.sh",
@@ -1481,44 +1116,15 @@ export default {
           };
         }
       );
-      this.localPlugin = _.concat(this.localPlugin, base_integration_file_list);
 
-      pluginLs = _.concat(
-        pluginLs,
-        _.differenceBy(this.localPlugin, onlinePluginLs, "plugin_id"),
-        _.differenceBy(onlinePluginLs, this.localPlugin, "plugin_id")
-      );
-      _.each(this.localPlugin, (localItem) => {
-        _.each(onlinePluginLs, (onlineItem) => {
-          if (localItem.plugin_id === onlineItem.plugin_id) {
-            if (checkPluginsVersion(onlineItem.version, localItem.version)) {
-              pluginLs.push({
-                plugin_id: localItem.plugin_id,
-                version: localItem.version,
-                type: localItem.type,
-                update: {
-                  plugin_id: onlineItem.plugin_id,
-                  version: onlineItem.version,
-                  type: onlineItem.type,
-                },
-              });
-            } else {
-              pluginLs.push({
-                plugin_id: localItem.plugin_id,
-                version: localItem.version,
-                type: "local",
-              });
-            }
-          }
-        });
-      });
+      pluginLs = _.concat(pluginLs, this.localLastPlugin);
 
       let shapeList = null;
       let conventionHeight = null;
-      if (this.$store.getters.size == "mini") {
+      if (this.size == "mini") {
         shapeList = require("@/views/project/miniNodeConfig.json");
         conventionHeight = 29;
-      } else if (this.$store.getters.size == "small") {
+      } else if (this.size == "small") {
         shapeList = require("@/views/project/smallNodeConfig.json");
         conventionHeight = 39;
       } else {
@@ -1529,102 +1135,85 @@ export default {
       // 整理list
       const list = [];
       _.each(pluginLs, (item) => {
-        if (
-          !_.includes(
-            [
-              "uiauto-chrome-plugin",
-              "uiauto_logMonitor",
-              "uiauto_executor",
-              "uiauto_uiselector",
-            ],
-            item.plugin_id
-          )
-        ) {
-          let package_json = "";
-          let operations = "";
-          if (item.type === "local") {
-            const package_json_path = `${config.pluginsPath}/${item.plugin_id}/${item.version}/package.json`;
-            if (fs.existsSync(package_json_path)) {
-              package_json = fse.readJsonSync(package_json_path);
-              operations = package_json.uiauto_config.operations;
-            }
-          } else {
-            package_json = item.plugin_package_json;
-            operations = package_json.uiauto_config.operations;
-          }
+        let package_json = "";
+        let operations = "";
+        let package_json_path =
+          (package_json_path = `${config.pluginsPath}/${item.plugin_id}/${item.version}/package.json`);
+        if (fs.existsSync(package_json_path)) {
+          package_json = fse.readJsonSync(package_json_path);
+          operations = package_json.uiauto_config.operations;
+        }
 
-          _.each(operations, (operation) => {
-            const target = _.find(list, {
+        _.each(operations, (operation) => {
+          const target = _.find(list, {
+            id:
+              operation.attribution_id ||
+              package_json.uiauto_config.attribution_id,
+          });
+          const target_msg = {
+            label: operation.operation_name,
+            operation_id: operation.operation_id,
+            category_id: operation.category_id,
+            plugin_id: package_json.id,
+            data_label: operation.operation_name,
+            data_type: "node",
+            data_shape: shapeList[operation.type].data_shape,
+            data_shape_type: operation.type,
+            data_size:
+              operation.type == "Convention"
+                ? `${
+                    (operation.operation_name.length + 2) * 16
+                  } * ${conventionHeight}`
+                : shapeList[operation.type].data_size,
+            data_color: shapeList[operation.type].data_color,
+            background_color: operation.background_color || "#3a71a8",
+            input: JSON.stringify(operation.input),
+            output: JSON.stringify(operation.output),
+            operation_name: operation.operation_name,
+            category_name: operation.category_name,
+            version: package_json.version,
+            language: package_json.language,
+            attribution_name:
+              operation.attribution_name ||
+              package_json.uiauto_config.attribution_name,
+            type: item.type,
+            update: item.update,
+          };
+          if (target) {
+            target.children.push(target_msg);
+          } else {
+            list.push({
+              type: item.type,
+              label:
+                operation.attribution_name ||
+                package_json.uiauto_config.attribution_name,
               id:
                 operation.attribution_id ||
                 package_json.uiauto_config.attribution_id,
+              children: [target_msg],
             });
-            const nameLength = operation.operation_name.length + 2;
-            const target_msg = {
-              operation_id: operation.operation_id,
-              category_id: operation.category_id,
-              plugin_id: package_json.id,
-              data_label: operation.operation_name,
-              data_type: "node",
-              data_shape: shapeList[operation.type].data_shape,
-              data_shape_type: operation.type,
-              data_size:
-                operation.type == "Convention"
-                  ? `${nameLength * 16} * ${conventionHeight}`
-                  : shapeList[operation.type].data_size,
-              data_color: shapeList[operation.type].data_color,
-              background_color:
-                item.type == "online"
-                  ? "#C0C4CC"
-                  : operation.background_color || "#3a71a8",
-              input: JSON.stringify(operation.input),
-              output: JSON.stringify(operation.output),
-              operation_name: operation.operation_name,
-              category_name: operation.category_name,
-              version: package_json.version,
-              language: package_json.language,
-              attribution_name:
-                operation.attribution_name ||
-                package_json.uiauto_config.attribution_name,
-              type: item.type,
-              update: item.update,
-            };
-            if (target) {
-              target.msg.push(target_msg);
-            } else {
-              list.push({
-                type: item.type,
-                title:
-                  operation.attribution_name ||
-                  package_json.uiauto_config.attribution_name,
-                id:
-                  operation.attribution_id ||
-                  package_json.uiauto_config.attribution_id,
-                msg: [target_msg],
-              });
-            }
-          });
-        }
+          }
+        });
       });
       let returnList = [];
       _.each(list, (listItem, idx) => {
         returnList = [];
-        _.each(listItem.msg, (msgItem) => {
-          const target = _.find(returnList, { child_id: msgItem.category_id });
+        _.each(listItem.children, (msgItem) => {
+          const target = _.find(returnList, { id: msgItem.category_id });
           if (target) {
-            target.child_msg.push(msgItem);
+            target.children.push(msgItem);
           } else {
             returnList.push({
-              child_title: msgItem.category_name,
-              child_id: msgItem.category_id,
-              child_msg: [msgItem],
-              child_type: _.find(pluginLs, { plugin_id: msgItem.plugin_id })
+              label: msgItem.category_name,
+              id: msgItem.category_id,
+              children: [msgItem],
+              type: _.find(pluginLs, { plugin_id: msgItem.plugin_id })
                 ? _.find(pluginLs, { plugin_id: msgItem.plugin_id }).type
                 : "",
             });
           }
         });
-        list[idx].msg = returnList;
+        list[idx].children = returnList;
       });
       return list;
     },
@@ -1632,22 +1221,26 @@ export default {
     getProjectList() {
       const self = this;
       if (config.projectsPath) {
-        let json = "";
-
         const files = _.difference(fs.readdirSync(`${config.projectsPath}/`), [
           ".DS_Store",
         ]);
         files.forEach(function (fileName, index) {
           const file = fs.statSync(`${config.projectsPath}/${fileName}`);
           if (file.isDirectory()) {
-            json = fse.readJsonSync(
-              `${config.projectsPath}/${fileName}/${fileName}.json`
-            );
-            if (json.project_type !== "folder") {
-              self.localProjectsLs.push({
-                project_name: json.project_name,
-                project_type: json.project_type,
-              });
+            if (
+              fs.existsSync(
+                `${config.projectsPath}/${fileName}/${fileName}.json`
+              )
+            ) {
+              let json = fse.readJsonSync(
+                `${config.projectsPath}/${fileName}/${fileName}.json`
+              );
+              if (json.project_type !== "folder") {
+                self.localProjectsLs.push({
+                  project_name: json.project_name,
+                  project_type: json.project_type,
+                });
+              }
             }
           }
         });
@@ -1657,20 +1250,21 @@ export default {
       window["executor"]
         .execute_python(
           path.normalize(
-            `${path.resolve()}\\public\\base_integration\\uiauto_executor\\base\\browser.py`
+            `${path.resolve()}/public/base_integration/uiauto_executor/base/browser.py`
           ),
           "open_browser",
           {
             browser_type: val,
             webdriver_dir: path.normalize(
-              `${path.resolve()}\\env\\webdriver\\win32\\`
+              os.platform()
+                ? `${path.resolve()}\\env\\webdriver\\win32\\`
+                : `${path.resolve()}/env/webdriver/linux/`
             ),
           }
         )
         .then(async (result) => {
-          console.log(".>>>>>>>>>>>>>>>>..........", result);
           fs.writeFileSync(
-            path.normalize(`${os.homedir()}\\.uiauto\\browser.json`),
+            path.normalize(`${os.homedir()}/.uiauto/browser.json`),
             JSON.stringify(result)
           );
         })
@@ -1727,217 +1321,113 @@ export default {
     },
     toolClick(val) {
       if (val === "run") {
-        if (this.projectType === "cloud") {
-          this.execute();
-        } else {
-          this.saveGraph("run").then((saveGraphRes) => {
-            if (saveGraphRes) {
+        this.saveGraph("run").then((saveGraphRes) => {
+          if (saveGraphRes) {
+            if (this.execute_params.length) {
+              this.executeParamsDialog = true;
+            } else {
               this.execute();
             }
-          });
-        }
+          }
+        });
       } else if (val === "stop") {
-        // stop(this.projectName);
         window["executor"].restart();
         this.loading = false;
-        this.$message({
-          message: "停止成功",
-          type: "success",
+        this.$message.success("停止成功");
+        this.$store.commit("socket/ACTUATOR_STATUS", {
+          actuatorStatus: "free",
         });
-        const postBody = {
-          id: this.executeJobId,
-          value: {
-            status: "fail",
-            message: JSON.stringify(
-              `${moment().format("YYYY-MM-DD HH:mm:ss")} [log] 手动停止`
-            ),
-          },
-        };
-        editTask(postBody);
       }
     },
     execute() {
-      const self = this;
-      if (!this.loading) {
-        this.loading = true;
-        electron.window_minimize();
-        // if (this.projectType === "cloud") {
-        uploadTask({
-          uploadData: [
-            {
-              project_code: this.projectName,
-              project_name: this.projectName,
-              status: "running",
-              deviceId: JSON.parse(
-                fs.readFileSync(`${os.homedir()}/.uiauto/uiauto.conf`, "utf8")
-              ).deviceId,
-              project_type: "local",
-            },
-          ],
-        })
-          .then((uploadTaskRes) => {
-            let browser_info = {};
-            const browser_info_path = path.normalize(
-              `${os.homedir()}\\.uiauto\\browser.json`
-            );
-            if (fs.existsSync(browser_info_path)) {
-              browser_info = JSON.parse(fs.readFileSync(browser_info_path));
-            }
+      if (this.$store.state.socket.actuatorStatus != "running") {
+        this.$store.commit("socket/ACTUATOR_STATUS", {
+          actuatorStatus: "running",
+        });
+        const self = this;
+        if (!this.loading) {
+          this.loading = true;
+          electron.window_minimize();
 
-            self.executeJobId = uploadTaskRes.data[0].id;
-            window["executor"]
-              .execute(
-                this.projectName,
+          let browser_info = {};
+          const browser_info_path = path.normalize(
+            `${os.homedir()}/.uiauto/browser.json`
+          );
+          if (fs.existsSync(browser_info_path)) {
+            browser_info = JSON.parse(fs.readFileSync(browser_info_path));
+          }
+
+          window["executor"]
+            .execute(
+              this.projectJson.project_name,
+              _.assign(
                 {
                   uiauto_browser: browser_info,
-                  uiauto_task_id: uploadTaskRes.data[0].id,
+                  uiauto_task_id: null,
                 },
-                {
-                  newCB: (newLogs) => {
-                    this.logMessage = _.concat(this.logMessage, newLogs);
-                    setTimeout(() => {
-                      $("#logMessageId").scrollTop(
-                        $("#logMessageBox")[0].offsetHeight
-                      );
-                    }, 0);
-                  },
-                  updateLog: updateLog,
-                }
-              )
-              .then((res) => {
-                console.log("-=-=-=执行成功-=-=-=-=");
-                console.log(res);
-                self.loading = false;
-                electron.window_maximize();
-                const postBody = {
-                  id: uploadTaskRes.data[0].id,
-                  value: {
-                    status: "success",
-                    message:
-                      JSON.stringify(res).length > 2500
-                        ? `${JSON.stringify(res).slice(0, 2500)}..."`
-                        : JSON.stringify(res),
-                  },
-                };
-                editTask(postBody);
-              })
-              .catch((err) => {
-                console.log("-=-=-=执行出错-=-=-=-=");
-                console.log(err);
-                self.loading = false;
-                electron.window_maximize();
-                this.$message({
-                  message: "执行出错",
-                  type: "warning",
-                });
-                const postBody = {
-                  id: uploadTaskRes.data[0].id,
-                  value: {
-                    status: "fail",
-                    message:
-                      JSON.stringify(err) === "{}"
-                        ? ""
-                        : JSON.stringify(err).length > 2500
-                        ? `${JSON.stringify(err).slice(0, 2500)}..."`
-                        : JSON.stringify(err),
-                  },
-                };
-                editTask(postBody);
+                _.zipObject(
+                  _.map(this.global_variable, "key"),
+                  _.map(this.global_variable, "value")
+                ),
+                _.zipObject(
+                  _.map(this.execute_params, "key"),
+                  _.map(this.execute_params, "value")
+                )
+              ),
+              {
+                newCB: (newLogs) => {
+                  this.logMessage = _.concat(this.logMessage, newLogs);
+                  setTimeout(() => {
+                    $("#logMessageId").scrollTop(
+                      $("#logMessageBox")[0].offsetHeight
+                    );
+                  }, 0);
+                },
+                updateLog: updateLog,
+                socket_client: socket.getSocketClient(),
+              }
+            )
+            .then((res) => {
+              console.log("-=-=-=执行成功-=-=-=-=");
+              console.log(res);
+              self.loading = false;
+              electron.window_maximize();
+              this.$store.commit("socket/ACTUATOR_STATUS", {
+                actuatorStatus: "free",
               });
-          })
-          .catch((err) => {
-            console.log(err);
-            this.loading = false;
-            electron.window_maximize();
-            this.$message({
-              message: "执行出错",
-              type: "warning",
+            })
+            .catch((err) => {
+              console.log("-=-=-=执行出错-=-=-=-=");
+              console.log(err);
+              self.loading = false;
+              electron.window_maximize();
+              this.$message.warning("执行出错");
+              this.$store.commit("socket/ACTUATOR_STATUS", {
+                actuatorStatus: "free",
+              });
             });
-            const postBody = {
-              id: uploadTaskRes.data[0].id,
-              value: {
-                status: "fail",
-                message: JSON.stringify(err),
-              },
-            };
-            editTask(postBody);
-          });
+        } else {
+          this.$message.warning("正在执行，请稍候…");
+        }
       } else {
-        this.$message({
-          message: "正在执行，请稍候…",
-          type: "warning",
-        });
-      }
-    },
-    versionFn(str1, str2) {
-      var arr1 = str1.split("."); // 去除'.'，将剩下的数字转换为数组
-      var arr2 = str2.split(".");
-      var minLen = Math.min(arr1.length, arr2.length); // 取出两个数组中的最小程度
-      var maxLen = Math.max(arr1.length, arr2.length); // 最大长度
-
-      // 以最短的数组为基础进行遍历
-      for (let i = 0; i < minLen; i++) {
-        // 这里需要转换后才进行比较，否则会出现'10'<'7'的情况
-        if (parseInt(arr1[i]) > parseInt(arr2[i])) {
-          return 1; // 返回一个大于0的数，表示前者的index比后者的index大
-        } else if (parseInt(arr1[i]) < parseInt(arr2[i])) {
-          return -1; // 返回一个小于0的数，表示前者的index比后者的index小
-        }
-
-        // 因为不只进行一次计较，所以这里不对相等的两个数进行处理，否则有可能第一次比较就返回，不符合要求
-
-        // 这个是为了区分'4.8'和'4.8.0'的情况
-        // 在前面的比较都相同的情况下，则比较长度
-        // 位数多的index大
-        if (i + 1 == minLen) {
-          if (arr1.length > arr2.length) {
-            return 1;
-          } else {
-            return -1;
-          }
-        }
+        this.$message.warning(
+          "有任务正在执行，请等待任务完成后或者停止当前任务再执行"
+        );
       }
     },
     // 画布保存方法
     saveGraph(type) {
       const self = this;
       const saveFn = function (resolve, reject) {
-        var general_property_temporary = [
-          { id: "retry_count", value: "1", name: "重试次数" },
-          { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
-          {
-            id: "execution_timeout",
-            value: "50000",
-            name: "执行超时时间(ms)",
-          },
-          {
-            id: "delayed_execution_time",
-            value: "50",
-            name: "延迟执行时间(ms)",
-          },
-          {
-            id: "waiting_time_after_execution",
-            value: "50",
-            name: "执行后等待时间",
-          },
-        ];
         // 获取当前page
         const page = self.editor.getCurrentPage();
         // 保存画布
         const data = page.save();
         // 收集必填项未填值信息
         const errorMessage = [];
-        const missPlugin = [];
         _.each(data.nodes, (node) => {
-          const target = _.find(self.localPlugin, {
-            plugin_id: node.plugin_id,
-            // version: node.version
-          });
-          if (!target) {
-            missPlugin.push(node);
-          }
           if (!node.general_property) {
-            node.general_property = general_property_temporary;
+            node.general_property = self.general_property_temporary;
           }
           typeof node.output === "string" &&
             (node.output = JSON.parse(node.output));
@@ -1966,36 +1456,23 @@ export default {
             });
           }
         });
-        let cron = "";
-        let retry_count = "";
-        let retry_interval = "";
-        let time_out = "";
-        let description = "";
-        let createAt = "";
-        let automatic_recording = "";
-        try {
-          var json = fse.readJsonSync(
-            `${config.projectsPath}/${self.projectName}/${self.projectName}.json`
-          );
-          cron = json.cron;
-          retry_count = json.retry_count;
-          retry_interval = json.retry_interval;
-          time_out = json.time_out;
-          description = json.description;
-          createAt = json.createAt;
-          automatic_recording = json.automatic_recording;
-        } catch (error) {}
+
         var writeJson = _.extend(
-          { project_name: self.projectName },
-          { createAt: createAt },
+          { project_name: self.projectJson.project_name },
+          { name: self.projectJson.name },
+          { createAt: self.projectJson.createAt },
           { updateAt: moment().format("YYYY-MM-DD HH:mm:ss") },
           { project_type: self.projectType },
-          { cron: cron },
-          { automatic_recording: automatic_recording },
-          { retry_count: retry_count },
-          { retry_interval: retry_interval },
-          { time_out: time_out },
-          { description: self.description || description },
+          { cron: self.projectJson.cron },
+          { automatic_recording: self.projectJson.automatic_recording },
+          { record_file_path: self.projectJson.record_file_path },
+          { retry_count: self.projectJson.retry_count },
+          { retry_interval: self.projectJson.retry_interval },
+          { time_out: self.projectJson.time_out },
+          { description: self.description },
+          { global_variable: self.global_variable },
+          { isExecuteParams: self.projectJson.isExecuteParams },
+          { execute_params: self.projectJson.execute_params },
           data
         );
 
@@ -2007,14 +1484,13 @@ export default {
             confirmText.push(`...等${errorMessage.length - 5}个`);
 
           const newDatas = [];
-          const h = self.$createElement;
           for (const i in confirmText) {
-            newDatas.push(h("p", null, confirmText[i]));
+            newDatas.push(self.$createElement("p", null, confirmText[i]));
           }
           self
             .$confirm("提示", {
               title: "提示",
-              message: h("div", null, newDatas),
+              message: self.$createElement("div", null, newDatas),
               showCancelButton: true,
               confirmButtonText: "继续",
               cancelButtonText: "取消",
@@ -2022,135 +1498,45 @@ export default {
             })
             .then(() => {
               fs.writeFileSync(
-                `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
+                `${config.projectsPath}/${self.projectJson.project_name}/${self.projectJson.project_name}.json`,
                 JSON.stringify(writeJson, null, "\t"),
                 "utf8"
               );
-
-              if (type === "save") {
-                self.$message({
-                  message: "保存成功",
-                  type: "success",
-                });
-              }
+              // 更新全局projectJson
+              self.projectJson = writeJson;
+              type === "save" && self.$message.success("保存成功");
 
               resolve(true);
             })
             .catch(() => {
               reject(false);
             });
-        } else if (missPlugin.length) {
-          return self
-            .$confirm("提示", {
-              title: "提示",
-              message: "该项目存在未下载的插件，是否自动下载对应插件？",
-              showCancelButton: true,
-              confirmButtonText: "继续",
-              cancelButtonText: "取消",
-              type: "warning",
-            })
-            .then(() => {
-              const errorPlugin = [];
-              _.each(missPlugin, (item) => {
-                const target = _.find(self.webPlugin, {
-                  plugin_id: item.plugin_id,
-                  version: item.version,
-                });
-                if (target) {
-                  self.downPlugin(target);
-                } else {
-                  errorPlugin.push(item);
-                }
-              });
-              if (errorPlugin.length) {
-                let message_target = _.uniqWith(
-                  _.map(errorPlugin, (item) => {
-                    return `${item.plugin_id} - ${item.version}`;
-                  }),
-                  _.isEqual
-                );
-                self.$notify({
-                  title: "警告",
-                  dangerouslyUseHTMLString: true,
-                  message: `检测到<br />${
-                    message_target.length > 5
-                      ? `${_.chunk(message_target, 5)[0].join("<br />")} 等${
-                          message_target.length - 5
-                        }个...`
-                      : message_target.join("<br />")
-                  } <br />以上插件版本云端不存在`,
-                  type: "warning",
-                });
-              }
-              fs.writeFileSync(
-                `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
-                JSON.stringify(writeJson, null, "\t"),
-                "utf8"
-              );
-
-              if (type === "save") {
-                self.$message({
-                  message: "保存成功",
-                  type: "success",
-                });
-              }
-              resolve(true);
-            })
-            .catch((err) => {
-              fs.writeFileSync(
-                `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
-                JSON.stringify(writeJson, null, "\t"),
-                "utf8"
-              );
-
-              if (type === "save") {
-                self.$message({
-                  message: "保存成功",
-                  type: "success",
-                });
-              }
-              resolve(true);
-            });
         } else {
           fs.writeFileSync(
-            `${config.projectsPath}/${self.projectName}/${self.projectName}.json`,
+            `${config.projectsPath}/${self.projectJson.project_name}/${self.projectJson.project_name}.json`,
             JSON.stringify(writeJson, null, "\t"),
             "utf8"
           );
 
-          if (type === "save") {
-            self.$message({
-              message: "保存成功",
-              type: "success",
-            });
-          }
+          // 更新全局projectJson
+          self.projectJson = writeJson;
+          type === "save" && self.$message.success("保存成功");
+
           resolve(true);
         }
       };
 
       return new Promise((resolve, reject) => {
-        if (this.projectType === "cloud") {
-          if (!this.hasModificationRights) {
-            this.$message({
-              message: "您没有权限修改本云端项目",
-              type: "error",
-            });
-            reject(false);
-          } else {
-            saveFn(resolve, reject);
-          }
-        } else {
-          saveFn(resolve, reject);
-        }
+        saveFn(resolve, reject);
       });
     },
     // 修改Node的label
     changeValue(obj) {
       const self = this;
       let conventionHeight = null;
-      if (this.$store.getters.size == "mini") {
+      if (this.size == "mini") {
         conventionHeight = 29;
-      } else if (this.$store.getters.size == "small") {
+      } else if (this.size == "small") {
         conventionHeight = 39;
       } else {
         conventionHeight = 48;
@@ -2230,6 +1616,9 @@ export default {
       // Command
       const Command = G6Editor.Command;
 
+      // 关闭体验改进计划打点请求
+      G6Editor.track(false);
+
       // 定义Save命令
       Command.registerCommand("save", {
         // 命令是否进入队列，默认是 true
@@ -2242,8 +1631,11 @@ export default {
         execute(eidtor) {
           self.saveGraph("save");
         },
-        // 快捷键：Ctrl+shirt+s
-        shortcutCodes: [["ctrlKey", "shiftKey", "s"]],
+        // 快捷键：Ctrl + S
+        shortcutCodes: [
+          ["metaKey", "s"],
+          ["ctrlKey", "s"],
+        ],
       });
 
       // 主画布
@@ -2253,6 +1645,10 @@ export default {
       const page = new G6Editor.Flow({
         graph: {
           container: "page",
+        },
+        shortcut: {
+          // 开启自定义命令保存的快捷键
+          save: true,
         },
       });
 
@@ -2314,6 +1710,11 @@ export default {
         container: "detailpannel",
       });
 
+      // 右键菜单
+      const contextmenu = new G6Editor.Contextmenu({
+        container: "contextmenu",
+      });
+
       // 缩略图
       // const minimap = new G6Editor.Minimap({
       //   container: "minimap",
@@ -2325,10 +1726,29 @@ export default {
       editor.add(itempannel);
       editor.add(toolbar);
       editor.add(detailpannel);
+      editor.add(contextmenu);
       // editor.add(minimap);
+      // 挂载到window，方便调试
+      window.editor = editor;
 
       // 获取当前page
       const currentPage = editor.getCurrentPage();
+      currentPage.on("afterchange", (e) => {
+        if (e.action === "add") {
+          if (e.model.shapeType === "Start" || e.model.shapeType === "End") {
+            const nodes = this.editor.getCurrentPage().getNodes();
+            for (const item of nodes) {
+              if (
+                item.model.shapeType === e.model.shapeType &&
+                item.model.id !== e.model.id
+              ) {
+                this.editor.getCurrentPage().remove(e.item);
+                this.$message.warning("只能有一个开始节点或结束节点");
+              }
+            }
+          }
+        }
+      });
       // 监听鼠标按下事件
       currentPage.on("mousedown", (ev) => {
         self.nodeLabelShow = false;
@@ -2347,7 +1767,7 @@ export default {
             !this.queryData.currentProjectName &&
             !this.queryData.currentProjectType
           ) {
-            let subprocess_project_name =
+            const subprocess_project_name =
               ev.item.model.input[0].properties[0].value;
             if (ev.item.model.shapeType === "Subprocess") {
               this.$confirm(
@@ -2360,7 +1780,7 @@ export default {
                 }
               )
                 .then(() => {
-                  let target = _.find(this.localProjectsLs, {
+                  const target = _.find(this.localProjectsLs, {
                     project_name: subprocess_project_name,
                   });
                   if (target) {
@@ -2369,37 +1789,28 @@ export default {
                         this.$router.push({
                           path: "/project",
                           query: {
-                            currentProjectName: this.projectName,
+                            currentProjectName: this.projectJson.project_name,
                             currentProjectType: this.projectType,
                             redirectProjectName: target.project_name,
                             redirectProjectType: target.project_type,
-                            plugins: this.webPlugin,
                           },
                         });
                       }
                     });
                   } else {
-                    this.$message({
-                      message: `本地未存在${subprocess_project_name}项目`,
-                      type: "warning",
-                    });
+                    this.$message.warning(
+                      `本地未存在${subprocess_project_name}项目`
+                    );
                   }
                 })
                 .catch(() => {});
             }
           } else {
-            this.$message({
-              message: `您已在子流程中，无法继续跳转其它子流程`,
-              type: "warning",
-            });
+            this.$message.warning(`您已在子流程中，无法继续跳转其它子流程`);
           }
         }
       });
 
-      // currentPage.on("dblclick", ev => {
-      //   console.log("ev", ev);
-      //   this.dialogVisible = true;
-      // });
       // 监听连线事件
       currentPage.on("dragedge:beforeshowanchor", (ev) => {
         const source = ev.source;
@@ -2416,33 +1827,15 @@ export default {
         // 选择对象为Node节点
         if (ev.item.isNode) {
           // 获取属性
-          const nm = ev.item.getModel();
+          const nm = _.cloneDeep(ev.item.getModel());
+          self.currentNmModel = ev.item.getModel();
           self.currentNode = nm;
-          var general_property_temporary = [
-            { id: "retry_count", value: "1", name: "重试次数" },
-            { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
-            {
-              id: "execution_timeout",
-              value: "50000",
-              name: "执行超时时间(ms)",
-            },
-            {
-              id: "delayed_execution_time",
-              value: "50",
-              name: "延迟执行时间(ms)",
-            },
-            {
-              id: "waiting_time_after_execution",
-              value: "50",
-              name: "执行后等待时间",
-            },
-          ];
           typeof nm.input === "string" && (nm.input = JSON.parse(nm.input));
           typeof nm.output === "string" && (nm.output = JSON.parse(nm.output));
           self.input = nm.input;
           self.output = nm.output;
           self.general_property =
-            nm.general_property || general_property_temporary;
+            nm.general_property || _.cloneDeep(self.general_property_temporary);
           self.nodeLabelShow = true;
           self.nodeLineLabelShow = true;
           self.nodeLabel = nm.label;
@@ -2452,6 +1845,7 @@ export default {
           self.language = nm.language;
           self.version = nm.version;
           self.isShowDescription = false;
+          self.findPluginVersionLs(nm.plugin_id);
         }
 
         // 选择对象为Edge节点
@@ -2482,33 +1876,44 @@ export default {
       });
 
       try {
-        var readFile = JSON.parse(
-          fs.readFileSync(
-            `${config.projectsPath}/${this.projectName}/${this.projectName}.json`,
-            "utf-8"
-          )
-        );
         const data = {
-          nodes: readFile.nodes,
-          edges: readFile.edges,
+          nodes: this.projectJson.nodes,
+          edges: this.projectJson.edges,
         };
         const curPage = self.editor.getCurrentPage();
         curPage.read(data);
       } catch (error) {}
     },
     initTerminal() {
-      const { init } =
-        window.require(
-          path.normalize(
-            path.resolve() +
-              "/public/base_integration/uiauto_logMonitor/logMonitor.js"
-          )
-        ) ||
-        window.require(
-          path.normalize(path.resolve() + "/global/logMonitor.js")
-        );
-      init(
-        this.projectName,
+      let initFn;
+      if (os.platform() == "darwin" && path.resolve() == "/") {
+        const { init } =
+          window.nodeRequire(
+            path.normalize(
+              app.getPath("exe") +
+                "../../../public/base_integration/uiauto_logMonitor/logMonitor.js"
+            )
+          ) ||
+          window.nodeRequire(
+            path.normalize(app.getPath("exe") + "../../../global/logMonitor.js")
+          );
+        initFn = init;
+      } else {
+        const { init } =
+          window.nodeRequire(
+            path.normalize(
+              path.resolve() +
+                "/public/base_integration/uiauto_logMonitor/logMonitor.js"
+            )
+          ) ||
+          window.nodeRequire(
+            path.normalize(path.resolve() + "/global/logMonitor.js")
+          );
+        initFn = init;
+      }
+
+      initFn(
+        this.projectJson.project_name,
         (historyLogs) => {
           this.logMessage = _.concat(this.logMessage, historyLogs);
           this.logMessage.push("=======   历史日志   =======");
@@ -2521,175 +1926,84 @@ export default {
         }
       );
     },
-    // 打开代码编辑器界面
-    codeClick() {
-      this.$refs.code[0].openCodeModal();
-    },
-    getRemote: _.debounce(function (value) {
-      this.searchPluginLs = [];
-      if (value) {
-        const searchName = value.replace(/\s+/g, "");
-        if (searchName) {
-          _.each(this.leftList, (item) => {
-            if (item.title && item.title.indexOf(searchName) > -1) {
-              this.searchPluginLs = _.concat(
-                this.searchPluginLs,
-                _.flattenDeep(_.map(item.msg, "child_msg"))
-              );
-            }
-            _.each(item.msg, (msg_item) => {
-              if (msg_item.child_id === searchName) {
-                this.searchPluginLs = _.concat(
-                  this.searchPluginLs,
-                  msg_item.child_msg
-                );
-              }
-            });
-          });
-          _.each(
-            _.flattenDeep(
-              _.map(_.flattenDeep(_.map(this.leftList, "msg")), "child_msg")
-            ),
-            (item, idx) => {
-              if (item.data_label.indexOf(searchName) > -1) {
-                this.searchPluginLs.push(item);
-              }
-            }
-          );
-        }
-      }
-      this.searchPluginLs = _.compact(
-        _.unionWith(this.searchPluginLs, _.isEqual)
-      );
-      console.log("this.searchPluginLs", this.searchPluginLs);
-    }, 500),
-    // 插件搜索
-    pluginSearch(value) {
-      this.getRemote(value);
-    },
     // 执行当前节点
     async executecurrentNode() {
-      if (JSON.stringify(this.currentNode) == "{}") {
-        this.$message.error("请选择需要执行的节点");
-      } else {
-        const projectJson = await fse.readJsonSync(
-          `${config.projectsPath}/${this.projectName}/${this.projectName}.json`
-        );
-        // 原先进入时的json
-        const projectObj = {};
-        if (projectJson.nodes) {
-          projectObj.nodes = projectJson.nodes;
-        }
-        if (projectJson.edges) {
-          projectObj.edges = projectJson.edges;
-        }
-        // 当前json
-        const projectOtherObj = await this.editor.getCurrentPage().save();
-        if (!_.isEqual(projectObj, projectOtherObj)) {
-          this.$confirm(
-            "检测到未保存的内容，请先保存修改后再执行",
-            "确认信息",
-            {
-              showClose: false,
-              closeOnClickModal: false,
-              confirmButtonText: "保存",
-              cancelButtonText: "取消",
-            }
-          )
-            .then(() => {
-              this.saveGraph("save").then((res) => {
-                if (res) {
-                  let browser_info = {};
-                  const browser_info_path = path.normalize(
-                    `${os.homedir()}\\.uiauto\\browser.json`
-                  );
-                  if (fs.existsSync(browser_info_path)) {
-                    browser_info = JSON.parse(
-                      fs.readFileSync(browser_info_path)
-                    );
-                  }
-
-                  electron.window_minimize();
-                  window["executor"]
-                    .execute_node(
-                      this.projectName,
-                      {
-                        uiauto_browser: browser_info,
-                        node_id: this.currentNode.id,
-                      },
-                      {
-                        newCB: (newCB) => {
-                          this.logMessage = _.concat(this.logMessage, newLogs);
-                          setTimeout(() => {
-                            $("#logMessageId").scrollTop(
-                              $("#logMessageBox")[0].offsetHeight
-                            );
-                          }, 0);
-                        },
-                      }
-                    )
-                    .then((result) => {
-                      electron.window_maximize();
-                      console.log("执行当前节点成功", result);
-                      this.$message.success("执行当前节点成功");
-                    })
-                    .catch((err) => {
-                      console.log("执行当前节点出错", err);
-                      electron.window_maximize();
-                      this.$message.error("执行当前节点出错");
-                    });
-                }
-              });
-            })
-            .catch(() => {});
+      if (this.$store.state.socket.actuatorStatus != "running") {
+        if (JSON.stringify(this.currentNode) == "{}") {
+          this.$message.error("请选择需要执行的节点");
         } else {
-          console.log("projectName>>>>>>>>", this.projectName);
-          electron.window_minimize();
-          window["executor"]
-            .execute_node(
-              this.projectName,
-              {
-                uiauto_browser: _.pick(this.$store.state.project.browser, [
-                  "executor_url",
-                  "session_id",
-                ]),
-                node_id: this.currentNode.id,
-              },
-              {
-                newCB: (newLogs) => {
-                  this.logMessage = _.concat(this.logMessage, newLogs);
-                  setTimeout(() => {
-                    $("#logMessageId").scrollTop(
-                      $("#logMessageBox")[0].offsetHeight
-                    );
-                  }, 0);
-                },
+          this.saveGraph("save").then((res) => {
+            if (res) {
+              let browser_info = {};
+              const browser_info_path = path.normalize(
+                `${os.homedir()}/.uiauto/browser.json`
+              );
+              if (fs.existsSync(browser_info_path)) {
+                browser_info = JSON.parse(fs.readFileSync(browser_info_path));
               }
-            )
-            .then((result) => {
-              electron.window_maximize();
-              console.log("执行当前节点成功", result);
-              this.$message.success("执行当前节点成功");
-            })
-            .catch((err) => {
-              electron.window_maximize();
-              console.log("执行当前节点出错", err);
-              this.$message.error("执行当前节点出错");
-            });
+
+              electron.window_minimize();
+              window["executor"]
+                .execute_node(
+                  this.projectJson.project_name,
+                  {
+                    uiauto_browser: browser_info,
+                    node_id: this.currentNode.id,
+                  },
+                  {
+                    newCB: (newLogs) => {
+                      this.logMessage = _.concat(this.logMessage, newLogs);
+                      setTimeout(() => {
+                        $("#logMessageId").scrollTop(
+                          $("#logMessageBox")[0].offsetHeight
+                        );
+                      }, 0);
+                    },
+                  }
+                )
+                .then((result) => {
+                  electron.window_maximize();
+                  console.log("执行当前节点成功", result);
+                  this.$message.success("执行当前节点成功");
+                })
+                .catch((err) => {
+                  console.log("执行当前节点出错", err);
+                  electron.window_maximize();
+                  this.$message.error("执行当前节点出错");
+                });
+            }
+          });
         }
+      } else {
+        this.$message.warning(
+          "有任务正在执行，请等待任务完成后或者停止当前任务再执行"
+        );
       }
     },
     // 更新项目插件版本号
     async updateVersionFn() {
-      const base_integration_path = path.join(
-        path.resolve(),
-        "/public/base_integration/"
-      );
+      let base_integration_path;
+      if (os.platform() == "darwin" && path.resolve() == "/") {
+        base_integration_path = path.normalize(
+          app.getPath("exe") + "../../../public/base_integration/"
+        );
+      } else {
+        base_integration_path = path.join(
+          path.resolve(),
+          "/public/base_integration/"
+        );
+      }
       const base_integration_file_list = _.map(
         _.difference(fs.readdirSync(base_integration_path), [".DS_Store"]),
         (file_name) => {
           return {
-            plugin_id: file_name,
+            plugin_id: fs.existsSync(
+              `${base_integration_path}${file_name}/package.json`
+            )
+              ? fse.readJsonSync(
+                  `${base_integration_path}${file_name}/package.json`
+                ).id
+              : file_name,
             version: fs.existsSync(
               `${base_integration_path}${file_name}/package.json`
             )
@@ -2776,68 +2090,7 @@ export default {
       }
     },
     findPlugin() {
-      try {
-        const attributionName_index =
-          _.findIndex(this.leftList, { title: this.attributionName }) + 1;
-        const categoryName_index =
-          _.findIndex(
-            _.find(this.leftList, { title: this.attributionName }).msg,
-            { child_title: this.categoryName }
-          ) + 1;
-        this.$refs.multipleSubmenu.open(
-          `${attributionName_index}-${categoryName_index}`
-        );
-      } catch (error) {
-        this.pluginSearchInput = this.operationName;
-        this.pluginSearch(this.operationName);
-      }
-    },
-    viewProjectDescription() {
-      this.dialogFormVisible = true;
-    },
-    // 右键下载插件
-    async downPlugin(plugin) {
-      const target = _.find(this.webPlugin, { plugin_id: plugin.plugin_id });
-      if (target) {
-        if (target.language === "python") {
-          if (this.$store.state.plugin.has_python_downloading) {
-            this.$message({
-              message: "当前已有python插件在下载，请稍候再下载！",
-              type: "error",
-            });
-            return false;
-          } else {
-            if (target.plugin_id === "uiauto_uiselector") {
-              window.uiselector.exit_uiselector();
-            }
-            this.$store.commit("plugin/MARK_PYTHON_DOWNLOADING", true);
-          }
-        }
-        executeDownload(target)
-          .then((result) => {
-            this.getPluginLs().then((res) => {
-              this.leftList = res;
-            });
-            if (this.pluginSearchInput) {
-              this.pluginSearch(this.pluginSearchInput);
-            }
-          })
-          .catch((err) => {});
-      }
-    },
-    // 右键更新插件
-    updatePlugin(plugin) {
-      this.downPlugin(plugin.update);
-    },
-    handleOpen(key, keyPath) {
-      if (this.$refs.multipleSubmenu) {
-        this.$refs.multipleSubmenu.$el.style.height = "calc(100% - 135px)";
-      }
-    },
-    handleClose(key, keyPath) {
-      if (this.$refs.multipleSubmenu) {
-        this.$refs.multipleSubmenu.$el.style.height = "calc(100% - 75px)";
-      }
+      this.filterText = this.operationName;
     },
     // 返回主流程
     backToMain() {
@@ -2850,94 +2103,374 @@ export default {
               currentProjectType: "",
               redirectProjectName: this.queryData.currentProjectName,
               redirectProjectType: this.queryData.currentProjectType,
-              plugins: this.webPlugin,
             },
           });
         }
       });
     },
-  },
-  async beforeRouteLeave(to, from, next) {
-    if (this.projectType === "cloud" && !this.hasModificationRights) {
-      // window.ptyProcess.kill();
-      next();
-    } else {
-      const projectJson = fse.readJsonSync(
-        `${config.projectsPath}/${this.projectName}/${this.projectName}.json`
+    async findPluginVersionLs(plugin_id) {
+      if (fs.existsSync(`${config.pluginsPath}/${plugin_id}/`)) {
+        this.currentPluginVersionLsInfo = _.map(
+          _.difference(fs.readdirSync(`${config.pluginsPath}/${plugin_id}/`), [
+            "list.json",
+            "npm_i.sh",
+            ".DS_Store",
+          ]),
+          (version) => {
+            if (
+              fs
+                .lstatSync(`${config.pluginsPath}/${plugin_id}/${version}`)
+                .isDirectory()
+            ) {
+              const package_json_path = `${config.pluginsPath}/${plugin_id}/${version}/package.json`;
+              let package_json = "";
+              if (fs.existsSync(package_json_path)) {
+                package_json = fse.readJsonSync(package_json_path);
+              }
+              return {
+                plugin_id: plugin_id,
+                version: version,
+                plugin_package_json: package_json,
+                type: "local",
+              };
+            }
+          }
+        );
+      }
+      this.currentPluginVersionLs = _.map(
+        this.currentPluginVersionLsInfo,
+        "version"
+      ).sort(this.versionFn);
+    },
+    changePluginVersion() {
+      const cloneNmModel = _.cloneDeep(this.currentNmModel);
+      const targetVersionInfo = _.find(
+        _.find(this.currentPluginVersionLsInfo, { version: this.version })
+          .plugin_package_json.uiauto_config.operations,
+        { operation_id: this.currentNmModel.operation_id }
       );
-      // 原先进入时的json
-      const projectObj = {};
-      if (projectJson.nodes) {
-        projectObj.nodes = projectJson.nodes;
+      this.input = targetVersionInfo.input;
+      this.output = targetVersionInfo.output;
+      // 改变内存版本号（影响全局）
+      this.currentNmModel.version = this.version;
+      this.currentNmModel.input = this.input;
+      this.currentNmModel.output = this.output;
+      // 原本存在值则在新插件赋值
+      _.each(this.currentNmModel.input, (attributes_item) => {
+        _.each(attributes_item.properties, (item) => {
+          const find_attributes_item = _.find(cloneNmModel.input, {
+            id: attributes_item.id,
+          });
+          const findValue =
+            find_attributes_item &&
+            _.find(find_attributes_item.properties, { id: item.id });
+          if (findValue && findValue.value) {
+            item.value = findValue.value;
+          }
+        });
+      });
+      this.currentNmModel.output.value = cloneNmModel.output.value
+        ? cloneNmModel.output.value
+        : this.currentNmModel.output.value;
+    },
+    addGlobalVariable() {
+      if (
+        _.find(this.global_variable, { key: "" }) ||
+        _.find(this.global_variable, { value: "" })
+      ) {
+        return this.$message.error("存在未填写值");
       }
-      if (projectJson.edges) {
-        projectObj.edges = projectJson.edges;
+      this.global_variable.push({
+        key: "",
+        type: "text",
+        value: "",
+      });
+    },
+    checkNewExtendEl(row) {
+      return row.key && row.type && row.value;
+    },
+    handleDelete(index) {
+      this.global_variable.splice(index, 1);
+    },
+    handleConfirm() {
+      if (
+        _.uniq(_.map(this.global_variable, "key")).length !=
+        this.global_variable.length
+      ) {
+        return this.$message.error("存在相同属性名");
       }
-      // 当前json
-      const projectOtherObj = await this.editor.getCurrentPage().save();
+      if (
+        _.find(this.global_variable, {
+          key: "",
+        }) ||
+        _.find(this.global_variable, {
+          value: "",
+        })
+      ) {
+        return this.$message.error("存在未填写值");
+      }
+      this.globalVariableDialog = false;
+    },
+    openGlobalVariableDialog() {
+      // 使右边属性栏刷新数据
+      this.nodeLabelShow = false;
+      this.nodeLineLabelShow = false;
+      this.operationName = "";
+      this.categoryName = "";
+      this.attributionName = "";
+      this.language = "";
+      this.version = "";
 
-      const general_property_temporary = [
-        { id: "retry_count", value: "1", name: "重试次数" },
-        { id: "retry_interval", value: "50", name: "重试时间间隔(ms)" },
-        {
-          id: "execution_timeout",
-          value: "50000",
-          name: "执行超时时间(ms)",
-        },
-        {
-          id: "delayed_execution_time",
-          value: "50",
-          name: "延迟执行时间(ms)",
-        },
-        {
-          id: "waiting_time_after_execution",
-          value: "50",
-          name: "执行后等待时间",
-        },
-      ];
-      await _.each(projectOtherObj.nodes, (node) => {
-        if (!node.general_property) {
-          node.general_property = general_property_temporary;
+      this.globalVariableDialog = true;
+
+      _.each(this.editor.getCurrentPage().save().nodes, (item) => {
+        if (item.output.is_allow_global_use) {
+          this.node_variable.push({
+            label: item.label,
+            operation_id: item.operation_id,
+            value: item.output.value,
+          });
         }
       });
-      if (
-        !_.isEqual(projectObj, projectOtherObj) ||
-        this.description != projectJson.description
-      ) {
-        this.$confirm(
-          "检测到未保存的内容，是否在离开页面前保存修改？",
-          "确认信息",
-          {
-            showClose: false,
-            closeOnClickModal: false,
-            confirmButtonText: "保存离开",
-            cancelButtonText: "直接离开",
-          }
-        )
-          .then(() => {
-            this.saveGraph("save").then((res) => {
-              if (res) {
-                // window.ptyProcess.kill();
-                next();
-              }
-            });
-          })
-          .catch(() => {
-            // window.ptyProcess.kill();
-            next();
-          });
-      } else {
-        // window.ptyProcess.kill();
-        next();
+    },
+    handleCloseGlobalVariableDialog() {
+      this.globalVariableDialog = false;
+      this.node_variable = [];
+      _.remove(this.global_variable, (item) => {
+        return !item.key || !item.value;
+      });
+    },
+    handleOpenBrowser(label) {
+      if (label == "启动谷歌浏览器") {
+        this.openBrowser("Chrome");
+      } else if (label == "启动IE浏览器") {
+        this.openBrowser("Internet Explorer");
       }
+    },
+    // 依赖检测
+    async handleDetection() {
+      this.detectionDialog = true;
+      this.detectionLoading = true;
+
+      // 当前项目所依赖的 插件-版本 集合
+      let plugin_version_list = [];
+      _.each(this.projectJson.nodes, (item) => {
+        if (
+          !_.find(plugin_version_list, {
+            plugin_id: item.plugin_id,
+            version: item.version,
+          })
+        ) {
+          plugin_version_list.push({
+            plugin_id: item.plugin_id,
+            version: item.version,
+          });
+        }
+      });
+      this.detectionData = plugin_version_list;
+
+      // 整理需要下载安装的插件
+      let need_download_plugin = [];
+      let target_need_download_plugin = [];
+      _.each(plugin_version_list, (p_v_item) => {
+        if (
+          !fs.existsSync(`${config.pluginsPath}/${p_v_item.plugin_id}`) ||
+          !fs.existsSync(
+            `${config.pluginsPath}/${p_v_item.plugin_id}/${p_v_item.version}`
+          )
+        ) {
+          need_download_plugin.push(p_v_item);
+        }
+      });
+
+      _.each(this.detectionData, (item) => {
+        let target = _.find(need_download_plugin, {
+          plugin_id: item.plugin_id,
+          version: item.version,
+        });
+        !target && (item.message = `本地已安装`);
+      });
+
+      this.detectionLoading = false;
+      if (need_download_plugin.length) {
+        // 整理插件下载信息
+        let _pluginViews = (
+          await pluginViews({
+            needs: "all",
+            PluginIds: _.map(need_download_plugin, "plugin_id").join(","),
+          })
+        ).result;
+        if (_pluginViews.length) {
+          _.each(need_download_plugin, (item) => {
+            let temp = _.find(_pluginViews, {
+              pluginId: item.plugin_id,
+              version: item.version,
+            });
+            if (temp) {
+              target_need_download_plugin.push(temp);
+            } else {
+              let index = _.findIndex(this.detectionData, {
+                plugin_id: item.plugin_id,
+                version: item.version,
+              });
+              if (index) {
+                this.$set(this.detectionData, index, {
+                  plugin_id: item.plugin_id,
+                  version: item.version,
+                  message: `线上插件库未找到该版本插件`,
+                });
+              }
+            }
+          });
+        } else {
+          _.each(need_download_plugin, (item) => {
+            let index = _.findIndex(this.detectionData, {
+              plugin_id: item.plugin_id,
+              version: item.version,
+            });
+            if (index) {
+              this.$set(this.detectionData, index, {
+                plugin_id: item.plugin_id,
+                version: item.version,
+                message: `线上插件库未找到该版本插件`,
+              });
+            }
+          });
+        }
+      }
+
+      if (target_need_download_plugin.length) {
+        async.mapSeries(
+          target_need_download_plugin,
+          (item, cb) => {
+            let _item = _.cloneDeep(item);
+            _item.plugin_id = item.pluginId;
+            _item.isUiautoBaseIntegration = eval(item.isUiautoBaseIntegration);
+            executeDownload(_item)
+              .then((res) => {
+                cb(null, {
+                  plugin_id: item.pluginId,
+                  version: item.version,
+                });
+              })
+              .catch((err) => {
+                cb(null, {
+                  plugin_id: item.pluginId,
+                  version: item.version,
+                });
+              });
+          },
+          (err, res) => {
+            this.$forceUpdate();
+          }
+        );
+      }
+    },
+    // 关闭依赖检测框
+    handleDetectionDialog() {
+      this.detectionDialog = false;
+      this.detectionData = [];
+    },
+    // 关闭执行参数框
+    handleExecuteParamsDialog() {
+      this.executeParamsDialog = false;
+    },
+    handleExecuteParamsConfirm() {
+      if (
+        _.compact(_.map(this.execute_params, "key")).length !=
+        _.compact(_.map(this.execute_params, "value")).length
+      ) {
+        return this.$message.error("存在未填写值");
+      } else {
+        this.executeParamsDialog = false;
+        this.execute();
+      }
+    },
+  },
+  async beforeRouteLeave(to, from, next) {
+    // 按键恢复
+    document.onkeydown = function (event) {
+      var e = event || window.event;
+      e.returnValue = true;
+    };
+
+    // 移除监听
+    erd.uninstall($(".main-container"));
+
+    const projectObj = {};
+    if (this.projectJson.nodes) {
+      projectObj.nodes = this.projectJson.nodes;
+    }
+    if (this.projectJson.edges) {
+      projectObj.edges = this.projectJson.edges;
+    }
+    // 当前json
+    const projectOtherObj = await this.editor.getCurrentPage().save();
+
+    _.each(projectOtherObj.nodes, (node_item) => {
+      typeof node_item.input === "string" &&
+        (node_item.input = JSON.parse(node_item.input));
+      typeof node_item.output === "string" &&
+        (node_item.output = JSON.parse(node_item.output));
+    });
+
+    await _.each(projectOtherObj.nodes, (node) => {
+      if (!node.general_property) {
+        node.general_property = this.general_property_temporary;
+      }
+    });
+
+    if (
+      !_.isEqual(projectObj, projectOtherObj) ||
+      this.description != this.projectJson.description ||
+      !_.isEqual(this.global_variable, this.projectJson.global_variable)
+    ) {
+      this.$confirm(
+        "检测到未保存的内容，是否在离开页面前保存修改？",
+        "确认信息",
+        {
+          showClose: false,
+          closeOnClickModal: false,
+          confirmButtonText: "保存离开",
+          cancelButtonText: "直接离开",
+        }
+      )
+        .then(() => {
+          this.saveGraph("save").then((res) => {
+            if (res) {
+              next();
+            }
+          });
+        })
+        .catch(() => {
+          next();
+        });
+    } else {
+      next();
     }
   },
 };
 </script>
 
 <style lang="scss">
+.el-tree-node {
+  margin: 5px 0;
+}
+
 .el-tooltip__popper {
   font-size: 10px;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.splitter-pane-resizer {
+  background: #fff !important;
 }
 </style>
 
@@ -2946,8 +2479,16 @@ export default {
   display: none;
 }
 
+::v-deep .el-input__inner {
+  border-radius: 0;
+}
+
+::v-deep .el-dialog__body {
+  padding: 5px 20px;
+}
+
 // ---------终端样式开始----------
-/deep/ .xterm {
+::v-deep .xterm {
   font-feature-settings: "liga" 0;
   position: relative;
   user-select: none;
@@ -2955,12 +2496,12 @@ export default {
   -webkit-user-select: none;
 }
 
-/deep/ .xterm.focus,
+::v-deep .xterm.focus,
 .xterm:focus {
   outline: none;
 }
 
-/deep/ .xterm .xterm-helpers {
+::v-deep .xterm .xterm-helpers {
   position: absolute;
   top: 0;
   /**
@@ -2970,7 +2511,7 @@ export default {
   z-index: 10;
 }
 
-/deep/ .xterm .xterm-helper-textarea {
+::v-deep .xterm .xterm-helper-textarea {
   /*
        * HACK: to fix IE's blinking cursor
        * Move textarea out of the screen to the far left, so that the cursor is not visible.
@@ -2988,7 +2529,7 @@ export default {
   resize: none;
 }
 
-/deep/ .xterm .composition-view {
+::v-deep .xterm .composition-view {
   /* TODO: Composition position got messed up somewhere */
   background: #000;
   color: #fff;
@@ -2998,11 +2539,11 @@ export default {
   z-index: 1;
 }
 
-/deep/ .xterm .composition-view.active {
+::v-deep .xterm .composition-view.active {
   display: block;
 }
 
-/deep/ .xterm .xterm-viewport {
+::v-deep .xterm .xterm-viewport {
   /* On OS X this is required in order for the scroll bar to appear fully opaque */
   background-color: #000;
   overflow-y: scroll;
@@ -3014,21 +2555,21 @@ export default {
   bottom: 0;
 }
 
-/deep/ .xterm .xterm-screen {
+::v-deep .xterm .xterm-screen {
   position: relative;
 }
 
-/deep/ .xterm .xterm-screen canvas {
+::v-deep .xterm .xterm-screen canvas {
   position: absolute;
   left: 0;
   top: 0;
 }
 
-/deep/ .xterm .xterm-scroll-area {
+::v-deep .xterm .xterm-scroll-area {
   visibility: hidden;
 }
 
-/deep/ .xterm-char-measure-element {
+::v-deep .xterm-char-measure-element {
   display: inline-block;
   visibility: hidden;
   position: absolute;
@@ -3037,25 +2578,25 @@ export default {
   line-height: normal;
 }
 
-/deep/ .xterm {
+::v-deep .xterm {
   cursor: text;
 }
 
-/deep/ .xterm.enable-mouse-events {
+::v-deep .xterm.enable-mouse-events {
   /* When mouse events are enabled (eg. tmux), revert to the standard pointer cursor */
   cursor: default;
 }
 
-/deep/ .xterm.xterm-cursor-pointer {
+::v-deep .xterm.xterm-cursor-pointer {
   cursor: pointer;
 }
 
-/deep/ .xterm.column-select.focus {
+::v-deep .xterm.column-select.focus {
   /* Column selection mode */
   cursor: crosshair;
 }
 
-/deep/ .xterm .xterm-accessibility,
+::v-deep .xterm .xterm-accessibility,
 .xterm .xterm-message {
   position: absolute;
   left: 0;
@@ -3066,7 +2607,7 @@ export default {
   color: transparent;
 }
 
-/deep/ .xterm .live-region {
+::v-deep .xterm .live-region {
   position: absolute;
   left: -9999px;
   width: 1px;
@@ -3074,32 +2615,40 @@ export default {
   overflow: hidden;
 }
 
-/deep/ .xterm-dim {
+::v-deep .xterm-dim {
   opacity: 0.5;
 }
 
-/deep/ .xterm-underline {
+::v-deep .xterm-underline {
   text-decoration: underline;
 }
 
 // ---------终端样式结束----------
 
-/deep/ .el-collapse-item__content {
+::v-deep .el-collapse-item__content {
   padding-bottom: 0px;
 }
 
-/deep/ .el-col-15 {
+::v-deep .el-col-15 {
   padding: 0 !important;
   border-top: 10px solid #eee;
 }
 
-/deep/ .el-row {
+::v-deep .el-row {
   margin-left: 0px !important;
   margin-right: 0px !important;
 }
 
-/deep/ .el-collapse-item__header {
+::v-deep .el-collapse-item__header {
   height: 35px;
+}
+
+::v-deep .el-input-group__prepend {
+  padding: 0 10px;
+}
+
+::v-deep .el-input-group__prepend {
+  color: #303133;
 }
 
 .navbar {
@@ -3159,8 +2708,7 @@ export default {
 }
 
 .wrap {
-  height: calc(100vh);
-  border: 1px solid #eee;
+  height: calc(100vh - 35px);
   overflow: hidden;
 }
 
@@ -3187,15 +2735,12 @@ export default {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  margin-top: 10px;
+  margin-top: 7px;
+  margin-left: 5px;
 }
 
 .left .getItem {
-  /* float: left; */
   width: 100%;
-  /* height: 100px; */
-  /* margin-left: 15px;
-      display: flex; */
   justify-content: center;
   align-items: center;
 }
@@ -3225,28 +2770,16 @@ export default {
 }
 
 .left .leftItem {
-  // background: #3a71a8;
   width: 100%;
-  text-align: center;
   color: #fff;
-  border-radius: 7px;
   margin: 5px auto;
 }
 
 .right {
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
-}
-
-.detailpannel {
-  flex: 1;
-  overflow: scroll;
-}
-
-.filter {
-  // filter: blur(1px) contrast(0.9);
-  pointer-events: none;
+  margin-top: 7px;
+  margin-right: 5px;
 }
 
 .minimap {
@@ -3268,5 +2801,11 @@ export default {
   .el-dialog {
     pointer-events: auto;
   }
+}
+
+::v-deep #search_plugin {
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
 }
 </style>

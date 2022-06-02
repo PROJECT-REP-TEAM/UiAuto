@@ -1,10 +1,12 @@
 import config from '@/config/environment/index'
 
-const express = window.require('express')
+const express = window.nodeRequire('express')
 const { router } = require('./router')
 const socket = require('./socket/client')
 const websocket = require('./socket/websockets')
 const bodyParser = require('body-parser')
+const http = window.nodeRequire('http')
+const io = window.nodeRequire('socket.io')
 
 export function start_server() {
   const app = express()
@@ -17,15 +19,25 @@ export function start_server() {
     next()
   })
 
-  app.use(bodyParser.json({limit: '100mb'}))
-  app.use(bodyParser.urlencoded({extended: false}))
-
-  app.listen(config.express.port, '0.0.0.0', () => {
+  app.use(bodyParser.json({ limit: '100mb' }))
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use('/uiauto', router)
+  const server = http.createServer(app)
+  const io = window.nodeRequire('socket.io')(server)
+  io.on('connection', client => {
+    console.log('执行器与外壳的socket连接成功')
+    client.on('send_log', (data, callback) => {
+      const socket_client = socket.getSocketClient()
+      socket_client.emit('UIAUTO_SAVE_LOG', data, (message) => {
+        console.log('日志保存回调：' + message)
+        callback(message)
+      })
+    })
+  })
+  server.listen(config.express.port, '127.0.0.1', () => {
     console.info('服务启动监听地址：' + config.express.domain)
     console.info('服务启动监听端口：' + config.express.port)
   })
-
-  app.use('/uiauto', router)
 
   // socket.start_socket_client()
 

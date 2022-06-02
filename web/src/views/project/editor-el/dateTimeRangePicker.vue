@@ -1,5 +1,26 @@
 <template>
   <div class="dateTimeRangePicker">
+    <div
+      style="
+        background-color: #f5f7fa;
+        display: table-cell;
+        border: 1px solid #dcdfe6;
+        border-right: 0px;
+        border-radius: 4px 0 0 4px;
+        padding: 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: normal;
+      "
+    >
+      <span
+        v-if="required"
+        style="color: red; font-size: 16px; vertical-align: middle"
+        >*</span
+      >
+      <span>{{ name }}</span>
+    </div>
     <el-date-picker
       v-model="currValue"
       range-separator="至"
@@ -7,7 +28,8 @@
       :start-placeholder="startPlaceholder"
       :end-placeholder="endPlaceholder"
       prefix-icon="hidden"
-    ></el-date-picker>
+      style="display: table-cell;"
+    />
   </div>
 </template>
 
@@ -20,26 +42,34 @@ export default {
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: Array,
-      default: null
+      default: null,
     },
     options: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       startPlaceholder: "开始日期",
       endPlaceholder: "结束日期",
-      warningEl: ".dateTimeRangePicker .el-date-editor"
+      warningEl: ".dateTimeRangePicker .el-date-editor",
     };
   },
 
@@ -48,7 +78,11 @@ export default {
       get() {
         this.resetPlaceholder();
         setTimeout(() => {
-          checkDataValidity(RegExp(this.options.valid_regExp), this.value, this.warningEl)
+          checkDataValidity(
+            RegExp(this.options.valid_regExp),
+            this.value,
+            this.warningEl
+          );
         }, 0);
         return this.value;
       },
@@ -56,17 +90,20 @@ export default {
         this.$emit("changeValue", {
           input_id: this.inputId,
           property_id: this.propertyId,
-          value: val
+          value: val,
         });
-        checkDataValidity(RegExp(this.options.valid_regExp), val, this.warningEl);
-      }
-    }
+        checkDataValidity(
+          RegExp(this.options.valid_regExp),
+          val,
+          this.warningEl
+        );
+      },
+    },
   },
 
   methods: {
     resetPlaceholder() {
-      console.error(this.options);
-      let self = this;
+      const self = this;
       switch (this.options.type) {
         case "daterange":
           self.startPlaceholder = "开始日期";
@@ -86,29 +123,7 @@ export default {
         default:
           break;
       }
-    }
-  }
+    },
+  },
 };
 </script>
-
-<style>
-.dateTimeRangePicker {
-  width: 100%;
-}
-
-.dateTimeRangePicker > .el-date-editor {
-  width: 100%;
-  padding: 3px 4px;
-}
-.dateTimeRangePicker > .el-date-editor > .el-range-separator {
-  width: unset !important;
-}
-
-.hidden {
-  display: none;
-}
-
-.el-range-separator ~ .el-range-input {
-  border-right: 0.5px solid #ddd;
-}
-</style>

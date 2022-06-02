@@ -1,19 +1,16 @@
 import sys
 import os
-sys.path.insert(0, os.path.split(os.path.realpath(__file__))[0] + "\\\\base")
+sys.path.insert(0, os.path.split(os.path.realpath(__file__))[0] + "/base")
 from queue import LifoQueue
 from execute_result import ExecuteResult
 import global_variable
 import uiauto_project as UiAutoProject
 from logger import print, LEVEL_ERROR, LEVEL_SUCCESS, LEVEL_INFO, LEVEL_WARN
 from urllib.parse import unquote, quote
-import jpype
 import copy
-import eventlet
 import asyncio
 import traceback
 import socketio
-import execjs
 import importlib
 import re
 import ctypes
@@ -23,7 +20,10 @@ import multiprocessing
 import threading
 import io
 import json
-import base.screenrecorder.index as screenrecorder
+try:
+	import base.screenrecorder.index as screenrecorder
+except Exception:
+	print('录屏功能不可用')
 
 
 # 初始化socketio client
@@ -111,7 +111,7 @@ def handle_command(command, execute_option_file):
         
         server_url = execute_option['environment_options']['server_url']
         task_id = execute_option['params']['uiauto_task_id']
-        device_id = execute_option['environment_options']['device_id']
+        device_id = None# execute_option['environment_options']['device_id']
         sys.stdout.server_host = execute_option["environment_options"]['server_url']
         sys.stdout.access_token = execute_option["environment_options"]['access_token']
         sys.stdout.init_socket_data(server_url=server_url, project_name=execute_option['project_name'], task_id=task_id, device_id=device_id)
@@ -125,9 +125,9 @@ def handle_command(command, execute_option_file):
             key="environment_options", value=execute_option["environment_options"], readonly=True)
         global_variable.update(
             variable=execute_option["params"], readonly=True)
-        print("初始化共享变量存取空间", global_variable.get_all())
+        # print("初始化共享变量存取空间", global_variable.get_all())
 
-        project_path = "%s\\%s\\%s.json" % (execute_option["environment_options"]["projects_dir"],
+        project_path = "%s/%s/%s.json" % (execute_option["environment_options"]["projects_dir"],
                                             execute_option["project_name"], execute_option["project_name"])
 
         with open(project_path, 'r', encoding='UTF-8') as project_file:
@@ -140,6 +140,7 @@ def handle_command(command, execute_option_file):
 
         with open(execute_option_file.replace('.txt', '_result.txt'), 'w', encoding='UTF-8') as result_file:
             result_file.write(execute_result.to_string())
+
         sys.stderr.write('finish')
         sys.stdout.reset_log_file()
         # sys.stdout.reset_socket()
@@ -170,7 +171,6 @@ def handle_command(command, execute_option_file):
 
 
         print("------------------------------------------------------------------------------------")
-        print("\n")
 
         global_variable.__init()
         global_variable.set_value(
@@ -179,9 +179,9 @@ def handle_command(command, execute_option_file):
             key="environment_options", value=execute_option["environment_options"], readonly=True)
         global_variable.update(
             variable=execute_option["params"], readonly=True)
-        print("初始化共享变量存取空间", global_variable.get_all())
+        # print("初始化共享变量存取空间", global_variable.get_all())
 
-        project_path = "%s\\%s\\%s.json" % (execute_option["environment_options"]["projects_dir"],
+        project_path = "%s/%s/%s.json" % (execute_option["environment_options"]["projects_dir"],
                                             execute_option["project_name"], execute_option["project_name"])
 
         with open(project_path, 'r', encoding='UTF-8') as project_file:

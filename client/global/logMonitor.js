@@ -5,7 +5,6 @@ let readLine;
 let path;
 let os;
 let fileRootPath;
-let chokidar;
 let filePath = '';
 let _;
 
@@ -14,19 +13,27 @@ if (typeof window !== "undefined") {
   fse = window.require('fs-extra');
   readLine = window.require('readline');
   path = window.require('path');
-  os = window.require('os')
-  fileRootPath = `${path.resolve()}/.uiauto/`;
-  chokidar = window.require('chokidar');
+  os = window.require('os');
   _ = window.require('lodash');
+  const { app } = window.require('electron');
+  if (os.platform() == 'darwin' && path.resolve() == "/") {
+    fileRootPath = path.normalize(app.getPath("exe") + '../../../.uiauto/');
+  } else {
+    fileRootPath = `${path.resolve()}/.uiauto/`;
+  }
 } else {
   fs = require('fs');
   fse = require('fs-extra');
   readLine = require('readline');
   path = require('path');
-  os = require('os')
-  fileRootPath = `${path.resolve()}/.uiauto/`;
-  chokidar = require('chokidar');
+  os = require('os');
   _ = require('lodash');
+  const { app } = require('electron');
+  if (os.platform() == 'darwin' && path.resolve() == "/") {
+    fileRootPath = path.normalize(app.getPath("exe") + '../../../.uiauto/');
+  } else {
+    fileRootPath = `${path.resolve()}/.uiauto/`;
+  }
 }
 
 
@@ -61,7 +68,7 @@ function fetchHistoryLogs(projectName, historyCB, newCB) {
   rl.on('line', function (line) {
     // console.error(line)
     if (line) {
-       historyLogsArr.push(line.toString().length > 10000 ? line.toString().slice(0, 10000) : line.toString());
+      historyLogsArr.push(line.toString().length > 10000 ? line.toString().slice(0, 10000) : line.toString());
     }
   }).on('close', function () {
     historyCB && historyCB(_.takeRight(historyLogsArr, MAX_HISTORY_LEN));

@@ -39,136 +39,158 @@ import Layout from '@/layout'
  * all roles can be accessed
  * */
 export const constantRoutes = [{
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [{
-      path: '/redirect/:path*',
-      component: () => import('@/views/redirect/index')
-    }]
-  },
-  {
-    path: '/login',
-    component: () => import('@/views/login/index'),
-    hidden: true
-  },
-  {
-    path: '/auth-redirect',
-    component: () => import('@/views/login/authredirect'),
-    hidden: true
-  },
-  {
-    id: 'homeId',
-    path: '/home',
-    component: Layout,
-    redirect: '/home/index',
-    children: [{
-      path: 'index',
-      component: () => import('@/views/home/index'),
-      name: 'Home'
-    }]
-  },
-  {
-    id: 'workspaceId',
-    path: '',
-    // path: '/workspace',
-    component: Layout,
-    redirect: '/workspace/index',
-    children: [{
-      path: '/workspace/index',
-      component: () => import('@/views/workspace/index'),
-      name: 'Workspace',
-      meta: {
-        title: 'workspace',
-        // icon: 'project',
-        title_zh: '项目库',
-        icon: 'tree-table',
-        noCache: true,
-        affix: true
-      }
-    }]
-  },
-  {
-    id: 'projectId',
-    path: '/project',
-    component: Layout,
-    redirect: '/project/index',
-    children: [{
-      path: 'index',
-      component: () => import('@/views/project/index'),
-      name: 'Project'
-    }]
-  },
-   {
-    id: 'JobId',
-    path: '/job',
-    component: Layout,
-    redirect: '/job/index',
-    children: [{
-      path: 'index',
-      component: () => import('@/views/job/index'),
-      name: 'Job',
-      meta: {
-        title: 'job',
-        // icon: 'plugin',
-        title_zh: '任务列表',
-        icon: 'list',
-        noCache: true
-      }
-    }]
-  },
-  {
-    id: 'pluginId',
-    path: '/plugin',
-    component: Layout,
-    redirect: '/plugin/index',
-    children: [{
-      path: 'index',
-      component: () => import('@/views/plugin/index'),
-      name: 'Plugin',
-      meta: {
-        title: 'plugin',
-        // icon: 'plugin',
-        title_zh: '插件库',
-        icon: 'table',
-        noCache: true
-      }
-    }]
-  },
-  // {
-  //   id: 'dependencyId',
-  //   path: '/dependency',
-  //   component: Layout,
-  //   redirect: '/dependency/index',
-  //   children: [{
-  //     path: 'index',
-  //     component: () => import('@/views/dependency/index'),
-  //     name: 'Dependency',
-  //     meta: {
-  //       title: 'dependency',
-  //       title_zh: '环境依赖',
-  //       icon: 'dashboard',
-  //       noCache: true
-  //     }
-  //   }]
-  // },
-  {
-    id: 'settingId',
-    path: '/setting',
-    component: Layout,
-    redirect: '/setting/index',
-    children: [{
-      path: 'index',
-      component: () => import('@/views/setting/index'),
-      name: 'Setting',
-      meta: {
-        title: 'setting',
-        title_zh: '系统设置',
-        icon: 'setting',
-        noCache: true
-      }
-    }]
-  }
+  path: '/redirect',
+  component: Layout,
+  hidden: true,
+  children: [{
+    path: '/redirect/:path*',
+    component: () => import('@/views/redirect/index')
+  }]
+},
+{
+  path: '/login',
+  component: () => import('@/views/login/index'),
+  hidden: true
+},
+{
+  path: '/auth-redirect',
+  component: () => import('@/views/login/authredirect'),
+  hidden: true
+},
+{
+  id: 'homeId',
+  path: '/home',
+  component: Layout,
+  redirect: '/home/index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/home/index'),
+    name: 'Home',
+    meta: {
+      title: 'home'
+    }
+  }],
+  hidden: true
+},
+{
+  id: 'workspaceId',
+  path: '',
+  // path: '/workspace',
+  component: Layout,
+  redirect: '/workspace/index',
+  children: [{
+    path: '/workspace/index',
+    component: () => import('@/views/workspace/index'),
+    name: 'Workspace',
+    meta: {
+      title: 'workspace',
+      title_zh: '项目库',
+      icon: 'project-library',
+      noCache: true,
+      affix: true
+    }
+  }]
+},
+{
+  id: 'projectId',
+  path: '/project',
+  component: Layout,
+  redirect: '/project/index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/project/index'),
+    name: 'Project',
+    meta: {
+      title: 'project'
+    }
+  }],
+  hidden: true
+},
+{
+  id: 'applicationId',
+  path: '/application',
+  component: Layout,
+  redirect: '/application/index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/application/index'),
+    name: 'Application',
+    meta: {
+      title: 'application',
+      title_zh: '应用',
+      icon: 'application-market',
+      noCache: true
+    }
+  }]
+},
+{
+  id: 'JobId',
+  path: '/job',
+  component: Layout,
+  redirect: '/job/index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/job/index'),
+    name: 'Job',
+    meta: {
+      title: 'job',
+      title_zh: '任务列表',
+      icon: 'task-list',
+      noCache: true
+    }
+  }]
+},
+{
+  id: 'plugin_id',
+  path: '/plugin',
+  component: Layout,
+  redirect: '/plugin/index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/plugin/index'),
+    name: 'Plugin',
+    meta: {
+      title: 'plugin',
+      title_zh: '插件库',
+      icon: 'plugin-library',
+      noCache: true
+    }
+  }]
+},
+// {
+//   id: 'dependencyId',
+//   path: '/dependency',
+//   component: Layout,
+//   redirect: '/dependency/index',
+//   children: [{
+//     path: 'index',
+//     component: () => import('@/views/dependency/index'),
+//     name: 'Dependency',
+//     meta: {
+//       title: 'dependency',
+//       title_zh: '环境依赖',
+//       icon: 'dashboard',
+//       noCache: true
+//     }
+//   }]
+// },
+{
+  id: 'settingId',
+  path: '/setting',
+  component: Layout,
+  redirect: '/setting/index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/setting/index'),
+    name: 'Setting',
+    meta: {
+      title: 'setting',
+      title_zh: '系统设置',
+      icon: 'setting',
+      noCache: true
+    }
+  }]
+}
 ]
 
 /**

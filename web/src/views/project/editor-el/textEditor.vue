@@ -1,33 +1,48 @@
 <template>
   <div class="textEditor">
-    <el-input :id="propertyId" v-model="currValue" type="textarea" autosize></el-input>
-    <el-button
-      size="mini"
-      @click="associate"
-      type="primary"
-      style="width:100%;margin-top: 5px;"
-    >选择变量</el-button>
+    <el-input
+      type="text"
+      :id="propertyId"
+      v-model.trim="currValue"
+      :placeholder="'请填写' + name"
+    >
+      <template slot="prepend"
+        ><div
+          style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+        >
+          <span
+            v-if="required"
+            style="color: red; font-size: 16px; vertical-align: middle"
+            >*</span
+          >
+          <span>{{ name }}</span>
+        </div></template
+      >
+      <el-button slot="append" @click="associate" style="padding: 4px"
+        >选择变量</el-button
+      >
+    </el-input>
+
     <el-dialog
       title="选择变量"
       :visible.sync="dialogFormVisible"
-      width="40%"
+      width="50%"
       height="80%"
       top="5vh"
       @closed="cancel"
     >
       <el-table
-        max-height="calc(100vh - 300px)"
         ref="singleTable"
+        height="calc(100vh - 300px)"
         :data="returnNodeLs"
         style="width: 100%"
         highlight-current-row
         @current-change="handleCurrentChange"
         @row-dblclick="setCurrent"
       >
-        <el-table-column type="index" width="50"></el-table-column>
-        <!-- <el-table-column prop="operation_id" label="节点ID"></el-table-column> -->
-        <el-table-column prop="label" label="节点名称"></el-table-column>
-        <el-table-column prop="value" label="返回值"></el-table-column>
+        <el-table-column type="index" width="50" />
+        <el-table-column prop="label" label="节点名称" />
+        <el-table-column prop="value" label="返回值" />
       </el-table>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">离 开</el-button>
@@ -42,38 +57,39 @@ export default {
   props: {
     editor: {
       type: Object,
-      default: {}
+      default: {},
+    },
+    globalVariable: {
+      type: Array,
+      default: [],
     },
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: String | Array,
-      default: null
-    }
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       returnNodeLs: [],
       dialogFormVisible: false,
-      currentRow: null
+      currentRow: null,
     };
-  },
-  mounted() {
-    _.each(this.editor.nodes, (node, idx) => {
-      if (node.output.is_allow_global_use) {
-        this.returnNodeLs.push({
-          label: node.label,
-          operation_id: node.operation_id,
-          value: node.output.value
-        });
-      }
-    });
   },
   computed: {
     currValue: {
@@ -86,14 +102,32 @@ export default {
         }
       },
       set(val) {
-        console.log(val);
         this.$emit("changeValue", {
           input_id: this.inputId,
           property_id: this.propertyId,
-          value: val
+          value: val,
+        });
+      },
+    },
+  },
+  mounted() {
+    _.each(this.editor.nodes, (node, idx) => {
+      typeof node.output === "string" &&
+        (node.output = JSON.parse(node.output));
+      if (node.output.is_allow_global_use) {
+        this.returnNodeLs.push({
+          label: node.label,
+          operation_id: node.operation_id,
+          value: node.output.value,
         });
       }
-    }
+    });
+    _.each(this.globalVariable, (item) => {
+      this.returnNodeLs.push({
+        label: `${item.key} - ${item.value}（全局变量）`,
+        value: item.key,
+      });
+    });
   },
   methods: {
     cancel() {
@@ -113,20 +147,13 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentRow = val;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style>
-/* .el-input__inner {
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  border-radius: 0px;
-  border-bottom: 1px solid #cccccc;
-  padding-left: 0;
-  height: unset;
-  line-height: unset;
-} */
+<style lang="scss" scoped>
+::v-deep .el-dialog__body {
+  padding: 0 20px;
+}
 </style>

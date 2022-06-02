@@ -26,11 +26,11 @@
             @click="sendMsg"
           >{{ statusMsg }}</el-button>
         </el-form-item>
-        <el-form-item style="margin-top: 20px;" v-if="showUsername">
-          <span>您的用户名为：{{this.showUsername}}</span>
+        <el-form-item v-if="showUsername" style="margin-top: 20px;">
+          <span>您的用户名为：{{ this.showUsername }}</span>
         </el-form-item>
       </el-form>
-      <el-button type="primary" size="max" @click="handleConfirm" style="background: #2249a8;">确 定</el-button>
+      <el-button type="primary" size="max" style="background: #2249a8;" @click="handleConfirm">确 定</el-button>
       <el-button size="max" @click="dialogFormVisible = false">取 消</el-button>
     </el-dialog>
   </div>
@@ -41,137 +41,137 @@ export default {
   data() {
     const checkMobile = (rule, value, callback) => {
       if (!/^1[34578]\d{9}$/.test(value)) {
-        callback(new Error("请输入正确的手机号码"));
+        callback(new Error('请输入正确的手机号码'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     const validateCode = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入验证码"));
-      } else if (value !== "") {
-        var reg = /^\d{6}$/;
+      if (value === '') {
+        callback(new Error('请输入验证码'))
+      } else if (value !== '') {
+        var reg = /^\d{6}$/
         if (!reg.test(value)) {
-          callback(new Error("验证码不能少于6位纯数字"));
+          callback(new Error('验证码不能少于6位纯数字'))
         }
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     return {
       dialogFormVisible: false,
-      statusMsg: "发送验证码",
-      showUsername: "",
+      statusMsg: '发送验证码',
+      showUsername: '',
       isSendCode: false,
       timer: null,
       resetForm: {
-        mobile: "",
-        cerification_code: ""
+        mobile: '',
+        cerification_code: ''
       },
       resetRules: {
-        mobile: [{ required: true, trigger: "blur", validator: checkMobile }],
+        mobile: [{ required: true, trigger: 'blur', validator: checkMobile }],
         cerification_code: [
-          { required: true, trigger: "blur", validator: validateCode }
+          { required: true, trigger: 'blur', validator: validateCode }
         ]
       }
-    };
+    }
   },
   methods: {
     show() {
-      this.dialogFormVisible = true;
+      this.dialogFormVisible = true
     },
     reset() {
-      this.statusMsg = "发送验证码";
-      clearInterval(this.timer);
-      this.timer = null;
-      this.showUsername = "";
-      this.isSendCode = false;
-      this.dialogFormVisible = false;
+      this.statusMsg = '发送验证码'
+      clearInterval(this.timer)
+      this.timer = null
+      this.showUsername = ''
+      this.isSendCode = false
+      this.dialogFormVisible = false
       this.resetForm = {
-        mobile: "",
-        cerification_code: ""
-      };
-      this.$refs.resetForm.resetFields();
+        mobile: '',
+        cerification_code: ''
+      }
+      this.$refs.resetForm.resetFields()
     },
     sendMsg() {
-      this.$refs.resetForm.validateField("mobile", valid => {
+      this.$refs.resetForm.validateField('mobile', valid => {
         if (!valid) {
           this.$store
-            .dispatch("user/sendMsg", {
-              type: "recover",
+            .dispatch('user/sendMsg', {
+              type: 'recover',
               mobile: this.resetForm.mobile
             })
             .then(() => {
-              const self = this;
-              this.statusMsg = "验证码已发送";
-              this.isSendCode = true;
-              let count = 60;
-              this.statusMsg = `${count--}s后重新获取`;
+              const self = this
+              this.statusMsg = '验证码已发送'
+              this.isSendCode = true
+              let count = 60
+              this.statusMsg = `${count--}s后重新获取`
               this.timer = setInterval(function() {
-                self.statusMsg = `${count--}s后重新获取`;
+                self.statusMsg = `${count--}s后重新获取`
                 if (count === 0) {
-                  self.isSendCode = false;
-                  self.statusMsg = `重新发送`;
-                  clearInterval(self.timer);
+                  self.isSendCode = false
+                  self.statusMsg = `重新发送`
+                  clearInterval(self.timer)
                 }
-              }, 1000);
+              }, 1000)
               this.$message({
-                message: "验证码发送成功，请前往手机查看",
-                type: "success"
-              });
+                message: '验证码发送成功，请前往手机查看',
+                type: 'success'
+              })
             })
             .catch(err => {
               if (!err.isSuccess) {
                 this.$message({
                   message: err.error,
-                  type: "error"
-                });
+                  type: 'error'
+                })
               }
-            });
+            })
         } else {
           this.$message({
             message: valid,
-            type: "error"
-          });
+            type: 'error'
+          })
         }
-      });
+      })
     },
     handleConfirm() {
-      let mobilePass;
-      this.$refs.resetForm.validateField("mobile", valid => {
-        mobilePass = valid;
-      });
-      let cerificationCodePass;
-      this.$refs.resetForm.validateField("cerification_code", valid => {
-        cerificationCodePass = valid;
-      });
+      let mobilePass
+      this.$refs.resetForm.validateField('mobile', valid => {
+        mobilePass = valid
+      })
+      let cerificationCodePass
+      this.$refs.resetForm.validateField('cerification_code', valid => {
+        cerificationCodePass = valid
+      })
       if (!mobilePass && !cerificationCodePass) {
         this.$store
-          .dispatch("user/smsGetUsername", this.resetForm)
+          .dispatch('user/smsGetUsername', this.resetForm)
           .then(res => {
-            this.showUsername = res.data.username;
+            this.showUsername = res.data.username
             this.$message({
               message: res.data.message,
-              type: "success"
-            });
+              type: 'success'
+            })
           })
           .catch(err => {
             if (!err.isSuccess) {
               this.$message({
                 message: err.error,
-                type: "error"
-              });
+                type: 'error'
+              })
             }
-          });
+          })
       } else {
         this.$message({
           message: mobilePass || cerificationCodePass,
-          type: "error"
-        });
+          type: 'error'
+        })
       }
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 </style>

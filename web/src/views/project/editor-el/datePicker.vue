@@ -1,17 +1,17 @@
 <template>
   <div class="datePicker">
-      <el-date-picker
-         placeholder="选择日期"
-        :id="propertyId" 
-        v-model="currValue" 
-        type="date"
-      />
+    <el-date-picker
+      :id="propertyId"
+      v-model="currValue"
+      placeholder="选择日期"
+      type="date"
+    />
   </div>
 </template>
 
 <script>
 export default {
-   props: {
+  props: {
     inputId: {
       type: String,
       default: null
@@ -40,5 +40,5 @@ export default {
       }
     }
   }
-};
+}
 </script>

@@ -46,7 +46,7 @@
           >{{ statusMsg }}</el-button>
         </el-form-item>
       </el-form>
-      <el-button type="primary" size="max" @click="handleReset" style="background: #2249a8;">确 定</el-button>
+      <el-button type="primary" size="max" style="background: #2249a8;" @click="handleReset">确 定</el-button>
       <el-button size="max" @click="dialogFormVisible = false">取 消</el-button>
     </el-dialog>
   </div>
@@ -57,163 +57,163 @@ export default {
   data() {
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error("密码不能少于6位"));
+        callback(new Error('密码不能少于6位'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     const checkMobile = (rule, value, callback) => {
       if (!/^1[34578]\d{9}$/.test(value)) {
-        callback(new Error("请输入正确的手机号码"));
+        callback(new Error('请输入正确的手机号码'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     const validateCode = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入验证码"));
-      } else if (value !== "") {
-        var reg = /^\d{6}$/;
+      if (value === '') {
+        callback(new Error('请输入验证码'))
+      } else if (value !== '') {
+        var reg = /^\d{6}$/
         if (!reg.test(value)) {
-          callback(new Error("验证码不能少于6位纯数字"));
+          callback(new Error('验证码不能少于6位纯数字'))
         }
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     return {
       dialogFormVisible: false,
-      passwordType: "password",
-      statusMsg: "发送验证码",
+      passwordType: 'password',
+      statusMsg: '发送验证码',
       isSendCode: false,
       timer: null,
       resetForm: {
-        password: "",
-        mobile: "",
-        cerification_code: ""
+        password: '',
+        mobile: '',
+        cerification_code: ''
       },
       resetRules: {
         password: [
-          { required: true, trigger: "blur", validator: validatePassword }
+          { required: true, trigger: 'blur', validator: validatePassword }
         ],
-        mobile: [{ required: true, trigger: "blur", validator: checkMobile }],
+        mobile: [{ required: true, trigger: 'blur', validator: checkMobile }],
         cerification_code: [
-          { required: true, trigger: "blur", validator: validateCode }
+          { required: true, trigger: 'blur', validator: validateCode }
         ]
       }
-    };
+    }
   },
   methods: {
     show() {
-      this.dialogFormVisible = true;
+      this.dialogFormVisible = true
     },
     reset() {
-      this.dialogFormVisible = false;
-      this.statusMsg = "发送验证码";
-      this.isSendCode = false;
-      this.passwordType = "password";
-      clearInterval(this.timer);
-      this.timer = null;
+      this.dialogFormVisible = false
+      this.statusMsg = '发送验证码'
+      this.isSendCode = false
+      this.passwordType = 'password'
+      clearInterval(this.timer)
+      this.timer = null
       this.resetForm = {
-        password: "",
-        mobile: "",
-        cerification_code: ""
-      };
-      this.$refs.resetForm.resetFields();
+        password: '',
+        mobile: '',
+        cerification_code: ''
+      }
+      this.$refs.resetForm.resetFields()
     },
     showPwd() {
-      if (this.passwordType === "password") {
-        this.passwordType = "";
+      if (this.passwordType === 'password') {
+        this.passwordType = ''
       } else {
-        this.passwordType = "password";
+        this.passwordType = 'password'
       }
       this.$nextTick(() => {
-        this.$refs[`resetPassword`].focus();
-      });
+        this.$refs[`resetPassword`].focus()
+      })
     },
     sendMsg() {
-      this.$refs.resetForm.validateField("mobile", valid => {
+      this.$refs.resetForm.validateField('mobile', valid => {
         if (!valid) {
           this.$store
-            .dispatch("user/sendMsg", {
-              type: "recover",
+            .dispatch('user/sendMsg', {
+              type: 'recover',
               mobile: this.resetForm.mobile
             })
             .then(() => {
-              const self = this;
-              this.statusMsg = "验证码已发送";
-              this.isSendCode = true;
-              let count = 60;
-              this.statusMsg = `${count--}s后重新获取`;
+              const self = this
+              this.statusMsg = '验证码已发送'
+              this.isSendCode = true
+              let count = 60
+              this.statusMsg = `${count--}s后重新获取`
               this.timer = setInterval(function() {
-                self.statusMsg = `${count--}s后重新获取`;
+                self.statusMsg = `${count--}s后重新获取`
                 if (count === 0) {
-                  self.isSendCode = false;
-                  self.statusMsg = `重新发送`;
-                  clearInterval(self.timer);
+                  self.isSendCode = false
+                  self.statusMsg = `重新发送`
+                  clearInterval(self.timer)
                 }
-              }, 1000);
+              }, 1000)
               this.$message({
-                message: "验证码发送成功，请前往手机查看",
-                type: "success"
-              });
+                message: '验证码发送成功，请前往手机查看',
+                type: 'success'
+              })
             })
             .catch(err => {
               if (!err.isSuccess) {
                 this.$message({
                   message: err.error,
-                  type: "error"
-                });
+                  type: 'error'
+                })
               }
-            });
+            })
         } else {
           this.$message({
             message: valid,
-            type: "error"
-          });
+            type: 'error'
+          })
         }
-      });
+      })
     },
     handleReset() {
-      let pwdPass;
-      this.$refs.resetForm.validateField("password", valid => {
-        pwdPass = valid;
-      });
-      let mobilePass;
-      this.$refs.resetForm.validateField("mobile", valid => {
-        mobilePass = valid;
-      });
-      let cerificationCodePass;
-      this.$refs.resetForm.validateField("cerification_code", valid => {
-        cerificationCodePass = valid;
-      });
+      let pwdPass
+      this.$refs.resetForm.validateField('password', valid => {
+        pwdPass = valid
+      })
+      let mobilePass
+      this.$refs.resetForm.validateField('mobile', valid => {
+        mobilePass = valid
+      })
+      let cerificationCodePass
+      this.$refs.resetForm.validateField('cerification_code', valid => {
+        cerificationCodePass = valid
+      })
       if (!pwdPass && !mobilePass && !cerificationCodePass) {
         this.$store
-          .dispatch("user/smsRecoverPassword", this.resetForm)
+          .dispatch('user/smsRecoverPassword', this.resetForm)
           .then(() => {
             this.$message({
-              message: "密码重置成功",
-              type: "success"
-            });
-            this.reset();
+              message: '密码重置成功',
+              type: 'success'
+            })
+            this.reset()
           })
           .catch(err => {
             if (!err.isSuccess) {
               this.$message({
                 message: err.error,
-                type: "error"
-              });
+                type: 'error'
+              })
             }
-          });
+          })
       } else {
         this.$message({
           message: pwdPass || mobilePass || cerificationCodePass,
-          type: "error"
-        });
+          type: 'error'
+        })
       }
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 </style>

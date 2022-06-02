@@ -2,22 +2,20 @@ let PythonShell;
 let _;
 let uuid;
 let path;
-let iconv;
 let config;
 let os;
 let child_process;
 if (typeof window !== "undefined") {
-    PythonShell = window.require("python-shell").PythonShell;
-    _ = window.require('lodash');
-    uuid = window.require('uuid');
-    fs = window.require('fs');
-    os = window.require("os");
-    path = window.require('path');
-    iconv = window.require('iconv-lite');
-    fse = window.require("fs-extra");
+    PythonShell = window.nodeRequire("python-shell").PythonShell;
+    _ = window.nodeRequire('lodash');
+    uuid = window.nodeRequire('uuid');
+    fs = window.nodeRequire('fs');
+    os = window.nodeRequire("os");
+    path = window.nodeRequire('path');
+    fse = window.nodeRequire("fs-extra");
     config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
-    window.require(path.resolve() + "/public/utils/ConsoleUtils").init();
-    child_process = window.require('child_process');
+    // window.nodeRequire(path.resolve() + "/public/utils/ConsoleUtils").init();
+    child_process = window.nodeRequire('child_process');
 } else {
     PythonShell = require("python-shell").PythonShell;
     _ = require('lodash');
@@ -25,12 +23,11 @@ if (typeof window !== "undefined") {
     fs = require('fs');
     os = require("os");
     path = require('path');
-    iconv = require('iconv-lite');
     fse = require("fs-extra");
     config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
-    require("./ConsoleUtils").init();
+    // require("./ConsoleUtils").init();
     child_process = require('child_process');
-    require(path.resolve() + "/public/utils/ConsoleUtils").init();
+    // require(path.resolve() + "/public/utils/ConsoleUtils").init();
 }
 
 exports.execute_python = (py_path, params, opt) => {

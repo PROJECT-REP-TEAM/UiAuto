@@ -1,22 +1,22 @@
-'use strict';
+'use strict'
 
 // Development specific configuration
 // ==================================
 module.exports = {
 
-  python: "python3",
+  python: 'python3',
 
   // serverUrl: 'http://119.23.63.243:3019',
 
-  version: "20210723140715",
+  version: '20210830194511',
 
   express: {
-    domain: "0.0.0.0",
+    domain: '0.0.0.0',
     port: 3000
   },
   socket: {
-    domain: "rpa-api.legion-tech.net",
+    domain: 'rpa-api.legion-tech.net',
     port: 80
   }
 
-};
+}

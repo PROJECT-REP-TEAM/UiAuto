@@ -1,0 +1,14 @@
+{
+  "id": "uiauto_uiselector_ukylin",
+  "name": "UiAuto选择器-ukylin",
+  "version": "1.0.0",
+  "description": "银河麒麟适配版",
+  "author": "guanhm",
+  "language": "python",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+    "ws": "8.5.0"
+  },
+  "is_uiauto_base_integration": true
+}

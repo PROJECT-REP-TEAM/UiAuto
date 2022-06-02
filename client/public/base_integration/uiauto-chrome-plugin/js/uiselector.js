@@ -82,10 +82,10 @@ var UiAuto_GetIframeElement = function(element, _x, _y) {
     _y = _y - element.offsetTop;
     elObj.el = element.contentWindow.document.elementFromPoint(_x, _y);
     if (elObj.el != null && elObj.el.tagName.toLowerCase() === "iframe") {
-        elObj.x += elObj.el.offsetLeft;
-        elObj.y += elObj.el.offsetTop;
-        var nextEl = UiAuto_GetElementFromPoint(elObj.el, _x, _y);
-        el.frame.next_frame = nextEl.frame;
+        // elObj.x += elObj.el.offsetLeft;
+        // elObj.y += elObj.el.offsetTop;
+        var nextEl = UiAuto_GetIframeElement(elObj.el, _x, _y);
+        elObj.frame.next_frame = nextEl.frame;
         elObj.x += nextEl.x - elObj.el.contentWindow.document.documentElement.scrollLeft;
         elObj.y += nextEl.y - elObj.el.contentWindow.document.documentElement.scrollTop;
         elObj.el = nextEl.el;
@@ -96,7 +96,7 @@ var UiAuto_GetIframeElement = function(element, _x, _y) {
 
 var UiAuto_ReadXPath = function (element, isFull) {
     try{
-        if (element.id !== "" && !isFull) {//判断id属性，如果这个元素有id，则显 示//*[@id="xPath"]  形式内容
+        if (element.id && !isFull) {//判断id属性，如果这个元素有id，则显 示//*[@id="xPath"]  形式内容
             return "//*[@id='" + element.id + "']";
         }
         //这里需要需要主要字符串转译问题，可参考js 动态生成html时字符串和变量转译（注意引号的作用）

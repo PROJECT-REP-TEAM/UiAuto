@@ -17,13 +17,13 @@
       style="display:inline-block;margin-top:20px;margin-left:20px;"
     >
       <div
-        v-bind:style="{display:'inline-block',width:'300px',height:'177px',background:'url('+dependency.background+') no-repeat'}"
+        :style="{display:'inline-block',width:'300px',height:'177px',background:'url('+dependency.background+') no-repeat'}"
       >
         <div style="padding:20px;height:100%;position:relative">
-          <div class="title">{{dependency.title}}</div>
-          <div class="version">版本号：{{dependency.version || '无'}}</div>
-          <div class="version" v-show="dependency.name === 'chrome'">ChromeDriver：{{dependency.driver_version || '无'}}</div>
-          <div class="version" v-show="dependency.name !== 'chrome'">&nbsp;</div>
+          <div class="title">{{ dependency.title }}</div>
+          <div class="version">版本号：{{ dependency.version || '无' }}</div>
+          <div v-show="dependency.name === 'chrome'" class="version">ChromeDriver：{{ dependency.driver_version || '无' }}</div>
+          <div v-show="dependency.name !== 'chrome'" class="version">&nbsp;</div>
           <!-- <a
            v-bind:class="downloadBtnText[dependency.name] === '已安装' || downloadBtnText[dependency.name] === '已下载' ? 'aLink-disable' : 'aLink'"
            v-bind:class="'aLink'"
@@ -34,11 +34,11 @@
           >{{downloadBtnText[dependency.name]}}</a>-->
           <el-button
             target="_blank"
-            v-bind:class="downloadBtnText[dependency.name] === '已安装' || downloadBtnText[dependency.name] === '已下载' ? 'aLink-disable' : 'aLink'"
+            :class="downloadBtnText[dependency.name] === '已安装' || downloadBtnText[dependency.name] === '已下载' ? 'aLink-disable' : 'aLink'"
             :disabled="downloadBtnText[dependency.name] === '已安装' || downloadBtnText[dependency.name] === '已下载'"
             :loading="depandenciesDowload[dependency.name].downloading ? depandenciesDowload[dependency.name].downloading : false"
             style="padding: 0px 0px;"
-          >{{downloadBtnText[dependency.name]}}</el-button>
+          >{{ downloadBtnText[dependency.name] }}</el-button>
           <el-button
             v-if="!dependency.version && depandenciesDowload[dependency.name].isdownloaded && dependency.name !== 'selenium'"
             class="aLink"
@@ -47,7 +47,7 @@
             :disabled="depandenciesDowload[dependency.name].installing"
             :loading="depandenciesDowload[dependency.name].installing"
             @click="installDependency(dependency)"
-          >{{depandenciesDowload[dependency.name].installing ? '安装中' : depandenciesDowload[dependency.name].installed ? '已安装' : '安装'}}</el-button>
+          >{{ depandenciesDowload[dependency.name].installing ? '安装中' : depandenciesDowload[dependency.name].installed ? '已安装' : '安装' }}</el-button>
         </div>
       </div>
     </div>
@@ -55,62 +55,61 @@
 </template>
 
 <script>
-import _ from "lodash";
+import _ from 'lodash'
 
-var spawn = window.require("child_process").spawn;
-var exec = window.require("child_process").exec;
-var execSync = window.require("child_process").execSync;
-var os = window.require("os");
-var path = window.require("path");
-var fs = window.require("fs");
-import config from "@/config/environment/index";
-import { globalBus } from "@/store/globalBus";
+var spawn = window.nodeRequire('child_process').spawn
+var exec = window.nodeRequire('child_process').exec
+var execSync = window.nodeRequire('child_process').execSync
+var os = window.nodeRequire('os')
+var path = window.nodeRequire('path')
+var fs = window.nodeRequire('fs')
+import config from '@/config/environment/index'
+import { globalBus } from '@/store/globalBus'
 
-var { dependencyDownload } = require("@/utils/electron.js");
-const decompress = window.require("decompress");
-const request = window.require("request");
+var { dependencyDownload } = require('@/utils/electron.js')
+const decompress = window.nodeRequire('decompress')
 
 export default {
-  name: "Dependency",
+  name: 'Dependency',
   components: {},
   data() {
     return {
       dependencies: [
         {
-          name: "node",
-          background: require("../../assets/images/nodejs_background.png"),
-          title: "Node.js",
-          filename: "node-v10.16.0-x64.msi",
-          version: "",
+          name: 'node',
+          background: require('../../assets/images/nodejs_background.png'),
+          title: 'Node.js',
+          filename: 'node-v10.16.0-x64.msi',
+          version: '',
           download_url:
-            os.arch() == "x64"
-              ? "http://cdn.npm.taobao.org/dist/node/v10.16.0/node-v10.16.0-x64.msi"
-              : "http://cdn.npm.taobao.org/dist/node/v10.16.0/node-v10.16.0-x86.msi"
+            os.arch() == 'x64'
+              ? 'http://cdn.npm.taobao.org/dist/node/v10.16.0/node-v10.16.0-x64.msi'
+              : 'http://cdn.npm.taobao.org/dist/node/v10.16.0/node-v10.16.0-x86.msi'
           // download_url: "http://nodejs.cn/download/"
         },
         {
-          name: "python",
-          background: require("../../assets/images/python_background.png"),
-          title: "Python",
-          filename: "Python3.6.8_20190818.zip",
+          name: 'python',
+          background: require('../../assets/images/python_background.png'),
+          title: 'Python',
+          filename: 'Python3.6.8_20190818.zip',
           download_url:
-            "http://pwb9l70fu.bkt.clouddn.com/Python3.6.8_20190818.zip",
+            'http://pwb9l70fu.bkt.clouddn.com/Python3.6.8_20190818.zip',
           // version: window.process.versions.python,
           // download_url: "https://www.python.org/downloads/"
           filePath: path.normalize(
             config.pluginsPath +
-              "/.." +
-              "/dependencies/Python3.6.8_20190816.zip"
+              '/..' +
+              '/dependencies/Python3.6.8_20190816.zip'
           )
         },
         {
-          name: "chrome",
-          background: require("../../assets/images/chrome_background.png"),
-          title: "Chrome",
-          filename: "ChromeSetup.exe",
-          version: "",
+          name: 'chrome',
+          background: require('../../assets/images/chrome_background.png'),
+          title: 'Chrome',
+          filename: 'ChromeSetup.exe',
+          version: '',
           download_url:
-            "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B980AB9C1-00E5-3F58-102C-3101AF5FA3DE%7D%26lang%3Dzh-CN%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe"
+            'https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B980AB9C1-00E5-3F58-102C-3101AF5FA3DE%7D%26lang%3Dzh-CN%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe'
           // download_url: "https://www.google.cn/chrome/"
         }
         // {
@@ -129,59 +128,59 @@ export default {
         // }
       ],
       requirement: {
-        node: "54.1.2",
-        python: "54.1.2",
-        chrome: "54.1.2"
+        node: '54.1.2',
+        python: '54.1.2',
+        chrome: '54.1.2'
         // selenium: "54.1.2"
         // autoit: "54.1.2"
       }
-    };
+    }
   },
   computed: {
     downloadBtnText() {
-      var downloadBtnText = {};
+      var downloadBtnText = {}
       _.forIn(this.requirement, (require_version, name) => {
-        var target_version = _.find(this.dependencies, { name: name }).version;
-        console.log("aaaaa");
-        console.log(target_version);
-        console.log(this.depandenciesDowload[name]);
+        var target_version = _.find(this.dependencies, { name: name }).version
+        console.log('aaaaa')
+        console.log(target_version)
+        console.log(this.depandenciesDowload[name])
         // console.log(name, ":", require_version.replace(/\./g,''), ",", target_version.replace(/\./g,''))
-        var str = "";
-        var install = "";
-        if (target_version == undefined || target_version == "") {
+        var str = ''
+        var install = ''
+        if (target_version == undefined || target_version == '') {
           if (this.depandenciesDowload[name].isdownloaded == true) {
-            str = "已下载";
-            install = "安装";
+            str = '已下载'
+            install = '安装'
           } else if (
             this.depandenciesDowload[name].isdownloaded == false &&
             this.depandenciesDowload[name].downloading == true
           ) {
-            str = "下载中";
+            str = '下载中'
           } else {
-            str = "下载";
+            str = '下载'
           }
         } else {
-          str = "已安装";
+          str = '已安装'
         }
         // else if (
         //   parseInt(target_version.replace(/\./g, ""))< parseInt(require_version.replace(/\./g, ""))
         // ) {
         //   str = "更新";
         // }
-        downloadBtnText[name + "isdownloaded"] = install;
-        downloadBtnText[name] = str;
-      });
+        downloadBtnText[name + 'isdownloaded'] = install
+        downloadBtnText[name] = str
+      })
       // console.log(downloadBtnText);
-      return downloadBtnText;
+      return downloadBtnText
     },
     depandenciesDowload() {
-      console.log("depandenciesDowload", this.$store.state.dependency);
-      return this.$store.state.dependency;
+      console.log('depandenciesDowload', this.$store.state.dependency)
+      return this.$store.state.dependency
     }
   },
   created() {
-    this.checkDepandenciesVersion();
-    /*globalBus.$on("is_first_run", () => {
+    this.checkDepandenciesVersion()
+    /*global Bus.$on("is_first_run", () => {
       if (
         _.compact(_.map(this.dependencies, "version")).length ===
         this.dependencies.length
@@ -217,45 +216,45 @@ export default {
       //   });
       // };
       // console.error("checkDepandenciesVersion");
-      let self = this;
-      _.each(this.dependencies, async (dependency, didx) => {
+      const self = this
+      _.each(this.dependencies, async(dependency, didx) => {
         // node
-        if (dependency.name === "node") {
+        if (dependency.name === 'node') {
           // dependency.version = window.process.versions.node;
           // self.depandencies[didx]
-          dependency.version = window.process.versions.node;
+          dependency.version = window.process.versions.node
         }
 
         // python
-        else if (dependency.name === "python") {
+        else if (dependency.name === 'python') {
           try {
             const stdout = execSync(
-              path.join(path.resolve(), "\\env\\python\\win32\\python.exe") +
-                " --version"
-            ).toString();
-            console.log("stdout>>>>>>", stdout);
+              path.join(path.resolve() + `/env/python/${os.platform()}/${os.platform() === 'win32' ? 'python.exe' : 'bin/python3'}`) +
+                ' --version'
+            ).toString()
+            console.log('stdout>>>>>>', stdout)
             if (stdout) {
-              let version = stdout.match(/[\d]*\.[\d]*\.[\d]*/)[0];
-              this.$set(dependency, "version", version);
-              dependency.version = version;
+              const version = stdout.match(/[\d]*\.[\d]*\.[\d]*/)[0]
+              this.$set(dependency, 'version', version)
+              dependency.version = version
             }
             // dependency.version = await checkVersionSync(
             //   "python --version",
             //   /[\d]*\.[\d]*\.[\d]*/
             // );
           } catch (error) {
-            let downloadParams = {
+            const downloadParams = {
               name: dependency.name,
               downloading: false,
               isdownloaded: true
-            };
-            this.$store.dispatch("dependency/dependencyDownload", downloadParams);
-            this.installDependency(dependency);
+            }
+            this.$store.dispatch('dependency/dependencyDownload', downloadParams)
+            this.installDependency(dependency)
           }
         }
 
         // chrome
-        else if (dependency.name === "chrome") {
+        else if (dependency.name === 'chrome') {
           try {
             let shell_result = execSync('REG QUERY "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome" /v version')
             shell_result = shell_result.toString('UTF-8')
@@ -267,28 +266,27 @@ export default {
             console.log('version>>>>>>>>>>>>>', version)
 
             const driver_path = path.join(path.resolve(), '/env/webdriver/win32/chromedriver.exe')
-            let driver_shell = execSync(driver_path + ' --version')
+            const driver_shell = execSync(driver_path + ' --version')
             dependency.driver_version = driver_shell.toString().split(' ')[1]
             console.log('driver_version>>>>>>>>>>>>>>', driver_shell.toString())
           } catch (e) {
             console.log(e)
           }
-
         }
 
         // selenium
-        else if (dependency.name === "selenium") {
-          exec("pip show selenium", (err, stdout, stderr) => {
-            console.log("selenium");
-            console.log(stdout);
+        else if (dependency.name === 'selenium') {
+          exec('pip show selenium', (err, stdout, stderr) => {
+            console.log('selenium')
+            console.log(stdout)
             if (stdout) {
-              let version = stdout.match(/[\d]*\.[\d]*\.[\d]*/)[0];
-              console.log(version);
-              dependency.version = version;
+              const version = stdout.match(/[\d]*\.[\d]*\.[\d]*/)[0]
+              console.log(version)
+              dependency.version = version
             }
-          });
+          })
         }
-      });
+      })
       // exec("pip3 show selenium", (err, stdout, stderr) => {
       //   console.log("selenium");
       //   console.log(stdout);
@@ -315,159 +313,159 @@ export default {
     },
     download(dependency) {
       return new Promise((resolve, reject) => {
-        console.log("download");
-        if (dependency.name === "selenium") {
-          var version = "";
-          exec("python --version", (err, stdout, stderr) => {
-            console.log("python");
-            console.log(stdout);
-            console.log(stderr);
+        console.log('download')
+        if (dependency.name === 'selenium') {
+          var version = ''
+          exec('python --version', (err, stdout, stderr) => {
+            console.log('python')
+            console.log(stdout)
+            console.log(stderr)
             if (stderr) {
-              version = stderr.match(/[\d]*\.[\d]*\.[\d]*/)[0];
-              dependency.version = version;
+              version = stderr.match(/[\d]*\.[\d]*\.[\d]*/)[0]
+              dependency.version = version
             }
-          });
-          if (version === "" || version === undefined) {
+          })
+          if (version === '' || version === undefined) {
             this.$message({
               showClose: true,
-              message: "检测到系统没有安装python，请先安装python",
-              type: "warning"
-            });
+              message: '检测到系统没有安装python，请先安装python',
+              type: 'warning'
+            })
           } else {
-            let downloadParams = {
+            const downloadParams = {
               name: dependency.name,
               downloading: true,
               isdownloaded: false
-            };
+            }
             this.$store
-              .dispatch("dependency/dependencyDownload", downloadParams)
+              .dispatch('dependency/dependencyDownload', downloadParams)
               .then(result => {
-                exec("pip install selenium", (err, stdout, stderr) => {
-                  console.log(err);
-                  console.log(stdout);
-                  console.log(stderr);
+                exec('pip install selenium', (err, stdout, stderr) => {
+                  console.log(err)
+                  console.log(stdout)
+                  console.log(stderr)
                   if (err != null) {
-                    let downloadParams = {
+                    const downloadParams = {
                       name: dependency.name,
                       downloading: false,
                       isdownloaded: false
-                    };
+                    }
                     this.$store.dispatch(
-                      "dependency/dependencyDownload",
+                      'dependency/dependencyDownload',
                       downloadParams
-                    );
+                    )
                   } else {
-                    let downloadParams = {
+                    const downloadParams = {
                       name: dependency.name,
                       downloading: false,
                       isdownloaded: true
-                    };
+                    }
                     this.$store.dispatch(
-                      "dependency/dependencyDownload",
+                      'dependency/dependencyDownload',
                       downloadParams
-                    );
+                    )
                   }
-                });
-              });
+                })
+              })
           }
         } else {
-          let downloadParams = {
+          const downloadParams = {
             name: dependency.name,
             downloading: true,
             isdownloaded: false
-          };
+          }
           this.$store
-            .dispatch("dependency/dependencyDownload", downloadParams)
+            .dispatch('dependency/dependencyDownload', downloadParams)
             .then(result => {
-              console.log("after", result);
-              console.log(this.depandenciesDowload[dependency.name]);
+              console.log('after', result)
+              console.log(this.depandenciesDowload[dependency.name])
 
               dependencyDownload({
                 dependency: dependency,
-                listener_name: "downstate" + dependency.filename,
+                listener_name: 'downstate' + dependency.filename,
                 downloadPath: dependency.download_url,
                 configPath: path.normalize(
-                  config.pluginsPath + "/.." + "/dependencies/"
+                  config.pluginsPath + '/..' + '/dependencies/'
                 )
               })
                 .then(praw => {
-                  console.log("download sueccess");
-                  resolve();
+                  console.log('download sueccess')
+                  resolve()
                 })
                 .catch(err => {
-                  let downloadParams = {
+                  const downloadParams = {
                     name: dependency.name,
                     downloading: false,
                     isdownloaded: false
-                  };
+                  }
                   this.$store
-                    .dispatch("dependency/dependencyDownload", downloadParams)
+                    .dispatch('dependency/dependencyDownload', downloadParams)
                     .then(result => {
-                      console.log("err after");
-                      console.log(this.depandenciesDowload[dependency.name]);
-                    });
-                });
-            });
+                      console.log('err after')
+                      console.log(this.depandenciesDowload[dependency.name])
+                    })
+                })
+            })
         }
-      });
+      })
     },
     async installDependency(dependency) {
       try {
-        console.log("installDependency");
-        let filePath = this.depandenciesDowload[dependency.name].filePath;
-        console.log(filePath);
-        await this.$store.dispatch("dependency/dependencyDownload", {
+        console.log('installDependency')
+        const filePath = this.depandenciesDowload[dependency.name].filePath
+        console.log(filePath)
+        await this.$store.dispatch('dependency/dependencyDownload', {
           name: dependency.name,
           installing: true
-        });
-        if (dependency.name === "python") {
-          console.log(dependency);
-          if (!fs.existsSync(path.join(path.resolve() + "/env/python/"))) {
-            fs.mkdirSync(path.join(path.resolve() + "/env/python/"));
+        })
+        if (dependency.name === 'python') {
+          console.log(dependency)
+          if (!fs.existsSync(path.join(path.resolve() + '/env/python/'))) {
+            fs.mkdirSync(path.join(path.resolve() + '/env/python/'))
           }
           if (
-            !fs.existsSync(path.join(path.resolve() + "/env/python/win32/"))
+            !fs.existsSync(path.join(path.resolve() + '/env/python/win32/'))
           ) {
-            fs.mkdirSync(path.join(path.resolve() + "/env/python/win32/"));
+            fs.mkdirSync(path.join(path.resolve() + '/env/python/win32/'))
           }
           decompress(
-                  path.join(path.resolve(), '/env/python.zip'),
-                  path.join(path.resolve() + "/env/python/win32/"),
+            path.join(path.resolve(), '/env/python.zip'),
+            path.join(path.resolve() + '/env/python/win32/'),
             {
               map: file => {
-                return file;
+                return file
               }
             }
           )
             .then(async files => {
-              console.log("done!");
-              await this.$store.dispatch("dependency/dependencyDownload", {
+              console.log('done!')
+              await this.$store.dispatch('dependency/dependencyDownload', {
                 name: dependency.name,
                 installing: false,
                 installed: true
-              });
-              this.checkDepandenciesVersion();
+              })
+              this.checkDepandenciesVersion()
             })
             .catch(async err => {
-              console.log("解压python环境包出错：", err);
-              await this.$store.dispatch("dependency/dependencyDownload", {
+              console.log('解压python环境包出错：', err)
+              await this.$store.dispatch('dependency/dependencyDownload', {
                 name: dependency.name,
                 installing: false,
                 installed: false
-              });
-            });
+              })
+            })
         } else {
           exec(filePath, (err, stdout, stderr) => {
-            console.log("installDependency");
-            console.log(stdout);
-          });
+            console.log('installDependency')
+            console.log(stdout)
+          })
         }
       } catch (e) {
-        console.log(e);
+        console.log(e)
       }
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 .app-container {
@@ -475,7 +473,7 @@ export default {
   padding: 20px;
 }
 
-/deep/ .el-card {
+::v-deep .el-card {
   border-radius: 5px;
   border: 1px solid #cccccc;
 }

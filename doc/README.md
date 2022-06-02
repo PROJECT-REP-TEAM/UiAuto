@@ -4,7 +4,6 @@ UIAUTO
 ├ client ----- electron外壳
 ├ web ----- web目录
 │   ├ build ----- 存放打包后html、css、js等文件(构建相关)
-│   ├ mock ----- 模拟接口文件
 │   ├ public ----- 插件文件
 │   ├ src ----- src目录
 │   │   ├ api ----- 存放模拟接口文件

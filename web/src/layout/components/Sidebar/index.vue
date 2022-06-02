@@ -1,6 +1,6 @@
 <template>
   <div class="has-logo">
-    <logo :collapse="isCollapse"/>
+    <logo :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <el-menu
         :default-active="$route.path"
@@ -24,31 +24,31 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import Logo from "./Logo";
-import SidebarItem from "./SidebarItem";
-import variables from "@/styles/variables.scss";
-import { constantRoutes } from "@/router/index.js";
+import { mapGetters } from 'vuex'
+import Logo from './Logo'
+import SidebarItem from './SidebarItem'
+import variables from '@/styles/variables.scss'
+import { constantRoutes } from '@/router/index.js'
 
 export default {
   components: { SidebarItem, Logo },
   computed: {
     ...mapGetters([
       // 'permission_routes',
-      "sidebar"
+      'sidebar'
     ]),
     showLogo() {
-      return this.$store.state.settings.sidebarLogo;
+      return this.$store.state.settings.sidebarLogo
     },
     variables() {
-      return variables;
+      return variables
     },
     isCollapse() {
-      return !this.sidebar.opened;
+      return !this.sidebar.opened
     },
     constantRoutes() {
-      return constantRoutes;
+      return constantRoutes
     }
   }
-};
+}
 </script>

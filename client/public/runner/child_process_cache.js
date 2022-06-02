@@ -2,7 +2,7 @@ let _;
 if (process.env.isWorker === 'true') {
     _ = require('lodash');
 } else {
-    _ = window.require('lodash');
+    _ = window.nodeRequire('lodash');
 }
 
 var processes_manager = {}

@@ -1,17 +1,17 @@
 <template>
   <div class="timePicker">
-      <el-time-picker
-        placeholder="选择时间"
-        :id="propertyId" 
-        v-model="currValue" 
-        type="time"
-      />
+    <el-time-picker
+      :id="propertyId"
+      v-model="currValue"
+      placeholder="选择时间"
+      type="time"
+    />
   </div>
 </template>
 
 <script>
 export default {
-    props: {
+  props: {
     inputId: {
       type: String,
       default: null
@@ -40,5 +40,5 @@ export default {
       }
     }
   }
-};
+}
 </script>

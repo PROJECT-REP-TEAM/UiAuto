@@ -1,87 +1,89 @@
 <template>
   <div class="projectSelector">
+    <div
+      style="
+        background-color: #f5f7fa;
+        display: table-cell;
+        border: 1px solid #dcdfe6;
+        border-right: 0px;
+        border-radius: 4px 0 0 4px;
+        padding: 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: normal;
+      "
+    >
+      <span
+        v-if="required"
+        style="color: red; font-size: 16px; vertical-align: middle"
+        >*</span
+      >
+      <span>{{ name }}</span>
+    </div>
     <el-select
-      v-if="options.multiple===false"
       v-model="currValue"
-      style="width:100%"
+      style="width: 100%; display: table-cell"
       placeholder="请选择"
       filterable
       allow-create
     >
-      <el-option v-for="item in projectList" :key="item" :label="item" :value="item" />
-    </el-select>
-    <el-select
-      v-if="options.multiple===true"
-      v-model="currValue"
-      style="width:100%"
-      placeholder="请选择"
-      multiple
-    >
-      <el-option v-for="item in projectList" :key="item" :label="item" :value="item" />
+      <el-option
+        v-for="item in projectList"
+        :key="item"
+        :label="item"
+        :value="item.split(' - ')[1]"
+      />
     </el-select>
   </div>
 </template>
 
 <script>
 import config from "@/config/environment/index";
-const fs = window.require("fs");
+const fs = window.nodeRequire("fs");
+const fse = window.nodeRequire("fs-extra");
 
 export default {
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: String | Array,
-      default: null
+      default: null,
     },
     options: {
       type: Object,
-      default: null
+      default: null,
     },
     currentProject: {
       type: String,
-      default: null
-    }
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
-      projectList: this.getProjectList()
+      projectList: this.getProjectList(),
     };
-  },
-  methods: {
-    getProjectList() {
-      let self = this;
-      if (config.projectsPath) {
-        // 插件目录
-        this.projects_path = config.projectsPath + "/";
-        var projectsPathLs = [];
-
-        let files = fs.readdirSync(this.projects_path);
-        files.forEach(function(fileName, index) {
-          let file = fs.statSync(self.projects_path + "/" + fileName);
-          if (file.isDirectory() && fileName !== self.currentProject) {
-            projectsPathLs.push(fileName);
-          }
-        });
-
-        console.log("projectsPathLs>>>>>>>>>>>>", projectsPathLs);
-        return projectsPathLs;
-      } else {
-        return [];
-      }
-    }
   },
   computed: {
     currValue: {
       get() {
         // define parse function
-        let parse = function(str) {
+        const parse = function (str) {
           let jsonError = false;
 
           while (!jsonError && !/^\d+(\.\d+)?$/.test(str)) {
@@ -103,7 +105,7 @@ export default {
           }
         } else {
           if (Array.isArray(this.value)) {
-            return _.map(this.value, val => {
+            return _.map(this.value, (val) => {
               return parse(val);
             });
           } else {
@@ -121,7 +123,7 @@ export default {
           }
         } else {
           if (Array.isArray(val)) {
-            returnValue = _.map(val, valItem => {
+            returnValue = _.map(val, (valItem) => {
               return `${valItem}`;
             });
           } else {
@@ -131,10 +133,35 @@ export default {
         this.$emit("changeValue", {
           input_id: this.inputId,
           property_id: this.propertyId,
-          value: returnValue
+          value: returnValue,
         });
+      },
+    },
+  },
+  methods: {
+    getProjectList() {
+      const self = this;
+      if (config.projectsPath) {
+        // 插件目录
+        this.projects_path = config.projectsPath + "/";
+        var projectsPathLs = [];
+
+        const files = fs.readdirSync(this.projects_path);
+        files.forEach(function (fileName, index) {
+          const file = fs.statSync(self.projects_path + "/" + fileName);
+          if (file.isDirectory() && fileName !== self.currentProject) {
+            let json = fse.readJsonSync(
+              `${self.projects_path}/${fileName}/${fileName}.json`
+            );
+            projectsPathLs.push(`${json.name} - ${fileName}`);
+          }
+        });
+
+        return projectsPathLs;
+      } else {
+        return [];
       }
-    }
-  }
+    },
+  },
 };
 </script>

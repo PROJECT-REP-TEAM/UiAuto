@@ -1,7 +1,7 @@
 <template>
   <div class="navbar">
-    <breadcrumb class="breadcrumb-container"/>
-    <div class="right-menu"></div>
+    <breadcrumb class="breadcrumb-container" />
+    <!-- <div class="right-menu" /> -->
   </div>
 </template>
 
@@ -11,10 +11,10 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 export default {
   components: {
-    Breadcrumb
+    Breadcrumb,
   },
   computed: {
-    ...mapGetters(["sidebar", "name", "avatar", "device"])
+    ...mapGetters(["sidebar", "name", "avatar", "device"]),
   },
   methods: {
     toggleSideBar() {
@@ -24,18 +24,20 @@ export default {
       await this.$store.dispatch("user/logout");
       // this.$router.push(`/login?redirect=${this.$route.fullPath}`)
       this.$router.push("/login");
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .navbar {
-  height: 40px;
-  overflow: hidden;
-  position: relative;
-  background: #fff;
-  // box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  height: 30px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  background: rgb(48, 65, 86);
+  z-index: 10;
+  -webkit-app-region: drag;
 
   .hamburger-container {
     line-height: 46px;
@@ -48,10 +50,6 @@ export default {
     &:hover {
       background: rgba(0, 0, 0, 0.025);
     }
-  }
-
-  .breadcrumb-container {
-    float: left;
   }
 
   .errLog-container {

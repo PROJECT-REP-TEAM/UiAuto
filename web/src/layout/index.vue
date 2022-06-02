@@ -4,20 +4,20 @@
     <sidebar class="sidebar-container" />
     <div class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
-        <navbar v-if="!['plugin', 'project', 'workspace'].includes(levelTitle) && levelTitle" />
+        <navbar v-if="levelTitle" />
       </div>
-      <app-main />
+      <app-main style="padding-top: 30px;"/>
     </div>
   </div>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from "./components";
-import ResizeMixin from "./mixin/ResizeHandler";
+import { Navbar, Sidebar, AppMain } from './components'
+import ResizeMixin from './mixin/ResizeHandler'
 // import router from '@/router';
 
 export default {
-  name: "Layout",
+  name: 'Layout',
   components: {
     Navbar,
     Sidebar,
@@ -26,39 +26,39 @@ export default {
   mixins: [ResizeMixin],
   computed: {
     sidebar() {
-      return this.$store.state.app.sidebar;
+      return this.$store.state.app.sidebar
     },
     device() {
-      return this.$store.state.app.device;
+      return this.$store.state.app.device
     },
     fixedHeader() {
-      return this.$store.state.settings.fixedHeader;
+      return this.$store.state.settings.fixedHeader
     },
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
         openSidebar: this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === "mobile"
-      };
+        mobile: this.device === 'mobile'
+      }
     },
     routerName() {
-      return this.$route.name;
+      return this.$route.name
     },
     levelTitle() {
       try {
-        const matched = this.$route.matched.filter(item => item.name);
-        const first = matched[0];
-        return first.meta.title;
+        const matched = this.$route.matched.filter(item => item.name)
+        const first = matched[0]
+        return first.meta.title
       } catch (error) {}
     }
   },
   methods: {
     handleClickOutside() {
-      this.$store.dispatch("CloseSideBar", { withoutAnimation: false });
+      this.$store.dispatch('CloseSideBar', { withoutAnimation: false })
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

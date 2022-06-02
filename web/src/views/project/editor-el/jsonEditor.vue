@@ -1,31 +1,30 @@
 <template>
   <div>
-    <el-button style="margin-bottom: 5px;" @click="senior()">高级</el-button>
     <codemirror
-      ref="code"
       :input-id="inputId"
       :property-id="propertyId"
       :value="dialog_currValue"
       :options="options"
+      :name="name"
+      :required="required"
       @changeValue="changeCodeValue"
-    ></codemirror>
-    <div class="jsonEditor" v-for="(item, idx) in currValue" :key="idx">
+    />
+
+    <div v-for="(item, idx) in currValue" :key="idx" style="margin: 10px 0">
       <el-input
-        :id="'key_input' + propertyId + idx"
-        v-model="item.key"
-        type="text"
-        style="width:95%;"
-        @input="changeValue()"
         v-if="!options.keyChoices"
+        :id="'key_input' + propertyId + idx"
+        v-model.trim="item.key"
+        type="text"
         placeholder="键"
+        @input="changeValue()"
       />
       <el-select
-        :id="'key_select' + propertyId + idx"
         v-if="options.keyChoices"
+        :id="'key_select' + propertyId + idx"
         v-model="item.key"
-        @change="changeValue()"
-        style="width:95%"
         placeholder="键"
+        @change="changeValue()"
       >
         <el-option
           v-for="choice in options.keyChoices"
@@ -37,29 +36,28 @@
       </el-select>
       <el-input
         :id="'value' + propertyId + idx"
-        v-model="item.value"
+        v-model.trim="item.value"
         type="text"
-        style="width:95%;margin-top:3px"
-        @input="changeValue()"
+        style="width: 100%; margin-top: 3px"
         placeholder="值"
+        @input="changeValue()"
       />
       <el-button
         type="danger"
         icon="el-icon-delete"
-        style="width:95%;margin-top:4px"
+        style="width: 100%; margin-top: 4px"
         @click="deleteCondition(idx)"
-      ></el-button>
+        >删 除</el-button
+      >
     </div>
-    <div style="text-align: center;margin: 5px 0;">
-      <el-button
-        v-if="!options.keyChoices || currValue.length < options.keyChoices.length"
-        type="success"
-        icon="el-icon-edit"
-        circle
-        @click="addCondition()"
-      ></el-button>
-      <!-- <el-button v-if="currValue.length" type="danger" icon="el-icon-delete" circle @click="deleteCondition()"></el-button> -->
-    </div>
+    <el-button
+      v-if="!options.keyChoices || currValue.length < options.keyChoices.length"
+      type="success"
+      icon="el-icon-edit"
+      style="width: 100%"
+      @click="addCondition()"
+      >新 增</el-button
+    >
   </div>
 </template>
 
@@ -68,39 +66,47 @@ import _ from "lodash";
 import codemirror from "./codemirror";
 export default {
   components: {
-    codemirror
-  },
-  data() {
-    return {
-      len: 0
-    };
+    codemirror,
   },
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
-      type: Object,
-      default: {}
+      type: String | Object,
+      default: null,
     },
     options: {
       type: Object,
       default: () => {
         return {};
-      }
-    }
+      },
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  data() {
+    return {
+      len: 0,
+    };
   },
   computed: {
     currValue: {
       get() {
         // this.checkDisabled();
         var result = _.map(this.value, (value, key) => {
-          let _value =
+          const _value =
             typeof value === "object" ? JSON.stringify(value) : value;
           return { key: key, value: _value };
         });
@@ -109,7 +115,7 @@ export default {
       },
       set(val) {
         this.changeValue(val);
-      }
+      },
     },
     dialog_currValue: {
       get() {
@@ -117,8 +123,8 @@ export default {
       },
       set(val) {
         this.changeValue(val);
-      }
-    }
+      },
+    },
   },
   methods: {
     deleteCondition(index) {
@@ -126,11 +132,16 @@ export default {
       this.changeValue();
     },
     addCondition() {
-      this.currValue.push({
-        key: "",
-        value: ""
-      });
-      this.changeValue();
+      if (
+        !_.find(this.currValue, { key: "" }) ||
+        !_.find(this.currValue, { value: "" })
+      ) {
+        this.currValue.push({
+          key: "",
+          value: "",
+        });
+        this.changeValue();
+      }
     },
     changeValue(val) {
       this.checkDisabled();
@@ -138,59 +149,36 @@ export default {
       this.$emit("changeValue", {
         input_id: this.inputId,
         property_id: this.propertyId,
-        value: val || this.arrayToObject(this.currValue)
+        value: val || this.arrayToObject(this.currValue),
       });
     },
     changeCodeValue(val) {
       this.$emit("changeValue", {
         input_id: this.inputId,
         property_id: this.propertyId,
-        value: JSON.parse(val.value) || this.arrayToObject(this.currValue)
+        value: JSON.parse(val.value) || this.arrayToObject(this.currValue),
       });
     },
     arrayToObject(array) {
-      let result = {};
-      _.each(array, item => {
+      const result = {};
+      _.each(array, (item) => {
         result[item.key] = item.value;
       });
       return result;
     },
     checkDisabled() {
       if (!this.options.keyChoices || !this.options.keyChoices.length) return;
-      let self = this;
-      let selectedKeys = _.map(this.currValue, "key");
-      _.each(self.options.keyChoices, keyChoice => {
+      const self = this;
+      const selectedKeys = _.map(this.currValue, "key");
+      _.each(self.options.keyChoices, (keyChoice) => {
         keyChoice.disabled = false;
       });
-      _.each(selectedKeys, selectedKey => {
-        let target = _.find(self.options.keyChoices, { value: selectedKey });
+      _.each(selectedKeys, (selectedKey) => {
+        const target = _.find(self.options.keyChoices, { value: selectedKey });
         if (!target) return;
         target && (target.disabled = true);
       });
     },
-    senior() {
-      this.$refs.code.openCodeModal();
-    }
-  }
+  },
 };
 </script>
-
-<style>
-.jsonEditor {
-  border: 2px dashed #ddd;
-  border-radius: 5px;
-  padding: 5px;
-  margin-bottom: 15px;
-  text-align: center;
-}
-/* .el-input__inner {
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  border-radius: 0px;
-  border-bottom: 1px solid #cccccc;
-  padding-left: 0;
-  height: unset;
-  line-height: unset;
-} */
-</style>

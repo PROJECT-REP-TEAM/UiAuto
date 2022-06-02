@@ -1,4 +1,4 @@
-const express = window.require('express')
+const express = window.nodeRequire('express')
 
 const _router = express.Router()
 

@@ -6,7 +6,7 @@ import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 // import _ from 'lodash'
 import getPageTitle from '@/utils/get-page-title'
-import {getSocketClient,start_socket_client} from "@/express/socket/client/"
+import { getSocketClient, start_socket_client } from '@/express/socket/client/'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -32,7 +32,7 @@ router.beforeEach(async(to, from, next) => {
       const hasGetUserInfo = store.getters.name
 
       // connect socket
-      !getSocketClient() && start_socket_client();
+      !getSocketClient() && start_socket_client()
       if (hasGetUserInfo) {
         next()
       } else {

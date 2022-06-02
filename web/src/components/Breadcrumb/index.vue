@@ -1,86 +1,67 @@
 <template>
-  <el-breadcrumb class="app-breadcrumb" separator="/">
-    <transition-group name="breadcrumb">
-      <!-- <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path"> -->
-      <el-breadcrumb-item v-for="item in levelList" :key="item.path">
-        <!-- <span v-if="item.redirect==='noredirect'||index==levelList.length-1" class="no-redirect">
-          {{item.meta.title }} {{ '/' + projectName }}
-        </span>
-        <a v-else @click.prevent="handleLink(item)">{{ item.meta.title }}</a>-->
-        <span class="no-redirect">{{ item.meta.title_zh }}</span>
-      </el-breadcrumb-item>
-    </transition-group>
-  </el-breadcrumb>
+  <div
+    style="
+      float: right;
+      width: 200px;
+      line-height: 30px;
+      -webkit-app-region: no-drag;
+    "
+  >
+    <el-button size="mini" icon="el-icon-minus" @click="handleMinimize" />
+    <el-button size="mini" :icon="icon" @click="handleMaximize" />
+    <el-button size="mini" icon="el-icon-close" @click="handleClose" />
+  </div>
 </template>
 
 <script>
-// import { generateTitle } from '@/utils/i18n'
-import pathToRegexp from "path-to-regexp";
+const { BrowserWindow } = window.nodeRequire("@electron/remote");
+const electron = require("../../utils/electron");
+const { comfirmExitApp } = require("../../client/index");
 
 export default {
   data() {
     return {
       levelList: null,
-      projectName: ""
+      projectName: "",
+      icon: "el-icon-full-screen",
     };
   },
-  watch: {
-    $route() {
-      this.getBreadcrumb();
-    }
-  },
-  created() {
-    this.getBreadcrumb();
-  },
-  mounted() {
-    this.projectName = this.$route.query.projectName;
-  },
   methods: {
-    // generateTitle,
-    getBreadcrumb() {
-      let matched = this.$route.matched.filter(item => item.name);
-
-      const first = matched[0];
-
-      if (
-        first &&
-        first.name.trim().toLocaleLowerCase() === "Home".toLocaleLowerCase()
-      ) {
-        matched = [{ path: "/home", meta: { title: "home" } }].concat(matched);
-      }
-
-      this.levelList = matched.filter(
-        item => item.meta && item.meta.title && item.meta.breadcrumb !== false
-      );
+    handleMinimize() {
+      electron.window_minimize();
     },
-    pathCompile(path) {
-      // To solve this problem https://github.com/PanJiaChen/vue-element-admin/issues/561
-      const { params } = this.$route;
-      var toPath = pathToRegexp.compile(path);
-      return toPath(params);
-    },
-    handleLink(item) {
-      const { redirect, path } = item;
-      if (redirect) {
-        this.$router.push(redirect);
-        return;
+    handleMaximize() {
+      let mainWindow = BrowserWindow.getAllWindows()[0];
+      if (!mainWindow.isMaximized()) {
+        this.icon = "el-icon-copy-document";
+      } else {
+        this.icon = "el-icon-full-screen";
       }
-      this.$router.push(this.pathCompile(path));
-    }
-  }
+      electron.window_setContentSize();
+    },
+    handleClose() {
+      comfirmExitApp();
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.app-breadcrumb.el-breadcrumb {
-  display: inline-block;
-  font-size: 14px;
-  line-height: 40px;
-  margin-left: 15px;
+.el-button + .el-button {
+  margin: 0;
+}
 
-  .no-redirect {
-    color: #333;
-    cursor: text;
-  }
+.el-button--default {
+  border: none;
+  color: #fff;
+  background-color: transparent;
+}
+.el-button--default:hover {
+  color: #fff;
+  background-color: transparent;
+}
+.el-button--default:focus {
+  color: #fff;
+  background-color: transparent;
 }
 </style>

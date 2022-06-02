@@ -1,19 +1,29 @@
 const { CronJob } = require('cron');
-const fs = window.require('fs');
+const fs = window.nodeRequire('fs');
 const _ = require('lodash');
 const crypto = require('crypto');
-const path = window.require('path');
-const os = window.require("os");
-const axios = window.require("axios");
+const path = window.nodeRequire('path');
+const os = window.nodeRequire("os");
+const axios = window.nodeRequire("axios");
 const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
-const ipc = window.require('electron').ipcRenderer;
-// const { execute } = window.require(path.normalize(path.resolve() + "/public/runner/index.js"));
+const ipc = window.nodeRequire('electron').ipcRenderer;
+const { app } = require('electron');
+// const { execute } = window.nodeRequire(path.normalize(path.resolve() + "/public/runner/index.js"));
+
+
 // 重启执行器
-delete window.require.cache[
-    path.normalize(
-        path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
-    )
-];
+if (os.platform() == 'darwin' && path.resolve() == "/") {
+    delete window.nodeRequire.cache[
+        path.normalize(app.getPath("exe") + '../../../public/base_integration/uiauto_executor/executor.js')
+    ];
+} else {
+    delete window.nodeRequire.cache[
+        path.normalize(
+            path.resolve() + "/public/base_integration/uiauto_executor/executor.js"
+        )
+    ];
+}
+
 const runner = window.executor;
 
 var runningJobCron = [];

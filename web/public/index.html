@@ -6,8 +6,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="icon" href="<%= BASE_URL %>logo.ico">
-  <title><%= webpackConfig.name %></title>
+  <title>
+    <%= webpackConfig.name %>
+  </title>
   <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
     //监听加载状态改变
     document.onreadystatechange = completeLoading;
 
@@ -29,16 +35,13 @@
 
   </script>
   <style>
-    ::-webkit-scrollbar {
-      display: none;
-    }
   </style>
 </head>
 
-<body>
+<body style="margin: 0px;">
   <noscript>
     <strong>We're sorry but <%= webpackConfig.name %> doesn't work properly without JavaScript enabled. Please enable it
-      to continue.</strong>
+        to continue.</strong>
   </noscript>
   <div id="loadingDiv"
     style="display: table;width: 100%;min-height: 100vh;text-align: center;background-color: #111523;">

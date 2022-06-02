@@ -7,26 +7,26 @@
  */
 
 export function checkPluginsVersion(compare_v, compared_v) {
-  var toNum_compare_v = versionToNum(compare_v),
-  toNum_compared_v = versionToNum(compared_v);
+  var toNum_compare_v = versionToNum(compare_v)
+  var toNum_compared_v = versionToNum(compared_v)
   if (toNum_compare_v == toNum_compared_v) {
-    return false;
+    return false
   } else if (toNum_compare_v > toNum_compared_v) {
-    return true;
+    return true
   } else if (toNum_compare_v < toNum_compared_v) {
-    return false;
+    return false
   }
 }
 function versionToNum(version) {
-  var v_num = version.split(/\./);
-  var num_place = ["", "0", "00", "000", "0000"],
-    r = num_place.reverse();
+  var v_num = version.split(/\./)
+  var num_place = ['', '0', '00', '000', '0000']
+  var r = num_place.reverse()
   for (var i = 0; i < v_num.length; i++) {
-    var len = v_num[i].length;
-    v_num[i] = r[len] + v_num[i];
+    var len = v_num[i].length
+    v_num[i] = r[len] + v_num[i]
   }
-  var res = v_num.join("");
-  return res;
+  var res = v_num.join('')
+  return res
 }
 
 /**

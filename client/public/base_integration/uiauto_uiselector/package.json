@@ -1,8 +1,8 @@
 {
   "id": "uiauto_uiselector",
   "name": "UiAuto选择器",
-  "version": "2.0.3",
-  "description": "2.0.3版本：选择器支持捕获iframe结构",
+  "version": "2.0.4",
+  "description": "2.0.4版本：选择器支持捕获iframe结构",
   "author": "guanhm",
   "language": "python",
   "license": "ISC",

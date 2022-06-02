@@ -20,14 +20,16 @@ export function login(data) {
   // })
   console.log('--------------login---------------')
   data.platform = 'uiauto'
-  return $http.post('/api/v1/users/login/password', data)
+  return $http.post('/system/uiauto/login', data)
 }
 
 export function getInfo(token) {
   return request({
     url: '/user/info',
     method: 'get',
-    params: { token }
+    params: {
+      token
+    }
   })
 }
 
@@ -40,12 +42,22 @@ export function logout() {
 
 // 获取验证码
 export function sendMsg(data) {
-  return $http.post('/api/v1/users/sendCerificationCode', data)
+  return $http.post('/sys/sms', data)
+}
+
+// 验证码验证
+export function phoneVerification(data) {
+  return $http.post('/sys/user/phoneVerification', data)
+}
+
+// 修改密码
+export function passwordChange(data) {
+  return $http.get('/sys/user/passwordChange', data)
 }
 
 // 短信注册
 export function register(data) {
-  return $http.post('/api/v1/users/smsRegister', data)
+  return $http.post('/system/user/register', data)
 }
 
 // 短信登录

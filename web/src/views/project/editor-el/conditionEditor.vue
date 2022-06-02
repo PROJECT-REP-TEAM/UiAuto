@@ -1,62 +1,96 @@
 <template>
   <div>
     <div
-      class="conditionEditor"
+      style="
+        background-color: #f5f7fa;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px 0 0 4px;
+        padding: 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      "
+    >
+      <span
+        v-if="required"
+        style="color: red; font-size: 16px; vertical-align: middle"
+        >*</span
+      >
+      <span>{{ name }}</span>
+    </div>
+
+    <div
       v-for="(item, idx) in currValue"
       :key="idx"
-      style="margin-top: 5px;"
+      class="conditionEditor"
+      style="margin-top: 5px"
     >
       <el-input
-        :id="propertyId  + idx"
+        :id="propertyId + idx"
         v-model="item.name"
         type="text"
-        style="width:25%;"
+        style="width: 25%; display: table-cell"
+        placeholder="标识"
         @change="changeValue()"
-        placeholder="名"
       />
       <el-input
-        :id="propertyId  + idx"
+        :id="propertyId + idx"
         v-model="item.expression"
         type="text"
-        style="width:70%;"
-        @change="changeValue()"
+        style="display: table-cell"
         placeholder="表达式"
+        @change="changeValue()"
       />
       <!-- <el-button type="danger" icon="el-icon-delete" circle @click="deleteCondition(idx)"></el-button> -->
     </div>
-    <div style="text-align: center;margin: 5px 0;">
-      <el-button type="success" icon="el-icon-edit" circle @click="addCondition()"></el-button>
+    <div style="text-align: center; margin: 5px 0">
+      <el-button
+        type="success"
+        icon="el-icon-edit"
+        style="width: calc(50% - 4px)"
+        @click="addCondition()"
+        >新 增</el-button
+      >
       <el-button
         v-if="currValue.length"
         type="danger"
         icon="el-icon-delete"
-        circle
+        style="width: 50%"
         @click="deleteCondition()"
-      ></el-button>
+        >删 除</el-button
+      >
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      addCondition_value: 0
-    };
-  },
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: Array,
-      default: []
-    }
+      default: [],
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  data() {
+    return {
+      addCondition_value: 0,
+    };
   },
   computed: {
     currValue: {
@@ -64,10 +98,9 @@ export default {
         return this.value;
       },
       set(val) {
-        console.warn(val);
         this.changeValue(val);
-      }
-    }
+      },
+    },
   },
   methods: {
     deleteCondition(index) {
@@ -77,32 +110,24 @@ export default {
     addCondition() {
       this.currValue.push({
         name: this.addCondition_value + 1,
-        expression: ""
+        expression: "",
       });
       this.changeValue();
     },
     changeValue(val) {
-      console.log(val);
       this.addCondition_value = this.currValue.length;
       this.$emit("changeValue", {
         input_id: this.inputId,
         property_id: this.propertyId,
-        value: val || this.currValue
+        value: val || this.currValue,
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style>
-/* .el-input__inner {
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  border-radius: 0px;
-  border-bottom: 1px solid #cccccc;
-  padding-left: 0;
-  height: unset;
-  line-height: unset;
-} */
+<style scoped>
+.el-button + .el-button {
+  margin-left: 0px;
+}
 </style>

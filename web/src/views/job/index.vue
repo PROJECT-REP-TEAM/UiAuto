@@ -1,130 +1,226 @@
 <template>
-  <div class="app-main-content" style="padding: 0 10px;">
-    <div class="filter-container">
-      <el-row>
-        <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8" class="advanced-search-groups">
-          项目名称：
+  <div>
+    <div class="app-actionBar">
+      <div class="left-menu">任务列表</div>
+
+      <div>
+        <div class="action-button">
+          <el-button
+            type="primary"
+            size="mini"
+            icon="el-icon-search"
+            @click="handleFilter()"
+            >搜索</el-button
+          >
+        </div>
+        <div class="header-search">
           <el-input
             v-model="listQuery.project_name"
-            placeholder="项目名称"
-            style="width: 200px;"
-            class="filter-item"
+            placeholder="任务名称"
+            class="header-search-select"
             @keyup.enter.native="handleFilter()"
           />
-        </el-col>
-        <el-col :xs="24" :sm="12" :md="12" :lg="7" :xl="7" class="advanced-search-groups">
-          任务状态：
+
           <el-select
             v-model="listQuery.status"
-            class="filter-item"
+            class="header-search-select"
             placeholder="任务状态"
             @change="handleFilter()"
           >
-            <el-option
-              v-for="item in sortOptions"
-              :key="item.key"
-              :label="item.label"
-              :value="item.key"
-            />
+            <div v-if="selectedTab === 'local'">
+              <el-option
+                v-for="item in localSortOptions"
+                :key="item.key"
+                :label="item.label"
+                :value="item.key"
+              />
+            </div>
+            <div v-else>
+              <el-option
+                v-for="item in sortOptions"
+                :key="item.key"
+                :label="item.label"
+                :value="item.key"
+              />
+            </div>
           </el-select>
-        </el-col>
-        <el-col :xs="24" :sm="24" :md="24" :lg="9" :xl="9" class="advanced-search-groups">
-          任务时间：
           <el-date-picker
             v-model="listQuery.createdAt"
+            class="header-search-select"
+            style="width: 380px; display: inline-flex"
             type="datetimerange"
-            align="right"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
-        </el-col>
-        <el-col
-          align="right"
-          :xs="24"
-          :sm="24"
-          :md="24"
-          :lg="24"
-          :xl="24"
-          class="advanced-search-operations"
-        >
-          <el-button
-            class="filter-item"
-            type="primary"
-            icon="el-icon-search"
-            @click="handleFilter()"
-          >搜索</el-button>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </div>
-    <el-table border style="width: 100%" :data="taskList" v-loading="loading">
-      <el-table-column prop="id" align="center" label="任务ID"></el-table-column>
-      <el-table-column prop="project_name" align="center" label="项目名称"></el-table-column>
-      <el-table-column label="任务状态" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-tag type="primary" v-if="scope.row.status=='running'" effect="dark">运行中</el-tag>
-          <el-tag v-if="scope.row.status=='success'" effect="dark" type="success">成功</el-tag>
-          <el-tag v-if="scope.row.status=='todo'" effect="dark" type="primary">待执行</el-tag>
-          <el-tag v-if="scope.row.status=='info'" effect="dark" type="primary">信息</el-tag>
-          <el-tag v-if="scope.row.status=='fail'" effect="dark" type="danger">失败</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="updatedAt" align="center" label="任务时间"></el-table-column>
-      <el-table-column fixed="right" align="center" label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" slot="reference" @click="logFn(scope.row.id)">日志</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div style="width: 100%;">
-      <center>
+    <div class="app-container">
+      <el-tabs v-model="selectedTab" style="background: #fff; padding: 0 10px">
+        <el-tab-pane label="远程调度" name="remote" />
+        <el-tab-pane label="本地执行" name="local" />
+      </el-tabs>
+
+      <div v-if="selectedTab === 'remote'">
+        <el-table
+          v-loading="loading"
+          border
+          style="width: 100%"
+          :data="taskList"
+        >
+          <el-table-column prop="id" align="center" label="任务ID" />
+          <el-table-column prop="taskName" align="center" label="任务名称" />
+          <el-table-column
+            label="任务状态"
+            align="center"
+            class-name="small-padding fixed-width"
+          >
+            <template slot-scope="scope">
+              <el-tag
+                effect="dark"
+                :color="
+                  ['#e5476c'][['任务终止'].indexOf(scope.row.status_dictText)]
+                "
+                :type="
+                  [
+                    'primary',
+                    'primary',
+                    'danger',
+                    'danger',
+                    'warning',
+                    'success',
+                    'info',
+                  ][
+                    [
+                      '待执行',
+                      '正在执行',
+                      '执行出错',
+                      '任务终止',
+                      '执行超时',
+                      '执行成功',
+                      '调度已删除',
+                    ].indexOf(scope.row.status_dictText)
+                  ]
+                "
+                >{{ scope.row.status_dictText }}</el-tag
+              >
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" align="center" label="创建时间" />
+          <el-table-column fixed="right" align="center" label="操作">
+            <template slot-scope="scope">
+              <el-button
+                slot="reference"
+                type="text"
+                @click="logFn(scope.row.id)"
+                >日志</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+
         <pagination
-          style="display: inline-block;"
           :total="total"
           :page.sync="listQuery.pageIndex"
           :limit.sync="listQuery.pageSize"
           @pagination="getList(listQuery)"
         />
-      </center>
-    </div>
 
-    <el-dialog
-      width="70%"
-      title="日志详情"
-      :visible.sync="innerVisible"
-      append-to-body
-      @closed="cancel"
-    >
-      <el-table
-        v-infinite-scroll="detailLogLoadMore"
-        :data="detailLogTableData"
-        style="width: 100%"
-        height="calc(40vh)"
-        size="mini"
-      >
-        <el-table-column type="index" />
-        <el-table-column prop="bank_name" label="类型" width="100">
-          <template slot-scope="{row}">
-            <el-tag
-              :type="['primary', 'warning', 'danger', 'success'][['info', 'warn', 'error', 'success'].indexOf(row.status)]"
-              effect="dark"
-              size="mini"
-            >{{ ['信息', '警告', '失败', '成功'][['info', 'warn', 'error', 'success'].indexOf(row.status)] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="content" label="内容" min-width="300" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="updatedAt" label="创建时间" min-width="150" show-overflow-tooltip />
-        <div slot="append" style="text-align: center">
-          <!--在此处添加你想要插入在表格最后一行的内容-->
-          <div
-            v-if="detailLogIsMore"
-            v-loading="true"
-            element-loading-spinner="el-icon-loading"
-            style="height:40px;line-height:40px"
-          >&nbsp;</div>
-          <div v-else style="height:40px;line-height:40px;color:#ccc">--- 已经到底了 ---</div>
-        </div>
-      </el-table>
-    </el-dialog>
+        <el-dialog
+          width="70%"
+          title="日志详情"
+          :visible.sync="innerVisible"
+          append-to-body
+          @closed="cancel"
+        >
+          <el-table
+            v-infinite-scroll="detailLogLoadMore"
+            :data="detailLogTableData"
+            style="width: 100%"
+            height="calc(40vh)"
+            size="mini"
+          >
+            <el-table-column type="index" />
+            <el-table-column prop="bank_name" label="类型" width="100">
+              <template slot-scope="{ row }">
+                <el-tag
+                  v-if="row.logType_dictText === '调试'"
+                  style="background-color: #666666; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+                <el-tag
+                  v-if="row.logType_dictText === '信息'"
+                  style="background-color: #00a1d9; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+                <el-tag
+                  v-if="row.logType_dictText === '警告'"
+                  style="background-color: #f47400; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+                <el-tag
+                  v-if="row.logType_dictText === '超时'"
+                  style="background-color: #f2b705; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+                <el-tag
+                  v-if="row.logType_dictText === '错误'"
+                  style="background-color: #f11c08; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+                <el-tag
+                  v-if="row.logType_dictText === '致命'"
+                  style="background-color: #590202; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+                <el-tag
+                  v-if="row.logType_dictText === '成功'"
+                  style="background-color: #40be00; color: #ffffff"
+                >
+                  {{ row.logType_dictText }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="content"
+              label="内容"
+              min-width="300"
+              show-overflow-tooltip
+            />
+            <el-table-column
+              prop="createTime"
+              label="创建时间"
+              min-width="150"
+              show-overflow-tooltip
+            />
+            <div slot="append" style="text-align: center">
+              <!--在此处添加你想要插入在表格最后一行的内容-->
+              <div
+                v-if="detailLogIsMore"
+                v-loading="true"
+                element-loading-spinner="el-icon-loading"
+                style="height: 40px; line-height: 40px"
+              >
+                &nbsp;
+              </div>
+              <div v-else style="height: 40px; line-height: 40px; color: #ccc">
+                --- 已经到底了 ---
+              </div>
+            </div>
+          </el-table>
+        </el-dialog>
+      </div>
+
+      <div v-if="selectedTab === 'local'">
+        <local-job ref="local" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -133,14 +229,21 @@ import _ from "lodash";
 import moment from "moment";
 import { taskList, uiautoLogList } from "@/api/task";
 import Pagination from "@/components/Pagination";
+import LocalJob from "./localJob";
+const fs = window.nodeRequire("fs");
+const path = window.nodeRequire("path");
+const os = window.nodeRequire("os");
+const { Task, Log } = require("../../express/database");
 
 export default {
   name: "Job",
   components: {
-    Pagination
+    Pagination,
+    LocalJob,
   },
   data() {
     return {
+      selectedTab: "remote",
       loading: false,
       showDialog: false,
       message: [],
@@ -150,25 +253,42 @@ export default {
         status: "all",
         createdAt: [
           new Date(moment().format("YYYY-MM-DD 00:00:00")),
-          new Date(moment().format("YYYY-MM-DD 23:59:59"))
+          new Date(moment().format("YYYY-MM-DD 23:59:59")),
         ],
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 10,
       },
       taskList: [],
       sortOptions: [
         { label: "全部", key: "all" },
-        { label: "运行中", key: "running" },
-        { label: "信息", key: "info" },
-        { label: "成功", key: "success" },
-        { label: "失败", key: "fail" }
+        { label: "待执行", key: "0" },
+        { label: "正在执行", key: "1" },
+        { label: "执行成功", key: "2" },
+        { label: "执行出错", key: "3" },
+        { label: "执行超时", key: "4" },
+        { label: "待重试", key: "5" },
+        { label: "任务终止", key: "6" },
+        { label: "任务暂停", key: "7" },
+        { label: "阻塞中", key: "8" },
+        { label: "无效任务", key: "9" },
+        { label: "调度已删除", key: "10" },
+        { label: "执行器已掉线", key: "11" },
+      ],
+      localSortOptions: [
+        { label: "全部", key: "all" },
+        { label: "待执行", key: "waiting" },
+        { label: "正在执行", key: "executing" },
+        { label: "执行成功", key: "success" },
+        { label: "执行超时", key: "timeout" },
+        { label: "执行出错", key: "error" },
       ],
       innerVisible: false,
       detailLogTableData: [],
       detailLogPageIndex: 1,
       detailLogPageSize: 10,
       detailLogIsMore: false,
-      detailLogWhere: {}
+      detailLogWhere: {},
+      localTaskList: [],
     };
   },
   created() {
@@ -179,39 +299,97 @@ export default {
     // 获取任务列表信息
     getList(listQuery) {
       this.loading = true;
-      let _where = {
-        userId: JSON.parse(localStorage.getItem("user")).userId
+      const _where = {
+        actuatorCode: JSON.parse(localStorage.getItem("user")).username,
+        column: "createTime",
+        order: "desc",
+        businessType: 2, // 业务类型为uiauto的数据
       };
-      listQuery.project_name &&
-        (_where.project_name = { $like: `%${listQuery.project_name}%` });
+      if (listQuery.project_name) {
+        _where.superQueryMatchType = "and";
+        if (_where.superQueryParams && _where.superQueryParams.length) {
+          _where.superQueryParams.push({
+            dictCode: "",
+            field: "taskName",
+            rule: "like",
+            type: "string",
+            val: listQuery.project_name,
+          });
+        } else {
+          _where.superQueryParams = [
+            {
+              dictCode: "",
+              field: "taskName",
+              rule: "like",
+              type: "string",
+              val: listQuery.project_name,
+            },
+          ];
+        }
+      }
       if (listQuery.createdAt) {
-        const timeLimit = _.map(listQuery.createdAt, function(timeLimit) {
-          return moment(timeLimit).format("YYYY-MM-DD HH:mm:ss");
-        });
-        _where.createdAt = { $between: timeLimit };
+        _where.superQueryMatchType = "and";
+        if (_where.superQueryParams && _where.superQueryParams.length) {
+          _where.superQueryParams.push();
+          _where.superQueryParams = _.concat(_where.superQueryParams, [
+            {
+              field: "createTime",
+              rule: "ge",
+              type: "datetime",
+              val: moment(listQuery.createdAt[0]).format("YYYY-MM-DD HH:mm:ss"),
+            },
+            {
+              field: "createTime",
+              rule: "le",
+              type: "datetime",
+              val: moment(listQuery.createdAt[1]).format("YYYY-MM-DD HH:mm:ss"),
+            },
+          ]);
+        } else {
+          _where.superQueryParams = [
+            {
+              field: "createTime",
+              rule: "ge",
+              type: "datetime",
+              val: moment(listQuery.createdAt[0]).format("YYYY-MM-DD HH:mm:ss"),
+            },
+            {
+              field: "createTime",
+              rule: "le",
+              type: "datetime",
+              val: moment(listQuery.createdAt[1]).format("YYYY-MM-DD HH:mm:ss"),
+            },
+          ];
+        }
       }
       if (listQuery.status !== "all") {
         _where.status = listQuery.status;
       }
-      let postBody = {
-        where: _where,
-        pageIndex: listQuery.pageIndex,
-        pageSize: listQuery.pageSize
-      };
-      taskList(postBody).then(taskListRes => {
+      _where.superQueryParams = encodeURI(
+        JSON.stringify(_where.superQueryParams)
+      );
+      const postBody = _.extend(_where, {
+        pageNo: listQuery.pageIndex,
+        pageSize: listQuery.pageSize,
+      });
+      taskList(postBody).then((taskListRes) => {
         this.loading = false;
-        if (taskListRes.data) {
-          this.taskList = taskListRes.data.list;
-          this.total = taskListRes.data.total;
-          this.pageIndex = taskListRes.data.pageIndex;
-          this.pageSize = taskListRes.data.pageSize;
+        if (taskListRes.code == 200) {
+          this.taskList = taskListRes.result.records;
+          this.total = taskListRes.result.total;
+          this.pageIndex = taskListRes.result.current;
+          this.pageSize = taskListRes.result.size;
         }
       });
     },
     // 筛选
     handleFilter() {
-      this.listQuery.pageIndex = 1;
-      this.getList(this.listQuery);
+      if (this.selectedTab === "remote") {
+        this.listQuery.pageIndex = 1;
+        this.getList(this.listQuery);
+      } else {
+        this.$refs.local.getList(this.listQuery);
+      }
     },
     // 刷新
     refresh() {
@@ -231,63 +409,49 @@ export default {
     },
     detailLogLoadList(taskId) {
       this.detailLogWhere = { taskId: taskId };
-      uiautoLogList({
-        pageIndex: this.detailLogPageIndex,
+      const postBody = {
+        taskId: taskId,
+        order: "desc",
+        column: "createTime",
+        pageNo: this.detailLogPageIndex,
         pageSize: this.detailLogPageSize,
-        where: this.detailLogWhere,
-        order: [
-          ["createdAt", "DESC"],
-          ["id", "DESC"]
-        ]
-      }).then(({ data }) => {
-        this.detailLogTableData = data.list;
-        this.detailLogPageIndex = data.pageIndex;
-        this.detailLogPageSize = data.pageSize;
-        this.detailLogIsMore = data.isMore;
+      };
+      uiautoLogList(postBody).then(({ result }) => {
+        this.detailLogTableData = result.records;
+        this.detailLogPageIndex = result.current;
+        this.detailLogPageSize = result.size;
+        this.detailLogIsMore = result.current * result.size <= result.total;
       });
     },
-    getRemote: _.debounce(function() {
+    getRemote: _.debounce(function () {
       if (this.detailLogIsMore) {
         this.detailLogPageIndex++;
-        uiautoLogList({
-          pageIndex: this.detailLogPageIndex,
+        const postBody = {
+          taskId: this.detailLogWhere.taskId,
+          order: "desc",
+          column: "createTime",
+          pageNo: this.detailLogPageIndex,
           pageSize: this.detailLogPageSize,
-          where: this.detailLogWhere,
-          order: [
-            ["createdAt", "DESC"],
-            ["id", "DESC"]
-          ]
-        }).then(({ data }) => {
-          this.detailLogTableData = this.detailLogTableData.concat(data.list);
-          this.detailLogPageIndex = data.pageIndex;
-          this.detailLogPageSize = data.pageSize;
-          this.detailLogIsMore = data.isMore;
+        };
+        uiautoLogList(postBody).then(({ result }) => {
+          this.detailLogTableData = this.detailLogTableData.concat(
+            result.records
+          );
+          this.detailLogPageIndex = result.current;
+          this.detailLogPageSize = result.size;
+          this.detailLogIsMore = result.current * result.size <= result.total;
         });
       }
     }, 500),
     detailLogLoadMore() {
       this.getRemote();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-/deep/.el-select-dropdown__item {
+::v-deep.el-select-dropdown__item {
   font-size: 12px;
-}
-.app-main-content {
-  margin: 10px;
-  height: 100%;
-  background: #fff;
-
-  .advanced-search-groups {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .filter-container {
-    margin-bottom: 10px;
-  }
 }
 </style>

@@ -1,12 +1,14 @@
 {
   "id": "uiauto_logMonitor",
   "name": "UiAuto日志监控器",
-  "version": "1.0.3",
-  "description": "1.0.3版本：优化日志刷新",
-  "author": "linyy",
+  "version": "1.0.6",
+  "description": "1.0.6版本：优化日志刷新",
+  "author": "Legion",
   "language": "nodejs",
-  "license": "ISC",
+  "license": "Legion",
   "devDependencies": {},
-  "dependencies": {},
+  "dependencies": {
+    "@electron/remote": "2.0.8"
+  },
   "is_uiauto_base_integration": true
 }

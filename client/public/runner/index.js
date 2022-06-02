@@ -1,14 +1,14 @@
-const path = window.require('path');
-const os = window.require('os');
-const fs = window.require('fs');
-const fse = window.require("fs-extra");
-const async = window.require('async');
-const uuidv4 = window.require('uuid/v4');
-const _ = window.require('lodash');
+const path = window.nodeRequire('path');
+const os = window.nodeRequire('os');
+const fs = window.nodeRequire('fs');
+const fse = window.nodeRequire("fs-extra");
+const async = window.nodeRequire('async');
+const uuidv4 = window.nodeRequire('uuid/v4');
+const _ = window.nodeRequire('lodash');
 const config = fse.readJsonSync(`${os.homedir()}/.uiauto/uiauto.conf`);
-const pyutil = window.require(path.resolve() + '/public/utils/pyutil');
-const moment = window.require('moment');
-const sandbox = window.require('@fire-dream/sandbox');
+const pyutil = window.nodeRequire(path.resolve() + '/public/utils/pyutil');
+const moment = window.nodeRequire('moment');
+const sandbox = window.nodeRequire('@fire-dream/sandbox');
 
 let global_data_store = {}; // 全局变量存储
 let global_plugin_require = {}; // require所有的本地插件

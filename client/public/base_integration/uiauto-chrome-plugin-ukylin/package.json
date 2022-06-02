@@ -1,0 +1,13 @@
+{
+  "id": "uiauto-chrome-plugin-ukylin",
+  "name": "uiauto-chrome-plugin-ukylin",
+  "version": "1.0.3",
+  "description": "1.0.3(ukylin)版本：支持捕获iframe结构",
+  "author": "guanhm",
+  "language": "nodejs",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+  },
+  "is_uiauto_base_integration": true
+}

@@ -5,40 +5,29 @@ let readLine;
 let path;
 let os;
 let fileRootPath;
-let chokidar;
 let filePath = '';
 let _;
-let server;
 let socketio;
 let http_module;
 let SocketClient;
 
 
-if (typeof window !== "undefined") {
-    fs = window.require('fs');
-    fse = window.require('fs-extra');
-    readLine = window.require('readline');
-    path = window.require('path');
-    os = window.require('os')
-    fileRootPath = `${path.resolve()}/.uiauto/`;
-    chokidar = window.require('chokidar');
-    _ = window.require('lodash');
-    http_module = window.require('http');
-    socketio = window.require('socket.io');
-    SocketClient = window.require('socket.io-client');
+fs = window.nodeRequire('fs');
+fse = window.nodeRequire('fs-extra');
+readLine = window.nodeRequire('readline');
+path = window.nodeRequire('path');
+os = window.nodeRequire('os')
+const electron = window.nodeRequire("@electron/remote");
+
+if (os.platform() == 'darwin' && path.resolve() == "/") {
+    fileRootPath = path.normalize(electron.app.getPath("exe") + '../../../.uiauto/');
 } else {
-    fs = require('fs');
-    fse = require('fs-extra');
-    readLine = require('readline');
-    path = require('path');
-    os = require('os')
     fileRootPath = `${path.resolve()}/.uiauto/`;
-    chokidar = require('chokidar');
-    _ = require('lodash');
-    http_module = require('http');
-    socketio = require('socket.io');
-    SocketClient = require('socket.io-client');
 }
+_ = window.nodeRequire('lodash');
+http_module = window.nodeRequire('http');
+socketio = window.nodeRequire('socket.io');
+SocketClient = window.nodeRequire('socket.io-client');
 
 
 const MAX_HISTORY_LEN = 10;

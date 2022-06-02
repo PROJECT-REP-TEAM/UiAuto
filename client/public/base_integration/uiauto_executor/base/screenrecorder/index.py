@@ -58,7 +58,7 @@ def initialization(params):
         # 不存在则创建目录
         if not os.path.exists(video_dir):
             os.makedirs(video_dir)
-        save_path = video_dir + '\\' + time.strftime("%F_%H_%M_%S") + '.mkv'
+        save_path = video_dir + '\\' + time.strftime("%F_%H_%M_%S") + '.avi'
     except:
         print('save_path creation failed')
         return 'save_path creation failed'
@@ -81,7 +81,8 @@ def start(params):
     save_path = initialization(params)  # 初始化配置
     video = create_video(path=save_path)
     recording(video, fps, status)
-
+    # 结束时释放资源
+    video.release()
     return video
 
 
@@ -96,7 +97,8 @@ def create_video(path):
     px = ImageGrab.grab()  # 获取全屏信息
     width, high = px.size  # 获得当前屏幕的大小
     fps = 5  # 录屏帧数
-    fourcc = cv2.VideoWriter_fourcc(*'{}'.format(codec))
+    # fourcc = cv2.VideoWriter_fourcc(*'{}'.format(codec))
+    fourcc = cv2.VideoWriter_fourcc(*('X', 'V', 'I', 'D'))
     video = cv2.VideoWriter(path, fourcc, fps, (width, high))
     return video
 
@@ -123,3 +125,6 @@ if __name__ == '__main__':
     start({
         'save_path': save_path
     })
+    # start({
+    #     'save_path': r'C:\demo_data'
+    # })

@@ -1,15 +1,26 @@
 <template>
   <div class="fileSelector">
-    <el-input :id="propertyId" v-model="currValue" type="text" placeholder='请选择路径'>
-      <!-- <el-button slot="append" icon="el-icon-more" @click="associate"></el-button>s -->
+    <el-input type="text" :id="propertyId" v-model.trim="currValue" placeholder="请选择路径">
+      <template slot="prepend"
+        ><div
+          style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+        >
+          <span
+            v-if="required"
+            style="color: red; font-size: 16px; vertical-align: middle"
+            >*</span
+          >
+          <span>{{ name }}</span>
+        </div></template
+      >
+      <el-button
+        slot="append"
+        :id="propertyId"
+        @click="openFileDialog(propertyId)"
+        style="padding: 4px"
+        >选择路径</el-button
+      >
     </el-input>
-    <!-- <span>{{currValue || '请选择路径'}}</span> -->
-    <el-button
-      style="width: 100%;margin-top: 8px;"
-      :id="propertyId"
-      type="primary"
-      @click="openFileDialog(propertyId)"
-    >选择路径</el-button>
   </div>
 </template>
 
@@ -19,20 +30,28 @@ export default {
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: String,
-      default: null
+      default: null,
     },
     options: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     currValue: {
@@ -43,11 +62,11 @@ export default {
         this.$emit("changeValue", {
           input_id: this.inputId,
           property_id: this.propertyId,
-          value: val
+          value: val,
         });
         // return val;
-      }
-    }
+      },
+    },
   },
   mounted() {
     // $('.file-selector .el-input__suffix').css('top', '-7px')
@@ -57,24 +76,19 @@ export default {
     openFileDialog(propertyId) {
       var self = this;
       document.querySelector(`#${propertyId}`).blur();
-      fileSelector({ properties: [self.options.select_type] }).then(result => {
-        if (Array.isArray(result)) {
-          self.currValue = result[0];
+      fileSelector({ properties: [self.options.select_type] }).then(
+        (result) => {
+          if (Array.isArray(result)) {
+            self.currValue = result[0];
+          }
         }
-      });
-    }
-  }
+      );
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.fileSelector {
-  border: 1px dashed #ccc;
-  padding: 8px;
-  border-radius: 5px;
-  font-size: 11px;
-  color: #999;
-}
 /* file-selector>.el-input__inner {
   border-top: none;
   border-left: none;

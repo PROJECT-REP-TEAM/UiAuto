@@ -1,9 +1,30 @@
 <template>
   <div class="selectPicker">
+    <div
+      style="
+        background-color: #f5f7fa;
+        display: table-cell;
+        border: 1px solid #dcdfe6;
+        border-right: 0px;
+        border-radius: 4px 0 0 4px;
+        padding: 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: normal;
+      "
+    >
+      <span
+        v-if="required"
+        style="color: red; font-size: 16px; vertical-align: middle"
+        >*</span
+      >
+      <span>{{ name }}</span>
+    </div>
     <el-select
-      v-if="options.multiple===false"
+      v-if="options.multiple === false"
       v-model="currValue"
-      style="width:100%"
+      style="display: table-cell; width: 100%"
       placeholder="请选择"
     >
       <el-option
@@ -14,9 +35,9 @@
       />
     </el-select>
     <el-select
-      v-if="options.multiple===true"
+      v-if="options.multiple === true"
       v-model="currValue"
-      style="width:100%"
+      style="display: table-cell; width: 100%"
       placeholder="请选择"
       multiple
     >
@@ -35,27 +56,35 @@ export default {
   props: {
     inputId: {
       type: String,
-      default: null
+      default: null,
     },
     propertyId: {
       type: String,
-      default: null
+      default: null,
     },
     value: {
       type: String | Array,
-      default: null
+      default: null,
     },
     options: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    required: {
+      type: Boolean,
+      default: true,
+    },
   },
   method: {},
   computed: {
     currValue: {
       get() {
         // define parse function
-        let parse = function(str) {
+        const parse = function (str) {
           let jsonError = false;
 
           while (!jsonError && !/^\d+(\.\d+)?$/.test(str)) {
@@ -68,7 +97,7 @@ export default {
 
           return str;
         };
-        
+
         if (this.options.multiple === false) {
           if (Array.isArray(this.value)) {
             return parse(this.value[0]);
@@ -77,7 +106,7 @@ export default {
           }
         } else {
           if (Array.isArray(this.value)) {
-            return _.map(this.value, val => {
+            return _.map(this.value, (val) => {
               return parse(val);
             });
           } else {
@@ -95,7 +124,7 @@ export default {
           }
         } else {
           if (Array.isArray(val)) {
-            returnValue = _.map(val, valItem => {
+            returnValue = _.map(val, (valItem) => {
               return `${valItem}`;
             });
           } else {
@@ -105,10 +134,10 @@ export default {
         this.$emit("changeValue", {
           input_id: this.inputId,
           property_id: this.propertyId,
-          value: returnValue
+          value: returnValue,
         });
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

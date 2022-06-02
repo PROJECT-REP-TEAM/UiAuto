@@ -1,11 +1,15 @@
 <template>
   <div
     class="visable-area"
-    style="margin: 10px 10px 0 10px; background:#fff; height:calc(100vh - 60px)"
+    style="
+      margin: 10px 10px 0 10px;
+      background: #fff;
+      height: calc(100vh - 50px);
+    "
   >
-    <div style="text-align:right" color="red">
+    <div style="text-align: right" color="red">
       <el-button
-        style="margin-top: 10px;margin-right:15px"
+        style="margin-top: 10px; margin-right: 15px"
         type="danger"
         size="small"
         round
@@ -16,23 +20,48 @@
       </el-button>
     </div>
     <div class="user-info" align="center">
-      <img class="user-image" style="width:15%; margin:30px;" src="../../assets/images/head.png" />
+      <img
+        class="user-image"
+        style="width: 15%; margin: 30px"
+        src="../../assets/images/head.png"
+      >
       <div
-        style="padding-bottom:6px;border-bottom:1px solid #eee; width:40%;font-size:22px;"
-      >{{username}}</div>
+        style="
+          padding-bottom: 6px;
+          border-bottom: 1px solid #eee;
+          width: 40%;
+          font-size: 22px;
+        "
+      >
+        {{ username }}
+      </div>
     </div>
-    <div class="below-info" style="padding-top:20px">
+    <div class="below-info" style="padding-top: 20px">
       <leftSide
         class="left-side"
-        style="width:49%;display: inline-block;padding-left:10%;vertical-align:top;padding-top:15px;font-size: 14px;"
-      ></leftSide>
+        style="
+          width: 49%;
+          display: inline-block;
+          padding-left: 10%;
+          vertical-align: top;
+          padding-top: 15px;
+          font-size: 14px;
+        "
+      />
       <!-- <center>
         <el-divider direction="vertical"></el-divider>
       </center>-->
       <rightSide
         class="right-side"
-        style="width:49%;display: inline-block;padding-right:10%;padding-left:1%;vertical-align:top;font-size: 14px;"
-      ></rightSide>
+        style="
+          width: 49%;
+          display: inline-block;
+          padding-right: 10%;
+          padding-left: 1%;
+          vertical-align: top;
+          font-size: 14px;
+        "
+      />
     </div>
 
     <!-- <el-container style="height: calc(100vh - 70px);">
@@ -74,22 +103,31 @@
 </template>
 
 <script>
-import leftSide from "./components/left-side";
-import rightSide from "./components/right-side";
-import { setTimeout } from "timers";
-import { closeSocket } from "@/express/socket/client/";
+import leftSide from './components/left-side'
+import rightSide from './components/right-side'
+import { closeSocket } from '@/express/socket/client/'
+import * as schedule from "../../schedule";
+import store from '@/store'
+
 export default {
-  name: "Setting",
+  name: 'Setting',
   components: {
     leftSide,
     rightSide
   },
   data() {
     return {
-      fits: ["fill", "contain", "cover", "none", "scale-down"],
-      url: "../../assets/images/head.png",
-      pluginsPath: ""
-    };
+      fits: ['fill', 'contain', 'cover', 'none', 'scale-down'],
+      url: '../../assets/images/head.png',
+      pluginsPath: ''
+    }
+  },
+  computed: {
+    username() {
+      return localStorage.getItem('user')
+        ? JSON.parse(localStorage.getItem('user')).username
+        : ''
+    }
   },
   mounted() {
     // document.querySelector(".below-info").style.height =
@@ -107,34 +145,35 @@ export default {
   },
   methods: {
     openFileDialog(id) {
-      var self = this;
-      document.querySelector(`#${id}`).blur();
-      fileSelector({ properties: ["openDirectory"] }).then(result => {
+      var self = this
+      document.querySelector(`#${id}`).blur()
+      fileSelector({ properties: ['openDirectory'] }).then((result) => {
         if (Array.isArray(result)) {
-          self.pluginsPath = result[0];
+          self.pluginsPath = result[0]
         }
-      });
+      })
     },
     logOut() {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("is_first_run");
-      closeSocket();
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('is_first_run')
+      localStorage.removeItem('uiauto_access_token')
+      localStorage.removeItem('upload_access_token')
+      // 关闭定时任务
+      schedule.stopAllJob();
+      // 清除执行器运行状态
+      store.commit('socket/ACTUATOR_STATUS', { actuatorStatus: 'free' })
+      try {
+        closeSocket()
+      } catch (error) {}
       this.$message({
-        message: "退出登录成功",
-        type: "success"
-      });
-      this.$router.push("/login");
-    }
-  },
-  computed: {
-    username() {
-      return localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")).username
-        : "";
+        message: '退出登录成功',
+        type: 'success'
+      })
+      this.$router.push('/login')
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

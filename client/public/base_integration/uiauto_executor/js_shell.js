@@ -1,19 +1,20 @@
-"use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const _ = __importStar(require("lodash"));
-const path = __importStar(require("path"));
+// "use strict";
+// var __importStar = (this && this.__importStar) || function (mod) {
+//     if (mod && mod.__esModule) return mod;
+//     var result = {};
+//     if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+//     result["default"] = mod;
+//     return result;
+// };
+// Object.defineProperty(exports, "__esModule", { value: true });
+const _ = require("lodash");
+const path = require("path");
+const os = require("os");
 const server = require('http').createServer();
-const io = window.require('socket.io')(server);
+const io = require('socket.io')(server);
 server.listen(63390);
 
-const SocketClient = window.require('socket.io-client');
+const SocketClient = require('socket.io-client');
 let global_data_store = {};
 io.on('connection', client => {
     console.log('shell connection', client.id);
@@ -30,7 +31,7 @@ io.on('connection', client => {
         };
         try {
             const options = JSON.parse(data);
-            const exec = require(path.join(path.resolve(), '/public/base_integration/uiauto_executor/temp/' + options.js_path));
+            const exec = require(path.join((os.platform() === 'darwin' && path.resolve() == '/') ? path.resolve('Applications/UiAuto.app/Contents') : path.resolve(), '/public/base_integration/uiauto_executor/temp/' + options.js_path));
             const $store = _.assignIn({}, global_data_store, options.$store);
             const output = generate_output_data(options.node);
             Promise.resolve(exec['script_node_executor']($store))

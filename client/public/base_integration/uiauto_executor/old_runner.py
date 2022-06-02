@@ -2,13 +2,11 @@ from queue import LifoQueue
 from execute_result import ExecuteResult
 from global_variable import GlobalVariable
 from urllib.parse import unquote
-import jpype
 import copy
 import eventlet
 import asyncio
 import traceback
 import socketio
-import execjs
 import importlib
 import re
 import ctypes
@@ -396,6 +394,7 @@ class ExecuteNode:
 
     def execute_java(self, process_queue, params, options):
         try:
+            import jpype
             jvm_path = options['client_dir'] + \
                 "\\env\\jre\\bin\\client\\jvm.dll"
             jar_path = options['plugin_dir'] + "\\" + options['jar']

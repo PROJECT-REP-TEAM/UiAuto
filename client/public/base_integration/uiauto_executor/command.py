@@ -1,7 +1,8 @@
+from concurrent.futures import process
 import subprocess
 import sys
 import os
-import os
+import platform
 import io
 import threading
 import json
@@ -9,13 +10,15 @@ import importlib
 import ctypes
 import inspect
 import traceback
-import eventlet
+
 import asyncio
 from urllib.parse import unquote
-sys.path.insert(0, os.path.split(os.path.realpath(__file__))[0] + "\\base")
+sys.path.insert(0, os.path.split(os.path.realpath(__file__))[0] + "/base")
 from queue import Queue, LifoQueue
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
+# if platform.system().lower() == 'windows':
+import eventlet
 eventlet.monkey_patch()
 
 

@@ -35,19 +35,21 @@ class ResumeBrowser(webdriver.Remote):
 """
 def generate_xpath(html):
     xpath = ""
-    if 'id' in html.keys() and html['id'] is not '' and html['id'] is not None:
+    if 'id' in html.keys() and html['id'] != '' and html['id'] != None:
         xpath = "@id='" + html['id'] + "'"
     else:
-        if 'name' in html.keys() and html['name'] is not '' and html['name'] is not None:
+        if 'name' in html.keys() and html['name'] != '' and html['name'] != None:
             xpath = "@name='" + html['name'] + "'"
-        elif 'class' in html.keys() and html['class'] is not '' and html['class'] is not None:
+        elif 'class' in html.keys() and html['class'] != '' and html['class'] != None:
             xpath = "@class='" + html['class'] + "'"
         else:
-            pass
-        if 'text' in html.keys() and html['text'] != '' and html['text'] is not None:
-            if xpath != "":
-                xpath += " and "
-            xpath += "contains(text(), '" + html['text'] + "')"
+            xpath = html['xpath']
+            return xpath
+        #     pass
+        # if 'text' in html.keys() and html['text'] != '' and html['text'] != None:
+        #     if xpath != "":
+        #         xpath += " and "
+        #     xpath += "contains(text(), '" + html['text'] + "')"
     xpath = "//" + html['tag'].lower() + "[" + xpath + "]"
     return xpath
 

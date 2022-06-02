@@ -1,2 +1,2 @@
-const path = window.require('path')
+const path = window.nodeRequire('path')
 

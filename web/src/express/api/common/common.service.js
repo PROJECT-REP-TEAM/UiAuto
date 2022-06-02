@@ -1,5 +1,5 @@
-const path = window.require('path')
-import { updateLog } from "@/api/task"
+const path = window.nodeRequire('path')
+import { updateLog } from '@/api/task'
 
 export const doGetDeviceId = () => {
   const promise = new Promise((resolve, reject) => {
@@ -14,14 +14,12 @@ export const doGetUiSelectorStaticAssets = (req, res) => {
   res.sendFile(path.resolve() + '/public/base_integration/uiauto_uiselector/js/' + req.params.file_path)
 }
 
-
-export const sendLog = async (req, res) => {
-  try{
+export const sendLog = async(req, res) => {
+  try {
     await updateLog(req.body)
-    res.json("success")
+    res.json('success')
   } catch (e) {
-    console.log(e);
-    res.json("error")
+    console.log(e)
+    res.json('error')
   }
-
 }
