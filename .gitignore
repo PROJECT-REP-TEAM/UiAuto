@@ -8,3 +8,5 @@ plugins_temp/
 projects/
 projects_temp/
 zip/
+client/env/*
+!client/env/readme.md
